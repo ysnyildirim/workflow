@@ -5,7 +5,6 @@ import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.CreateStepDto;
 import com.yil.workflow.dto.StepDto;
 import com.yil.workflow.model.Step;
-import com.yil.workflow.model.Task;
 import com.yil.workflow.service.StepService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,7 +21,7 @@ import javax.validation.Valid;
 import java.util.Date;
 
 @RestController
-@RequestMapping(value = "v1/steps")
+@RequestMapping(value = "v1/flows/{flowId}/steps")
 public class StepController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
@@ -54,7 +53,8 @@ public class StepController {
 
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<StepDto> findById(@PathVariable Long id) {
+    public ResponseEntity<StepDto> findById(@PathVariable Long flowId,
+                                            @PathVariable Long id) {
         try {
             Step step;
             try {
@@ -64,6 +64,8 @@ public class StepController {
             } catch (Exception e) {
                 throw e;
             }
+            if (step.getFlowId().equals(flowId))
+                return ResponseEntity.notFound().build();
             StepDto dto = StepService.toDto(step);
             return ResponseEntity.ok(dto);
         } catch (Exception exception) {
@@ -97,15 +99,18 @@ public class StepController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity replace(@RequestHeader(value = ApiHeaders.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                  @PathVariable Long flowId,
                                   @PathVariable Long id,
                                   @Valid @RequestBody CreateStepDto dto) {
         try {
-            Step step =null;
+            Step step = null;
             try {
                 step = stepService.findById(id);
             } catch (EntityNotFoundException entityNotFoundException) {
                 return ResponseEntity.notFound().build();
             }
+            if (step.getFlowId().equals(flowId))
+                return ResponseEntity.notFound().build();
             step.setName(dto.getName());
             step.setDescription(dto.getDescription());
             step.setEnabled(dto.getEnabled());
@@ -121,6 +126,7 @@ public class StepController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> delete(@RequestHeader(value = ApiHeaders.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                         @PathVariable Long flowId,
                                          @PathVariable Long id) {
         try {
             Step step;
@@ -131,6 +137,8 @@ public class StepController {
             } catch (Exception e) {
                 throw e;
             }
+            if (step.getFlowId().equals(flowId))
+                return ResponseEntity.notFound().build();
             step.setDeletedUserId(authenticatedUserId);
             step.setDeletedTime(new Date());
             stepService.save(step);
