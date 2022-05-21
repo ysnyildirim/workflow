@@ -45,4 +45,7 @@ public class TaskActionService {
         return taskActionRepository.findAllByDeletedTimeIsNull(pageable);
     }
 
+    public Page<TaskAction> findAllByAndTaskIdAndDeletedTimeIsNull(Pageable pageable, Long taskId) {
+        return taskActionRepository.findAllByAndTaskIdAndDeletedTimeIsNull(pageable,taskId);
+    }
 }

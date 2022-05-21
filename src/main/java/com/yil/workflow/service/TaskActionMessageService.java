@@ -44,4 +44,7 @@ public class TaskActionMessageService {
         return taskActionMessageRepository.findAllByDeletedTimeIsNull(pageable);
     }
 
+    public Page<TaskActionMessage> findAllByTaskActionIdAndDeletedTimeIsNull(Pageable pageable, Long taskActionId) {
+        return taskActionMessageRepository.findAllByTaskActionIdAndDeletedTimeIsNull(pageable, taskActionId);
+    }
 }

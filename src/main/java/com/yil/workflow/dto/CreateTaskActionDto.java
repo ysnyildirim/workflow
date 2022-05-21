@@ -5,14 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActionTargetDto {
-    private Long id;
+public class CreateTaskActionDto {
+    @NotNull
     private Long actionId;
-    private Long groupId;
+    @NotNull
     private Long userId;
-    private Long targetId;
 }

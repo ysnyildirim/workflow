@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TaskActionRepository extends JpaRepository<TaskAction, Long> {
     Page<TaskAction> findAllByDeletedTimeIsNull(Pageable pageable);
+
+    Page<TaskAction> findAllByAndTaskIdAndDeletedTimeIsNull(Pageable pageable, Long taskId);
 }

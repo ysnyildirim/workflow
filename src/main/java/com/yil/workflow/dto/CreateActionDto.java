@@ -1,25 +1,29 @@
 package com.yil.workflow.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class ActionDto {
-    private Long id;
+public class CreateActionDto {
+    @NotBlank
+    @Length(min = 1, max = 100)
     private String name;
+    @NotBlank
+    @Length(min = 1, max = 1000)
     private String description;
+    @NotNull
     private Boolean enabled;
+    @NotNull
     private Long stepId;
-    private Long permissionId;
-    private Long nextFlowId;
     private Long nextStepId;
-    private Long nextGroupId;
-    private Long nextUserId;
+    private Long permissionId;
 }

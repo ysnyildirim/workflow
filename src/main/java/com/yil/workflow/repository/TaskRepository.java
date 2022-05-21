@@ -1,6 +1,5 @@
 package com.yil.workflow.repository;
 
-import com.yil.workflow.model.Target;
 import com.yil.workflow.model.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -26,9 +26,15 @@ public class Action extends AbstractEntity {
     private Boolean enabled;
     @Column(name = "StepId", nullable = false)
     private Long stepId;
-    @Column(name = "NextStepId", nullable = false)
-    private Long nextStepId;
     @Column(name = "PermissionId")
     private Long permissionId;
+    @Column(name = "NextFlowId", nullable = false)
+    private Long nextFlowId;
+    @Column(name = "NextStepId", nullable = false)
+    private Long nextStepId;
+    @Column(name = "NextGroupId")
+    private Long nextGroupId;
+    @Column(name = "NextUserId")
+    private Long nextUserId;
 
 }

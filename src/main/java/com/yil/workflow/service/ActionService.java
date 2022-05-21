@@ -1,4 +1,4 @@
-package com.yil.workaction.service;
+package com.yil.workflow.service;
 
 import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.model.Action;
@@ -30,7 +30,10 @@ public class ActionService {
         dto.setName(action.getName());
         dto.setPermissionId(action.getPermissionId());
         dto.setStepId(action.getStepId());
+        dto.setNextFlowId(action.getNextFlowId());
         dto.setNextStepId(action.getNextStepId());
+        dto.setNextGroupId(action.getNextGroupId());
+        dto.setNextUserId(action.getNextUserId());
         return dto;
     }
 
