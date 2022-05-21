@@ -20,8 +20,8 @@ public class ActionTarget extends AbstractEntity {
     private Long id;
     @Column(name = "ActionId", nullable = false)
     private Long actionId;
-    @Column(name = "OrganizationId")
-    private Long organizationId;
+    @Column(name = "GroupId")
+    private Long groupId;
     @Column(name = "UserId")
     private Long userId;
     @Column(name = "TargetId", nullable = false)

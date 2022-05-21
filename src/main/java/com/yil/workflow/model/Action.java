@@ -28,5 +28,7 @@ public class Action extends AbstractEntity {
     private Long stepId;
     @Column(name = "NextStepId", nullable = false)
     private Long nextStepId;
+    @Column(name = "PermissionId")
+    private Long permissionId;
 
 }

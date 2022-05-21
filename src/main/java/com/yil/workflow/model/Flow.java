@@ -25,4 +25,6 @@ public class Flow extends AbstractEntity {
     private Boolean enabled;
     @Column(name = "StartUpStepId", nullable = false)
     private Long startUpStepId;
+    @Column(name = "StartUpPermissionId")
+    private Long startUpPermissionId;
 }
