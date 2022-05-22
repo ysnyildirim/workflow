@@ -11,5 +11,6 @@ import java.util.concurrent.Flow;
 
 @Repository
 public interface StepRepository extends JpaRepository<Step, Long> {
-    Page<Step> findAllByDeletedTimeIsNull(Pageable pageable);
+
+    Page<Step> findAllByFlowIdAndDeletedTimeIsNull(Pageable pageable,Long flowId);
 }

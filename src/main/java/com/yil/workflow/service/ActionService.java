@@ -47,8 +47,7 @@ public class ActionService {
         return actionRepository.save(action);
     }
 
-    public Page<Action> findAllByDeletedTimeIsNull(Pageable pageable) {
-        return actionRepository.findAllByDeletedTimeIsNull(pageable);
+    public Page<Action> findAllByStepIdAndDeletedTimeIsNull(Pageable pageable, Long stepId) {
+        return actionRepository.findAllByStepIdAndDeletedTimeIsNull(pageable,stepId);
     }
-
 }

@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ActionRepository extends JpaRepository<Action, Long> {
-    Page<Action> findAllByDeletedTimeIsNull(Pageable pageable);
+    Page<Action> findAllByStepIdAndDeletedTimeIsNull(Pageable pageable, Long stepId);
 }

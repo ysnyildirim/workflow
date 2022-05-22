@@ -34,6 +34,7 @@ public class StepController {
 
     @GetMapping
     public ResponseEntity<PageDto<StepDto>> findAll(
+            @PathVariable Long flowId,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "1000") int size) {
         try {
@@ -42,7 +43,7 @@ public class StepController {
             if (size <= 0 || size > 1000)
                 size = 1000;
             Pageable pageable = PageRequest.of(page, size);
-            Page<Step> stepPage = stepService.findAllByDeletedTimeIsNull(pageable);
+            Page<Step> stepPage = stepService.findAllByFlowIdAndDeletedTimeIsNull(pageable, flowId);
             PageDto<StepDto> pageDto = PageDto.toDto(stepPage, StepService::toDto);
             return ResponseEntity.ok(pageDto);
         } catch (Exception exception) {
@@ -61,8 +62,6 @@ public class StepController {
                 step = stepService.findById(id);
             } catch (EntityNotFoundException entityNotFoundException) {
                 return ResponseEntity.notFound().build();
-            } catch (Exception e) {
-                throw e;
             }
             if (step.getFlowId().equals(flowId))
                 return ResponseEntity.notFound().build();
@@ -78,6 +77,7 @@ public class StepController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity create(@RequestHeader(value = ApiHeaders.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                 @PathVariable Long flowId,
                                  @Valid @RequestBody CreateStepDto dto) {
         try {
             Step step = new Step();

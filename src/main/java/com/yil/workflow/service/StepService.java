@@ -1,8 +1,8 @@
 package com.yil.workflow.service;
 
+import com.yil.workflow.dto.StepDto;
 import com.yil.workflow.model.Step;
 import com.yil.workflow.repository.StepRepository;
-import com.yil.workflow.dto.StepDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,8 +42,8 @@ public class StepService {
         return stepRepository.save(step);
     }
 
-    public Page<Step> findAllByDeletedTimeIsNull(Pageable pageable) {
-        return stepRepository.findAllByDeletedTimeIsNull(pageable);
+    public Page<Step> findAllByFlowIdAndDeletedTimeIsNull(Pageable pageable, Long flowId) {
+        return stepRepository.findAllByFlowIdAndDeletedTimeIsNull(pageable, flowId);
     }
 
 }

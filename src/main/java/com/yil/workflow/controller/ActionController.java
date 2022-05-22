@@ -21,7 +21,7 @@ import javax.validation.Valid;
 import java.util.Date;
 
 @RestController
-@RequestMapping(value = "v1/steps/{steps}/actions")
+@RequestMapping(value = "v1/steps/{stepId}/actions")
 public class ActionController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
@@ -33,16 +33,16 @@ public class ActionController {
     }
 
     @GetMapping
-    public ResponseEntity<PageDto<ActionDto>> findAll(
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "1000") int size) {
+    public ResponseEntity<PageDto<ActionDto>> findAll(@PathVariable Long stepId,
+                                                      @RequestParam(required = false, defaultValue = "0") int page,
+                                                      @RequestParam(required = false, defaultValue = "1000") int size) {
         try {
             if (page < 0)
                 page = 0;
             if (size <= 0 || size > 1000)
                 size = 1000;
             Pageable pageable = PageRequest.of(page, size);
-            Page<Action> actionPage = actionService.findAllByDeletedTimeIsNull(pageable);
+            Page<Action> actionPage = actionService.findAllByStepIdAndDeletedTimeIsNull(pageable,stepId);
             PageDto<ActionDto> pageDto = PageDto.toDto(actionPage, ActionService::toDto);
             return ResponseEntity.ok(pageDto);
         } catch (Exception exception) {
@@ -78,13 +78,14 @@ public class ActionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity create(@RequestHeader(value = ApiHeaders.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                 @PathVariable Long stepId,
                                  @Valid @RequestBody CreateActionDto dto) {
         try {
             Action action = new Action();
+            action.setStepId(stepId);
             action.setName(dto.getName());
             action.setDescription(dto.getDescription());
             action.setEnabled(dto.getEnabled());
-            action.setStepId(dto.getStepId());
             action.setNextStepId(dto.getNextStepId());
             action.setPermissionId(dto.getPermissionId());
             action.setCreatedUserId(authenticatedUserId);
@@ -113,10 +114,10 @@ public class ActionController {
             }
             if (action.getStepId().equals(stepId))
                 return ResponseEntity.notFound().build();
+            action.setStepId(stepId);
             action.setName(dto.getName());
             action.setDescription(dto.getDescription());
             action.setEnabled(dto.getEnabled());
-            action.setStepId(dto.getStepId());
             action.setNextStepId(dto.getNextStepId());
             action.setPermissionId(dto.getPermissionId());
             action = actionService.save(action);

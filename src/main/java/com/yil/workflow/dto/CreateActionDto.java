@@ -22,8 +22,6 @@ public class CreateActionDto {
     private String description;
     @NotNull
     private Boolean enabled;
-    @NotNull
-    private Long stepId;
     private Long nextStepId;
     private Long permissionId;
 }
