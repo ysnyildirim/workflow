@@ -10,9 +10,9 @@ import lombok.Getter;
 public enum ErrorCode {
     ;
 
-    private int code;
+    private final int code;
 
-    private String message;
+    private final String message;
 
     ErrorCode(int code, String message) {
         this.code = code;
