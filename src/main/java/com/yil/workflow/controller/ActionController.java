@@ -1,6 +1,6 @@
 package com.yil.workflow.controller;
 
-import com.yil.workflow.base.ApiHeaders;
+import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.CreateActionDto;
@@ -34,8 +34,8 @@ public class ActionController {
 
     @GetMapping
     public ResponseEntity<PageDto<ActionDto>> findAll(@PathVariable Long stepId,
-                                                      @RequestParam(required = false, defaultValue = "0") int page,
-                                                      @RequestParam(required = false, defaultValue = "1000") int size) {
+                                                      @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
+                                                      @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
         try {
             if (page < 0)
                 page = 0;
@@ -77,7 +77,7 @@ public class ActionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity create(@RequestHeader(value = ApiHeaders.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                  @PathVariable Long stepId,
                                  @Valid @RequestBody CreateActionDto dto) {
         try {
@@ -101,7 +101,7 @@ public class ActionController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity replace(@RequestHeader(value = ApiHeaders.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                   @PathVariable Long stepId,
                                   @PathVariable Long id,
                                   @Valid @RequestBody CreateActionDto dto) {
@@ -130,7 +130,7 @@ public class ActionController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> delete(@RequestHeader(value = ApiHeaders.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                          @PathVariable Long stepId,
                                          @PathVariable Long id) {
         try {

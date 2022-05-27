@@ -1,6 +1,6 @@
 package com.yil.workflow.controller;
 
-import com.yil.workflow.base.ApiHeaders;
+import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.CreateTaskActionDto;
 import com.yil.workflow.dto.TaskActionDto;
@@ -35,8 +35,8 @@ public class TaskActionController {
     @GetMapping
     public ResponseEntity<PageDto<TaskActionDto>> findAll(
             @PathVariable Long taskId,
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "1000") int size) {
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
         try {
             if (page < 0)
                 page = 0;
@@ -77,7 +77,7 @@ public class TaskActionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity create(@RequestHeader(value = ApiHeaders.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                  @PathVariable Long taskId,
                                  @Valid @RequestBody CreateTaskActionDto dto) {
         try {
@@ -98,7 +98,7 @@ public class TaskActionController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity replace(@RequestHeader(value = ApiHeaders.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                   @PathVariable Long taskId,
                                   @PathVariable Long id,
                                   @Valid @RequestBody CreateTaskActionDto dto) {
@@ -123,7 +123,7 @@ public class TaskActionController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> delete(@RequestHeader(value = ApiHeaders.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                          @PathVariable Long taskId,
                                          @PathVariable Long id) {
         try {
