@@ -1,16 +1,22 @@
+/*
+ * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
+ */
+
 package com.yil.workflow.base;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-public enum ApiError {
-    ;
-
-    private final int code;
-    private final String message;
-
-    ApiError(int code, String message) {
-        this.code = code;
-        this.message = message;
-    }
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ApiError {
+    private String message;
+    private Integer code;
+    private ApiError[] errors;
 }
