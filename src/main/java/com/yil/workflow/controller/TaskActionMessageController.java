@@ -80,7 +80,8 @@ public class TaskActionMessageController {
         try {
             TaskActionMessage entity = new TaskActionMessage();
             entity.setTaskActionId(taskActionId);
-            entity.setMessageId(dto.getMessageId());
+            entity.setSubject(dto.getSubject());
+            entity.setContent(dto.getContent());
             entity.setCreatedUserId(authenticatedUserId);
             entity.setCreatedTime(new Date());
             entity = taskActionMessageService.save(entity);
@@ -107,7 +108,8 @@ public class TaskActionMessageController {
             }
             if (!entity.getTaskActionId().equals(taskActionId))
                 return ResponseEntity.notFound().build();
-            entity.setMessageId(dto.getMessageId());
+            entity.setSubject(dto.getSubject());
+            entity.setContent(dto.getContent());
             entity = taskActionMessageService.save(entity);
             return ResponseEntity.ok().build();
         } catch (Exception exception) {

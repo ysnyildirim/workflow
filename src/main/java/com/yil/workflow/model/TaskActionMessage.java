@@ -9,8 +9,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TASK_ACTION_MESSAGE",
         indexes = {
-                @Index(name = "IDX_TASK_ACTION_MESSAGE_TASK_ACTION_ID_MESSAGE_ID",
-                        columnList = "TASK_ACTION_ID,MESSAGE_ID")})
+                @Index(name = "IDX_TASK_ACTION_MESSAGE_TASK_ACTION_ID", columnList = "TASK_ACTION_ID")})
 public class TaskActionMessage extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "TASK_ACTION_MESSAGE_SEQUENCE_GENERATOR",
@@ -22,6 +21,9 @@ public class TaskActionMessage extends AbstractEntity {
     private Long id;
     @Column(name = "TASK_ACTION_ID", nullable = false)
     private Long taskActionId;
-    @Column(name = "MESSAGE_ID", nullable = false)
-    private Long messageId;
+    @Column(name = "SUBJECT", nullable = false, length = 100)
+    private String subject;
+    @Lob
+    @Column(name = "CONTENT", nullable = false)
+    private String content;
 }

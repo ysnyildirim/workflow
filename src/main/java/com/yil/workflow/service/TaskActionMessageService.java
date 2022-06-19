@@ -26,7 +26,8 @@ public class TaskActionMessageService {
         TaskActionMessageDto dto = new TaskActionMessageDto();
         dto.setId(taskActionMessage.getId());
         dto.setTaskActionId(taskActionMessage.getTaskActionId());
-        dto.setMessageId(taskActionMessage.getMessageId());
+        dto.setContent(taskActionMessage.getContent());
+        dto.setSubject(taskActionMessage.getSubject());
         return dto;
     }
 

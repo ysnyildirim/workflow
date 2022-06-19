@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
+import javax.persistence.Lob;
 
 @Data
 @Builder
@@ -16,5 +17,6 @@ import javax.persistence.Column;
 public class TaskActionMessageDto {
     private Long id;
     private Long taskActionId;
-    private Long messageId;
+    private String subject;
+    private String content;
 }

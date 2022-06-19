@@ -20,7 +20,7 @@ public class Document extends AbstractEntity {
     private Long id;
     @Column(name = "NAME", nullable = false, length = 100)
     private String name;
-    @Column(name = "EXTENSİON", nullable = false, length = 10)
+    @Column(name = "EXTENSION", nullable = false, length = 10)
     private String extension;
     @Lob
     @Basic(fetch = FetchType.LAZY)
