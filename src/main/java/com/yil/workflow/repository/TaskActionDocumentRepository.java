@@ -16,5 +16,5 @@ public interface TaskActionDocumentRepository extends JpaRepository<TaskActionDo
 
     Page<TaskActionDocument> findAllByTaskActionIdAndDeletedTimeIsNull(Pageable pageable, Long taskActionId);
 
-    Optional<TaskActionDocument> findByIdAndTaskActionIdAAndDeletedTimeIsNull(Long id, Long taskActionId);
+    Optional<TaskActionDocument> findByIdAndTaskActionIdAndDeletedTimeIsNull(Long id, Long taskActionId);
 }

@@ -49,7 +49,7 @@ public class TaskActionDocumentController {
     public ResponseEntity<TaskActionDocumentDetailDto> findByIdAndTaskActionIdAAndDeletedTimeIsNull(
             @PathVariable Long taskActionId,
             @PathVariable Long id) throws TaskActionDocumentNotFoundException, DocumentNotFoundException {
-        TaskActionDocument task = taskActionDocumentService.findByIdAndTaskActionIdAAndDeletedTimeIsNull(id, taskActionId);
+        TaskActionDocument task = taskActionDocumentService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
         Document document = documentService.findByIdAndDeletedTimeIsNull(task.getDocumentId());
         TaskActionDocumentDetailDto dto = new TaskActionDocumentDetailDto();
         dto.setContent(document.getContent());
@@ -90,7 +90,7 @@ public class TaskActionDocumentController {
                                                          @PathVariable Long id,
                                                          @Valid @RequestBody CreateTaskActionDocumentDto request) throws TaskActionDocumentNotFoundException, DocumentNotFoundException {
 
-        TaskActionDocument entity = taskActionDocumentService.findByIdAndTaskActionIdAAndDeletedTimeIsNull(id, taskActionId);
+        TaskActionDocument entity = taskActionDocumentService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
         Document document = documentService.findByIdAndDeletedTimeIsNull(id);
         document.setContent(request.getContent());
         documentService.save(document);
@@ -106,7 +106,7 @@ public class TaskActionDocumentController {
     public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                          @PathVariable Long taskActionId,
                                          @PathVariable Long id) throws TaskActionDocumentNotFoundException {
-        TaskActionDocument entity = taskActionDocumentService.findByIdAndTaskActionIdAAndDeletedTimeIsNull(id, taskActionId);
+        TaskActionDocument entity = taskActionDocumentService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
         entity.setDeletedUserId(authenticatedUserId);
         entity.setDeletedTime(new Date());
         entity = taskActionDocumentService.save(entity);

@@ -2,15 +2,12 @@ package com.yil.workflow.service;
 
 import com.yil.workflow.dto.TaskActionDocumentDto;
 import com.yil.workflow.exception.TaskActionDocumentNotFoundException;
-import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.model.TaskActionDocument;
 import com.yil.workflow.repository.TaskActionDocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class TaskActionDocumentService {
@@ -28,7 +25,9 @@ public class TaskActionDocumentService {
         TaskActionDocumentDto dto = new TaskActionDocumentDto();
         dto.setId(taskActionDocument.getId());
         dto.setTaskActionId(taskActionDocument.getTaskActionId());
-        dto.setDocumentId(taskActionDocument.getDocumentId());
+        dto.setExtension(taskActionDocument.getExtension());
+        dto.setName(taskActionDocument.getName());
+        dto.setUploadedDate(taskActionDocument.getUploadedDate());
         return dto;
     }
 
@@ -44,7 +43,7 @@ public class TaskActionDocumentService {
         return taskActionDocumentRepository.findAllByTaskActionIdAndDeletedTimeIsNull(pageable, taskActionId);
     }
 
-    public TaskActionDocument findByIdAndTaskActionIdAAndDeletedTimeIsNull(Long id, Long taskActionId) throws TaskActionDocumentNotFoundException {
-        return taskActionDocumentRepository.findByIdAndTaskActionIdAAndDeletedTimeIsNull(id, taskActionId).orElseThrow(() -> new TaskActionDocumentNotFoundException());
+    public TaskActionDocument findByIdAndTaskActionIdAndDeletedTimeIsNull(Long id, Long taskActionId) throws TaskActionDocumentNotFoundException {
+        return taskActionDocumentRepository.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId).orElseThrow(() -> new TaskActionDocumentNotFoundException());
     }
 }

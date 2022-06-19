@@ -21,24 +21,6 @@ public class DocumentService {
         this.documentRepository = documentRepository;
     }
 
-    public static DocumentDto toDto(Document document) throws NullPointerException {
-        if (document == null)
-            throw new NullPointerException("Document is null");
-        DocumentDto dto = new DocumentDto();
-        dto.setId(document.getId());
-        dto.setContent(document.getContent());
-        dto.setExtension(document.getExtension());
-        dto.setUploadedDate(document.getUploadedDate());
-        dto.setName(document.getName());
-        return dto;
-    }
-
-    public Document findById(Long id) throws EntityNotFoundException {
-        return documentRepository.findById(id).orElseThrow(() -> {
-            return new EntityNotFoundException();
-        });
-    }
-
     public Document findByIdAndDeletedTimeIsNull(Long id) throws DocumentNotFoundException {
         return documentRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(()-> new DocumentNotFoundException());
     }
