@@ -12,7 +12,7 @@ import java.util.Date;
 public class Task extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "Task_Sequence_Generator",
-            sequenceName = "Seq_Task",
+            sequenceName = "Seq_Task_ID",
             initialValue = 1,
             allocationSize = 1)
     @GeneratedValue(generator = "Task_Sequence_Generator")

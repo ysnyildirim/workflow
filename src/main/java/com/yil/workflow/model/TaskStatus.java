@@ -11,7 +11,7 @@ import javax.persistence.*;
 public class TaskStatus extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "TaskStatus_Sequence_Generator",
-            sequenceName = "Seq_TaskStatus",
+            sequenceName = "Seq_TaskStatus_ID",
             initialValue = 1,
             allocationSize = 1)
     @GeneratedValue(generator = "TaskStatus_Sequence_Generator")

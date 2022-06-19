@@ -11,7 +11,7 @@ import javax.persistence.*;
 public class TaskAction extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "TaskAction_Sequence_Generator",
-            sequenceName = "Seq_TaskAction",
+            sequenceName = "Seq_TaskAction_ID",
             initialValue = 1,
             allocationSize = 1)
     @GeneratedValue(generator = "TaskAction_Sequence_Generator")

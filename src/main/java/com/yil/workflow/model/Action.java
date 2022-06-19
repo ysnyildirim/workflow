@@ -12,7 +12,7 @@ public class Action extends AbstractEntity {
 
     @Id
     @SequenceGenerator(name = "Action_Sequence_Generator",
-            sequenceName = "Seq_Action",
+            sequenceName = "Seq_Action_ID",
             initialValue = 1,
             allocationSize = 1)
     @GeneratedValue(generator = "Action_Sequence_Generator")

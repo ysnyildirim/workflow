@@ -11,7 +11,7 @@ import javax.persistence.*;
 public class Step extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "Step_Sequence_Generator",
-            sequenceName = "Seq_Step",
+            sequenceName = "Seq_Step_ID",
             initialValue = 1,
             allocationSize = 1)
     @GeneratedValue(generator = "Step_Sequence_Generator")

@@ -11,7 +11,7 @@ import javax.persistence.*;
 public class Flow extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "Flow_Sequence_Generator",
-            sequenceName = "Seq_Flow",
+            sequenceName = "Seq_Flow_ID",
             initialValue = 1,
             allocationSize = 1)
     @GeneratedValue(generator = "Flow_Sequence_Generator")
