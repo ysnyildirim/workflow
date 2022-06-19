@@ -4,6 +4,7 @@ import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.CreateTaskDto;
 import com.yil.workflow.dto.TaskDto;
+import com.yil.workflow.exception.TaskNotFoundException;
 import com.yil.workflow.model.Task;
 import com.yil.workflow.service.TaskService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.Date;
 
@@ -32,63 +32,42 @@ public class TaskController {
     public ResponseEntity<PageDto<TaskDto>> findAll(
             @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
             @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
-        try {
-            if (page < 0)
-                page = 0;
-            if (size <= 0 || size > 1000)
-                size = 1000;
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Task> taskPage = taskService.findAllByDeletedTimeIsNull(pageable);
-            PageDto<TaskDto> pageDto = PageDto.toDto(taskPage, TaskService::toDto);
-            return ResponseEntity.ok(pageDto);
-        } catch (Exception exception) {
-            logger.error(null, exception);
-            return ResponseEntity.internalServerError().build();
-        }
+        if (page < 0)
+            page = 0;
+        if (size <= 0 || size > 1000)
+            size = 1000;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Task> taskPage = taskService.findAllByDeletedTimeIsNull(pageable);
+        PageDto<TaskDto> pageDto = PageDto.toDto(taskPage, TaskService::toDto);
+        return ResponseEntity.ok(pageDto);
     }
 
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<TaskDto> findById(@PathVariable Long id) {
-        try {
-            Task task;
-            try {
-                task = taskService.findById(id);
-            } catch (EntityNotFoundException entityNotFoundException) {
-                return ResponseEntity.notFound().build();
-            } catch (Exception e) {
-                throw e;
-            }
-            TaskDto dto = TaskService.toDto(task);
-            return ResponseEntity.ok(dto);
-        } catch (Exception exception) {
-            logger.error(null, exception);
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<TaskDto> findByIdAndDeletedTimeIsNull(@PathVariable Long id) throws TaskNotFoundException {
+        Task task = taskService.findByIdAndDeletedTimeIsNull(id);
+        TaskDto dto = TaskService.toDto(task);
+        return ResponseEntity.ok(dto);
     }
 
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                 @Valid @RequestBody CreateTaskDto dto) {
-        try {
-            Task task = new Task();
-            task.setFlowId(dto.getFlowId());
-            task.setStatusId(dto.getStatusId());
-            task.setPriorityId(dto.getPriorityId());
-            task.setCurrentTaskActionId(dto.getCurrentTaskActionId());
-            task.setStartDate(dto.getStartDate());
-            task.setFinishDate(dto.getFinishDate());
-            task.setEstimatedFinishDate(dto.getEstimatedFinishDate());
-            task.setCreatedUserId(authenticatedUserId);
-            task.setCreatedTime(new Date());
-            task = taskService.save(task);
-            return ResponseEntity.created(null).build();
-        } catch (Exception exception) {
-            logger.error(null, exception);
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<TaskDto> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                          @Valid @RequestBody CreateTaskDto request) {
+        Task task = new Task();
+        task.setFlowId(request.getFlowId());
+        task.setStatusId(request.getStatusId());
+        task.setPriorityId(request.getPriorityId());
+        task.setCurrentTaskActionId(request.getCurrentTaskActionId());
+        task.setStartDate(request.getStartDate());
+        task.setFinishDate(request.getFinishDate());
+        task.setEstimatedFinishDate(request.getEstimatedFinishDate());
+        task.setCreatedUserId(authenticatedUserId);
+        task.setCreatedTime(new Date());
+        task = taskService.save(task);
+        TaskDto dto = TaskService.toDto(task);
+        return ResponseEntity.created(null).body(dto);
     }
 
 
@@ -96,50 +75,29 @@ public class TaskController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                   @PathVariable Long id,
-                                  @Valid @RequestBody CreateTaskDto dto) {
-        try {
-            Task task =null;
-            try {
-                task = taskService.findById(id);
-            } catch (EntityNotFoundException entityNotFoundException) {
-                return ResponseEntity.notFound().build();
-            }
-            task.setFlowId(dto.getFlowId());
-            task.setStatusId(dto.getStatusId());
-            task.setPriorityId(dto.getPriorityId());
-            task.setCurrentTaskActionId(dto.getCurrentTaskActionId());
-            task.setStartDate(dto.getStartDate());
-            task.setFinishDate(dto.getFinishDate());
-            task.setEstimatedFinishDate(dto.getEstimatedFinishDate());
-            task = taskService.save(task);
-            return ResponseEntity.ok().build();
-        } catch (Exception exception) {
-            logger.error(null, exception);
-            return ResponseEntity.internalServerError().build();
-        }
+                                  @Valid @RequestBody CreateTaskDto request) throws TaskNotFoundException {
+        Task task = taskService.findByIdAndDeletedTimeIsNull(id);
+        task.setFlowId(request.getFlowId());
+        task.setStatusId(request.getStatusId());
+        task.setPriorityId(request.getPriorityId());
+        task.setCurrentTaskActionId(request.getCurrentTaskActionId());
+        task.setStartDate(request.getStartDate());
+        task.setFinishDate(request.getFinishDate());
+        task.setEstimatedFinishDate(request.getEstimatedFinishDate());
+        task = taskService.save(task);
+        TaskDto dto = TaskService.toDto(task);
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                         @PathVariable Long id) {
-        try {
-            Task task;
-            try {
-                task = taskService.findById(id);
-            } catch (EntityNotFoundException entityNotFoundException) {
-                return ResponseEntity.notFound().build();
-            } catch (Exception e) {
-                throw e;
-            }
-            task.setDeletedUserId(authenticatedUserId);
-            task.setDeletedTime(new Date());
-            taskService.save(task);
-            return ResponseEntity.ok("Task deleted.");
-        } catch (Exception exception) {
-            logger.error(null, exception);
-            return ResponseEntity.internalServerError().build();
-        }
+                                         @PathVariable Long id) throws TaskNotFoundException {
+        Task task = taskService.findByIdAndDeletedTimeIsNull(id);
+        task.setDeletedUserId(authenticatedUserId);
+        task.setDeletedTime(new Date());
+        task = taskService.save(task);
+        return ResponseEntity.ok("Task deleted.");
     }
 
 

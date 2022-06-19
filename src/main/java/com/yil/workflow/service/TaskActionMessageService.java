@@ -1,6 +1,7 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.TaskActionMessageDto;
+import com.yil.workflow.exception.TaskActionMessageNotFoundException;
 import com.yil.workflow.model.TaskActionMessage;
 import com.yil.workflow.repository.TaskActionMessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +32,8 @@ public class TaskActionMessageService {
         return dto;
     }
 
-    public TaskActionMessage findById(Long id) throws EntityNotFoundException {
-        return taskActionMessageRepository.findById(id).orElseThrow(() -> {
-            return new EntityNotFoundException();
-        });
+    public TaskActionMessage findByIdAndTaskActionIdAndDeletedTimeIsNull(Long id,Long taskActionId) throws TaskActionMessageNotFoundException {
+        return taskActionMessageRepository.findByIdAndTaskActionIdAndDeletedTimeIsNull(id,taskActionId).orElseThrow(() -> new TaskActionMessageNotFoundException());
     }
 
     public TaskActionMessage save(TaskActionMessage taskActionMessage) {

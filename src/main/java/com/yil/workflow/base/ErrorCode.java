@@ -8,6 +8,8 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+    TaskNotFound(7000009, "Task not found"),
+    TaskActionMessageNotFound(7000008, "Task action message not found"),
     TaskActionDocumentNotFound(7000007, "Task action document not found"),
     TaskActionNotFound(7000006, "Task action not found"),
     StepNotFound(7000005, "Step not found"),
