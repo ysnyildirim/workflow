@@ -1,6 +1,7 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.StatusDto;
+import com.yil.workflow.exception.StatusNotFoundException;
 import com.yil.workflow.model.Status;
 import com.yil.workflow.repository.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,14 +10,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Optional;
 
 @Service
-public class TaskStatusService {
+public class StatusService {
 
     private final StatusRepository statusRepository;
 
     @Autowired
-    public TaskStatusService(StatusRepository statusRepository) {
+    public StatusService(StatusRepository statusRepository) {
         this.statusRepository = statusRepository;
     }
 
@@ -30,10 +32,9 @@ public class TaskStatusService {
         return dto;
     }
 
-    public Status findById(Long id) throws EntityNotFoundException {
-        return statusRepository.findById(id).orElseThrow(() -> {
-            return new EntityNotFoundException();
-        });
+    public Status findByIdAndDeletedTimeIsNull(Long id) throws StatusNotFoundException {
+        return statusRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new StatusNotFoundException());
+
     }
 
     public Status save(Status status) {

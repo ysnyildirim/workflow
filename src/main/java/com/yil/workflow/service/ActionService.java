@@ -1,14 +1,13 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.ActionDto;
+import com.yil.workflow.exception.ActionNotFoundException;
 import com.yil.workflow.model.Action;
 import com.yil.workflow.repository.ActionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityNotFoundException;
 
 
 @Service
@@ -38,17 +37,24 @@ public class ActionService {
         return dto;
     }
 
-    public Action findById(Long id) throws EntityNotFoundException {
-        return actionRepository.findById(id).orElseThrow(() -> {
-            return new EntityNotFoundException();
-        });
+    public Action findById(Long id) throws ActionNotFoundException {
+        return actionRepository.findById(id).orElseThrow(() -> new ActionNotFoundException());
     }
+
+    public Action findByIdAndStepIdAndDeletedTimeIsNull(Long id, Long stepId){
+        return actionRepository.findByIdAndStepIdAndDeletedTimeIsNull(id,stepId);
+    }
+
+    public Action findByIdAndStepId(Long id, Long stepId) throws ActionNotFoundException {
+        return actionRepository.findByIdAndStepId(id, stepId).orElseThrow(() -> new ActionNotFoundException());
+    }
+
 
     public Action save(Action action) {
         return actionRepository.save(action);
     }
 
     public Page<Action> findAllByStepIdAndDeletedTimeIsNull(Pageable pageable, Long stepId) {
-        return actionRepository.findAllByStepIdAndDeletedTimeIsNull(pageable,stepId);
+        return actionRepository.findAllByStepIdAndDeletedTimeIsNull(pageable, stepId);
     }
 }

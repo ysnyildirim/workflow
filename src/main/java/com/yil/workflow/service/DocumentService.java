@@ -1,6 +1,7 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.DocumentDto;
+import com.yil.workflow.exception.DocumentNotFoundException;
 import com.yil.workflow.model.Document;
 import com.yil.workflow.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,10 @@ public class DocumentService {
         return documentRepository.findById(id).orElseThrow(() -> {
             return new EntityNotFoundException();
         });
+    }
+
+    public Document findByIdAndDeletedTimeIsNull(Long id) throws DocumentNotFoundException {
+        return documentRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(()-> new DocumentNotFoundException());
     }
 
     public Document save(Document document) {

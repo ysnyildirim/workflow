@@ -6,12 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateTaskActionDocumentDto {
-    @NotNull
-    private Long documentId;
+    private Byte[] content;
+    private String name;
+    private String extension;
+    private Date uploadedDate;
 }

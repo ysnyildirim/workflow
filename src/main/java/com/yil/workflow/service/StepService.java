@@ -1,14 +1,13 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.StepDto;
+import com.yil.workflow.exception.StepNotFoundException;
 import com.yil.workflow.model.Step;
 import com.yil.workflow.repository.StepRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityNotFoundException;
 
 @Service
 public class StepService {
@@ -32,15 +31,18 @@ public class StepService {
         return dto;
     }
 
-    public Step findById(Long id) throws EntityNotFoundException {
-        return stepRepository.findById(id).orElseThrow(() -> {
-            return new EntityNotFoundException();
-        });
-    }
-
     public Step save(Step step) {
         return stepRepository.save(step);
     }
+
+    public Step findByIdAndDeletedTimeIsNull(Long id) throws StepNotFoundException {
+        return stepRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new StepNotFoundException());
+    }
+
+    public Step findByIdAndFlowIdAndDeletedTimeIsNull(Long id, Long flowId) throws StepNotFoundException {
+        return stepRepository.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId).orElseThrow(() -> new StepNotFoundException());
+    }
+
 
     public Page<Step> findAllByFlowIdAndDeletedTimeIsNull(Pageable pageable, Long flowId) {
         return stepRepository.findAllByFlowIdAndDeletedTimeIsNull(pageable, flowId);

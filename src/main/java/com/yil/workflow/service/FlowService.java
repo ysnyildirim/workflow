@@ -1,6 +1,7 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.FlowDto;
+import com.yil.workflow.exception.FlowNotFoundException;
 import com.yil.workflow.model.Flow;
 import com.yil.workflow.repository.FlowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Optional;
 
 @Service
 public class FlowService {
@@ -37,6 +39,10 @@ public class FlowService {
         return flowRepository.findById(id).orElseThrow(() -> {
             return new EntityNotFoundException();
         });
+    }
+
+    public Flow findByIdAndDeletedTimeIsNull(Long id) throws FlowNotFoundException {
+        return flowRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
     }
 
     public Flow save(Flow flow) {

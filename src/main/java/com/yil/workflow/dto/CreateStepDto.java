@@ -22,6 +22,4 @@ public class CreateStepDto {
     private String description;
     @NotNull
     private Boolean enabled;
-    @NotNull
-    private Long flowId;
 }

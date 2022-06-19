@@ -1,6 +1,7 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.PriorityDto;
+import com.yil.workflow.exception.PriorityNotFoundException;
 import com.yil.workflow.model.Priority;
 import com.yil.workflow.repository.PriorityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,14 +10,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Optional;
 
 @Service
-public class TaskPriorityService {
+public class PriorityService {
 
     private final PriorityRepository priorityRepository;
 
     @Autowired
-    public TaskPriorityService(PriorityRepository priorityRepository) {
+    public PriorityService(PriorityRepository priorityRepository) {
         this.priorityRepository = priorityRepository;
     }
 
@@ -34,6 +36,10 @@ public class TaskPriorityService {
         return priorityRepository.findById(id).orElseThrow(() -> {
             return new EntityNotFoundException();
         });
+    }
+
+    public Priority findByIdAndDeletedTimeIsNull(Long id) throws PriorityNotFoundException {
+        return priorityRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new PriorityNotFoundException());
     }
 
     public Priority save(Priority priority) {

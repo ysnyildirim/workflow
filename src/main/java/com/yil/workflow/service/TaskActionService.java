@@ -1,6 +1,7 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.TaskActionDto;
+import com.yil.workflow.exception.TaskActionNotFoundException;
 import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.repository.TaskActionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Optional;
 
 @Service
 public class TaskActionService {
@@ -31,12 +33,6 @@ public class TaskActionService {
         return dto;
     }
 
-    public TaskAction findById(Long id) throws EntityNotFoundException {
-        return taskActionRepository.findById(id).orElseThrow(() -> {
-            return new EntityNotFoundException();
-        });
-    }
-
     public TaskAction save(TaskAction taskAction) {
         return taskActionRepository.save(taskAction);
     }
@@ -47,5 +43,9 @@ public class TaskActionService {
 
     public Page<TaskAction> findAllByAndTaskIdAndDeletedTimeIsNull(Pageable pageable, Long taskId) {
         return taskActionRepository.findAllByAndTaskIdAndDeletedTimeIsNull(pageable,taskId);
+    }
+
+    public TaskAction findByIdAndTaskIdAndDeletedTimeIsNull(Long id, Long taskId) throws TaskActionNotFoundException {
+        return  taskActionRepository.findByIdAndTaskIdAndDeletedTimeIsNull(id,taskId).orElseThrow(() -> new TaskActionNotFoundException());
     }
 }

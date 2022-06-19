@@ -2,8 +2,8 @@ package com.yil.workflow.config;
 
 import com.yil.workflow.model.Priority;
 import com.yil.workflow.model.Status;
-import com.yil.workflow.service.TaskPriorityService;
-import com.yil.workflow.service.TaskStatusService;
+import com.yil.workflow.service.PriorityService;
+import com.yil.workflow.service.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextStartedEvent;
@@ -33,19 +33,19 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     }
 
     private void addTaskPriority(String name, String description) {
-        if (taskPriorityService.existsAllByNameAndDeletedTimeIsNull(name))
+        if (priorityService.existsAllByNameAndDeletedTimeIsNull(name))
             return;
         Priority entity = new Priority();
         entity.setName(name);
         entity.setDescription(description);
-        taskPriorityService.save(entity);
+        priorityService.save(entity);
     }
 
     @Autowired
-    private TaskPriorityService taskPriorityService;
+    private PriorityService priorityService;
 
     @Autowired
-    private TaskStatusService taskStatusService;
+    private StatusService statusService;
 
     private void initTaskStatus() {
         addTaskStatus("Open", false);
@@ -57,12 +57,12 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     }
 
     private void addTaskStatus(String name, Boolean isClosed) {
-        if (taskStatusService.existsAllByNameAndDeletedTimeIsNull(name))
+        if (statusService.existsAllByNameAndDeletedTimeIsNull(name))
             return;
         Status status = new Status();
         status.setName(name);
         status.setIsClosed(isClosed);
-        taskStatusService.save(status);
+        statusService.save(status);
     }
 
 }

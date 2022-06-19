@@ -8,6 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
 
 @Data
 @Builder
@@ -17,5 +20,7 @@ import javax.persistence.Column;
 public class TaskActionDocumentDto {
     private Long id;
     private Long taskActionId;
-    private Long documentId;
+    private String name;
+    private String extension;
+    private Date uploadedDate;
 }
