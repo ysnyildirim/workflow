@@ -31,6 +31,8 @@ public class Task extends AbstractEntity {
     private Date estimatedFinishDate;
     @Column(name = "CURRENT_TASK_ACTION_ID", nullable = false)
     private Long currentTaskActionId;
-    @Column(name = "TASK_STATUS_ID", nullable = false)
-    private Long taskStatusId;
+    @Column(name = "STATUS_ID", nullable = false)
+    private Long statusId;
+    @Column(name = "PRIORITY_ID", nullable = false)
+    private Long priorityId;
 }

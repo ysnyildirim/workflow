@@ -25,7 +25,6 @@ public class MessageService {
             throw new NullPointerException("Message is null");
         MessageDto dto = new MessageDto();
         dto.setId(message.getId());
-        dto.setMessageTypeId(message.getMessageTypeId());
         dto.setContent(message.getContent());
         dto.setTitle(message.getTitle());
         return dto;

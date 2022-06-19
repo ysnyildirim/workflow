@@ -20,8 +20,6 @@ public class Document extends AbstractEntity {
     private Long id;
     @Column(name = "NAME", nullable = false, length = 100)
     private String name;
-    @Column(name = "DOCUMENT_TYPE_ID", nullable = false)
-    private Long documentTypeId;
     @Column(name = "EXTENSİON", nullable = false, length = 10)
     private String extension;
     @Lob

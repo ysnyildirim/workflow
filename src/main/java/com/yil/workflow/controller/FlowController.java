@@ -6,6 +6,7 @@ import com.yil.workflow.dto.CreateFlowDto;
 import com.yil.workflow.dto.FlowDto;
 import com.yil.workflow.model.Flow;
 import com.yil.workflow.service.FlowService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +21,13 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.Date;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "v1/flows")
+@RequestMapping(value = "/api/wf/v1/flows")
 public class FlowController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private final FlowService flowService;
-
-    @Autowired
-    public FlowController(FlowService flowService) {
-        this.flowService = flowService;
-    }
 
     @GetMapping
     public ResponseEntity<PageDto<FlowDto>> findAll(

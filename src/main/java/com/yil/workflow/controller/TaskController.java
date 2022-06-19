@@ -6,9 +6,9 @@ import com.yil.workflow.dto.CreateTaskDto;
 import com.yil.workflow.dto.TaskDto;
 import com.yil.workflow.model.Task;
 import com.yil.workflow.service.TaskService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,17 +20,13 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.Date;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "v1/tasks")
+@RequestMapping(value = "/api/wf/v1/tasks")
 public class TaskController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private final TaskService taskService;
-
-    @Autowired
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
 
     @GetMapping
     public ResponseEntity<PageDto<TaskDto>> findAll(
@@ -79,7 +75,8 @@ public class TaskController {
         try {
             Task task = new Task();
             task.setFlowId(dto.getFlowId());
-            task.setTaskStatusId(dto.getTaskStatusId());
+            task.setStatusId(dto.getStatusId());
+            task.setPriorityId(dto.getPriorityId());
             task.setCurrentTaskActionId(dto.getCurrentTaskActionId());
             task.setStartDate(dto.getStartDate());
             task.setFinishDate(dto.getFinishDate());
@@ -108,7 +105,8 @@ public class TaskController {
                 return ResponseEntity.notFound().build();
             }
             task.setFlowId(dto.getFlowId());
-            task.setTaskStatusId(dto.getTaskStatusId());
+            task.setStatusId(dto.getStatusId());
+            task.setPriorityId(dto.getPriorityId());
             task.setCurrentTaskActionId(dto.getCurrentTaskActionId());
             task.setStartDate(dto.getStartDate());
             task.setFinishDate(dto.getFinishDate());

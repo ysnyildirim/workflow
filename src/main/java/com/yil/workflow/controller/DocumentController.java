@@ -5,12 +5,10 @@ import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.CreateDocumentDto;
 import com.yil.workflow.dto.DocumentDto;
 import com.yil.workflow.model.Document;
-import com.yil.workflow.model.DocumentType;
 import com.yil.workflow.service.DocumentService;
-import com.yil.workflow.service.DocumentTypeService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,19 +20,13 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.Date;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "v1/documents")
+@RequestMapping(value = "/api/wf/v1/documents")
 public class DocumentController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private final DocumentService documentService;
-    private final DocumentTypeService documentTypeService;
-
-    @Autowired
-    public DocumentController(DocumentService documentService, DocumentTypeService documentTypeService) {
-        this.documentService = documentService;
-        this.documentTypeService = documentTypeService;
-    }
 
     @GetMapping
     public ResponseEntity<PageDto<DocumentDto>> findAll(
@@ -82,7 +74,6 @@ public class DocumentController {
                                  @Valid @RequestBody CreateDocumentDto dto) {
         try {
             Document document = new Document();
-            document.setDocumentTypeId(dto.getDocumentTypeId());
             document.setName(dto.getName());
             document.setContent(dto.getContent());
             document.setExtension(dto.getExtension());
@@ -104,19 +95,12 @@ public class DocumentController {
                                   @PathVariable Long id,
                                   @Valid @RequestBody CreateDocumentDto dto) {
         try {
-            DocumentType documentType;
-            try {
-                documentType = documentTypeService.findById(dto.getDocumentTypeId());
-            } catch (EntityNotFoundException entityNotFoundException) {
-                return ResponseEntity.notFound().build();
-            }
             Document document = null;
             try {
                 document = documentService.findById(id);
             } catch (EntityNotFoundException entityNotFoundException) {
                 return ResponseEntity.notFound().build();
             }
-            document.setDocumentTypeId(documentType.getId());
             document.setName(dto.getName());
             document.setContent(dto.getContent());
             document.setExtension(dto.getExtension());

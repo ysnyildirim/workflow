@@ -1,6 +1,6 @@
 package com.yil.workflow.repository;
 
-import com.yil.workflow.model.TaskStatus;
+import com.yil.workflow.model.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,10 +10,10 @@ import java.util.List;
 
 
 @Repository
-public interface TaskStatusRepository extends JpaRepository<TaskStatus, Long> {
-    Page<TaskStatus> findAllByDeletedTimeIsNull(Pageable pageable);
+public interface StatusRepository extends JpaRepository<Status, Long> {
+    Page<Status> findAllByDeletedTimeIsNull(Pageable pageable);
 
-    List<TaskStatus> findAllByNameAndDeletedTimeIsNull(String name);
+    List<Status> findAllByNameAndDeletedTimeIsNull(String name);
 
     boolean existsAllByNameAndDeletedTimeIsNull(String name);
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
+ */
+
 package com.yil.workflow.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -11,7 +15,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DocumentTypeDto {
+public class PriorityDto {
     private Long id;
     private String name;
+    private String description;
 }

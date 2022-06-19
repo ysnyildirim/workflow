@@ -2,14 +2,13 @@ package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.ActionDto;
-import com.yil.workflow.dto.CreateActionDto;
-import com.yil.workflow.model.Action;
-import com.yil.workflow.service.ActionService;
+import com.yil.workflow.dto.CreatePriorityDto;
+import com.yil.workflow.dto.PriorityDto;
+import com.yil.workflow.model.Priority;
+import com.yil.workflow.service.TaskPriorityService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,24 +22,24 @@ import java.util.Date;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/api/wf/v1/steps/{stepId}/actions")
-public class ActionController {
+@RequestMapping(value = "/api/wf/v1/priorities")
+public class PriorityController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
-    private final ActionService actionService;
+    private final TaskPriorityService taskPriorityService;
 
     @GetMapping
-    public ResponseEntity<PageDto<ActionDto>> findAll(@PathVariable Long stepId,
-                                                      @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
-                                                      @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
+    public ResponseEntity<PageDto<PriorityDto>> findAll(
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
         try {
             if (page < 0)
                 page = 0;
             if (size <= 0 || size > 1000)
                 size = 1000;
             Pageable pageable = PageRequest.of(page, size);
-            Page<Action> actionPage = actionService.findAllByStepIdAndDeletedTimeIsNull(pageable,stepId);
-            PageDto<ActionDto> pageDto = PageDto.toDto(actionPage, ActionService::toDto);
+            Page<Priority> taskPriorityPage = taskPriorityService.findAllByDeletedTimeIsNull(pageable);
+            PageDto<PriorityDto> pageDto = PageDto.toDto(taskPriorityPage, TaskPriorityService::toDto);
             return ResponseEntity.ok(pageDto);
         } catch (Exception exception) {
             logger.error(null, exception);
@@ -50,20 +49,17 @@ public class ActionController {
 
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ActionDto> findById(@PathVariable Long stepId,
-                                              @PathVariable Long id) {
+    public ResponseEntity<PriorityDto> findById(@PathVariable Long id) {
         try {
-            Action action;
+            Priority priority;
             try {
-                action = actionService.findById(id);
+                priority = taskPriorityService.findById(id);
             } catch (EntityNotFoundException entityNotFoundException) {
                 return ResponseEntity.notFound().build();
             } catch (Exception e) {
                 throw e;
             }
-            if (action.getStepId().equals(stepId))
-                return ResponseEntity.notFound().build();
-            ActionDto dto = ActionService.toDto(action);
+            PriorityDto dto = TaskPriorityService.toDto(priority);
             return ResponseEntity.ok(dto);
         } catch (Exception exception) {
             logger.error(null, exception);
@@ -75,19 +71,14 @@ public class ActionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                 @PathVariable Long stepId,
-                                 @Valid @RequestBody CreateActionDto dto) {
+                                 @Valid @RequestBody CreatePriorityDto dto) {
         try {
-            Action action = new Action();
-            action.setStepId(stepId);
-            action.setName(dto.getName());
-            action.setDescription(dto.getDescription());
-            action.setEnabled(dto.getEnabled());
-            action.setNextStepId(dto.getNextStepId());
-            action.setPermissionId(dto.getPermissionId());
-            action.setCreatedUserId(authenticatedUserId);
-            action.setCreatedTime(new Date());
-            action = actionService.save(action);
+            Priority priority = new Priority();
+            priority.setName(dto.getName());
+            priority.setDescription(dto.getDescription());
+            priority.setCreatedUserId(authenticatedUserId);
+            priority.setCreatedTime(new Date());
+            priority = taskPriorityService.save(priority);
             return ResponseEntity.created(null).build();
         } catch (Exception exception) {
             logger.error(null, exception);
@@ -99,25 +90,18 @@ public class ActionController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                  @PathVariable Long stepId,
                                   @PathVariable Long id,
-                                  @Valid @RequestBody CreateActionDto dto) {
+                                  @Valid @RequestBody CreatePriorityDto dto) {
         try {
-            Action action = null;
+            Priority priority = null;
             try {
-                action = actionService.findById(id);
+                priority = taskPriorityService.findById(id);
             } catch (EntityNotFoundException entityNotFoundException) {
                 return ResponseEntity.notFound().build();
             }
-            if (action.getStepId().equals(stepId))
-                return ResponseEntity.notFound().build();
-            action.setStepId(stepId);
-            action.setName(dto.getName());
-            action.setDescription(dto.getDescription());
-            action.setEnabled(dto.getEnabled());
-            action.setNextStepId(dto.getNextStepId());
-            action.setPermissionId(dto.getPermissionId());
-            action = actionService.save(action);
+            priority.setName(dto.getName());
+            priority.setDescription(dto.getDescription());
+            priority = taskPriorityService.save(priority);
             return ResponseEntity.ok().build();
         } catch (Exception exception) {
             logger.error(null, exception);
@@ -128,23 +112,20 @@ public class ActionController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                         @PathVariable Long stepId,
                                          @PathVariable Long id) {
         try {
-            Action action;
+            Priority priority;
             try {
-                action = actionService.findById(id);
+                priority = taskPriorityService.findById(id);
             } catch (EntityNotFoundException entityNotFoundException) {
                 return ResponseEntity.notFound().build();
             } catch (Exception e) {
                 throw e;
             }
-            if (action.getStepId().equals(stepId))
-                return ResponseEntity.notFound().build();
-            action.setDeletedUserId(authenticatedUserId);
-            action.setDeletedTime(new Date());
-            actionService.save(action);
-            return ResponseEntity.ok("Action deleted.");
+            priority.setDeletedUserId(authenticatedUserId);
+            priority.setDeletedTime(new Date());
+            taskPriorityService.save(priority);
+            return ResponseEntity.ok("TaskPriority deleted.");
         } catch (Exception exception) {
             logger.error(null, exception);
             return ResponseEntity.internalServerError().build();

@@ -25,7 +25,6 @@ public class DocumentService {
             throw new NullPointerException("Document is null");
         DocumentDto dto = new DocumentDto();
         dto.setId(document.getId());
-        dto.setDocumentTypeId(document.getDocumentTypeId());
         dto.setContent(document.getContent());
         dto.setExtension(document.getExtension());
         dto.setUploadedDate(document.getUploadedDate());

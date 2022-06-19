@@ -6,6 +6,7 @@ import com.yil.workflow.dto.CreateTaskActionDto;
 import com.yil.workflow.dto.TaskActionDto;
 import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.service.TaskActionService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +21,13 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.Date;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "v1/tasks/{taskId}/actions")
+@RequestMapping(value = "/api/wf/v1/tasks/{taskId}/actions")
 public class TaskActionController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private final TaskActionService taskActionService;
-
-    @Autowired
-    public TaskActionController(TaskActionService taskActionService) {
-        this.taskActionService = taskActionService;
-    }
 
     @GetMapping
     public ResponseEntity<PageDto<TaskActionDto>> findAll(

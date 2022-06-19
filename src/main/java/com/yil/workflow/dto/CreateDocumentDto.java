@@ -18,8 +18,6 @@ public class CreateDocumentDto {
     @NotBlank
     @Length(min = 1, max = 100)
     private String name;
-    @NotNull
-    private Long documentTypeId;
     @NotBlank
     @Length(min = 1, max = 10)
     private String extension;

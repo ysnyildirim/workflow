@@ -5,12 +5,10 @@ import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.CreateMessageDto;
 import com.yil.workflow.dto.MessageDto;
 import com.yil.workflow.model.Message;
-import com.yil.workflow.model.MessageType;
 import com.yil.workflow.service.MessageService;
-import com.yil.workflow.service.MessageTypeService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,19 +20,13 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.Date;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "v1/messages")
+@RequestMapping(value = "/api/wf/v1/messages")
 public class MessageController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private final MessageService messageService;
-    private final MessageTypeService messageTypeService;
-
-    @Autowired
-    public MessageController(MessageService messageService, MessageTypeService messageTypeService) {
-        this.messageService = messageService;
-        this.messageTypeService = messageTypeService;
-    }
 
     @GetMapping
     public ResponseEntity<PageDto<MessageDto>> findAll(
@@ -82,7 +74,6 @@ public class MessageController {
                                  @Valid @RequestBody CreateMessageDto dto) {
         try {
             Message message = new Message();
-            message.setMessageTypeId(dto.getMessageTypeId());
             message.setTitle(dto.getTitle());
             message.setContent(dto.getContent());
             message.setCreatedUserId(authenticatedMessageId);
@@ -102,19 +93,12 @@ public class MessageController {
                                   @PathVariable Long id,
                                   @Valid @RequestBody CreateMessageDto dto) {
         try {
-            MessageType messageType;
-            try {
-                messageType = messageTypeService.findById(dto.getMessageTypeId());
-            } catch (EntityNotFoundException entityNotFoundException) {
-                return ResponseEntity.notFound().build();
-            }
             Message message = null;
             try {
                 message = messageService.findById(id);
             } catch (EntityNotFoundException entityNotFoundException) {
                 return ResponseEntity.notFound().build();
             }
-            message.setMessageTypeId(messageType.getId());
             message.setTitle(dto.getTitle());
             message.setContent(dto.getContent());
             message.setCreatedUserId(authenticatedMessageId);

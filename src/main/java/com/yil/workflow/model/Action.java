@@ -36,5 +36,7 @@ public class Action extends AbstractEntity {
     private Long nextGroupId;
     @Column(name = "NEXT_USER_ID")
     private Long nextUserId;
+    @Column(name = "STATUS_ID")
+    private Long statusId;
 
 }

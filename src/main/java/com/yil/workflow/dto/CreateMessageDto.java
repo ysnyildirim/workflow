@@ -19,6 +19,4 @@ public class CreateMessageDto {
     private String title;
     @NotBlank
     private String content;
-    @NotNull
-    private Long messageTypeId;
 }

@@ -22,6 +22,4 @@ public class Message extends AbstractEntity {
     @Lob
     @Column(name = "CONTENT", nullable = false)
     private String content;
-    @Column(name = "MESSAGE_TYPE_ID", nullable = false)
-    private Long messageTypeId;
 }

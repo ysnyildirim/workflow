@@ -16,7 +16,6 @@ import java.util.Date;
 public class DocumentDto {
     private Long id;
     private String name;
-    private Long documentTypeId;
     private String extension;
     private Byte[] content;
     private Date uploadedDate;

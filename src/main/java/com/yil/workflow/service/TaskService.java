@@ -28,7 +28,8 @@ public class TaskService {
         dto.setFinishDate(task.getFinishDate());
         dto.setCurrentTaskActionId(task.getCurrentTaskActionId());
         dto.setEstimatedFinishDate(task.getEstimatedFinishDate());
-        dto.setTaskStatusId(task.getTaskStatusId());
+        dto.setStatusId(task.getStatusId());
+        dto.setPriorityId(task.getPriorityId());
         dto.setStartDate(task.getStartDate());
         dto.setFlowId(task.getFlowId());
         dto.setFlowId(task.getFlowId());

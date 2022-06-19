@@ -6,6 +6,7 @@ import com.yil.workflow.dto.CreateStepDto;
 import com.yil.workflow.dto.StepDto;
 import com.yil.workflow.model.Step;
 import com.yil.workflow.service.StepService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +21,13 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.Date;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "v1/flows/{flowId}/steps")
+@RequestMapping(value = "/api/wf/v1/flows/{flowId}/steps")
 public class StepController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private final StepService stepService;
-
-    @Autowired
-    public StepController(StepService stepService) {
-        this.stepService = stepService;
-    }
 
     @GetMapping
     public ResponseEntity<PageDto<StepDto>> findAll(

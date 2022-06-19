@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
+ */
+
 package com.yil.workflow.dto;
 
 import lombok.AllArgsConstructor;
@@ -12,8 +16,11 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateMessageTypeDto {
+public class CreatePriorityDto {
     @NotBlank
     @Length(min = 1, max = 100)
     private String name;
+    @NotBlank
+    @Length(min = 1, max = 100)
+    private String description;
 }

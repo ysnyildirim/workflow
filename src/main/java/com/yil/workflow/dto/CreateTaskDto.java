@@ -21,5 +21,7 @@ public class CreateTaskDto {
     private Date estimatedFinishDate;
     private Long currentTaskActionId;
     @NotNull
-    private Long taskStatusId;
+    private Long statusId;
+    @NotNull
+    private Long priorityId;
 }
