@@ -8,29 +8,29 @@ import java.util.Date;
 
 @Entity
 @Data
-@Table(name = "Task")
+@Table(name = "TASK")
 public class Task extends AbstractEntity {
     @Id
-    @SequenceGenerator(name = "Task_Sequence_Generator",
-            sequenceName = "Seq_Task_ID",
+    @SequenceGenerator(name = "TASK_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_TASK_ID",
             initialValue = 1,
             allocationSize = 1)
-    @GeneratedValue(generator = "Task_Sequence_Generator")
-    @Column(name = "Id")
+    @GeneratedValue(generator = "TASK_SEQUENCE_GENERATOR")
+    @Column(name = "ID")
     private Long id;
-    @Column(name = "FlowId", nullable = false)
+    @Column(name = "FLOW_ID", nullable = false)
     private Long flowId;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "StartDate", nullable = false)
+    @Column(name = "START_DATE", nullable = false)
     private Date startDate;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "FinishDate")
+    @Column(name = "FINISH_DATE")
     private Date finishDate;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "EstimatedFinishDate")
+    @Column(name = "ESTIMATED_FINISH_DATE")
     private Date estimatedFinishDate;
-    @Column(name = "CurrentTaskActionId", nullable = false)
+    @Column(name = "CURRENT_TASK_ACTION_ID", nullable = false)
     private Long currentTaskActionId;
-    @Column(name = "TaskStatusId", nullable = false)
+    @Column(name = "TASK_STATUS_ID", nullable = false)
     private Long taskStatusId;
 }

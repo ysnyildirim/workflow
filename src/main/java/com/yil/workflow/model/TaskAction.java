@@ -7,20 +7,23 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "TaskAction")
+@Table(name = "TASK_ACTION",
+        indexes = {
+        @Index(name = "IDX_TASK_ACTION_TASK_ID_ACTION_ID", columnList = "TASK_ID,ACTION_ID"),
+        @Index(name = "IDX_TASK_ACTION_USER_ID", columnList = "USER_ID")})
 public class TaskAction extends AbstractEntity {
     @Id
-    @SequenceGenerator(name = "TaskAction_Sequence_Generator",
-            sequenceName = "Seq_TaskAction_ID",
+    @SequenceGenerator(name = "TASK_ACTION_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_TASK_ACTION_ID",
             initialValue = 1,
             allocationSize = 1)
-    @GeneratedValue(generator = "TaskAction_Sequence_Generator")
-    @Column(name = "Id")
+    @GeneratedValue(generator = "TASK_ACTION_SEQUENCE_GENERATOR")
+    @Column(name = "ID")
     private Long id;
-    @Column(name = "TaskId", nullable = false)
+    @Column(name = "TASK_ID", nullable = false)
     private Long taskId;
-    @Column(name = "ActionId", nullable = false)
+    @Column(name = "ACTION_ID", nullable = false)
     private Long actionId;
-    @Column(name = "UserId", nullable = false)
+    @Column(name = "USER_ID", nullable = false)
     private Long userId;
 }

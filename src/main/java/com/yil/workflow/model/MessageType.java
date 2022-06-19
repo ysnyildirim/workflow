@@ -7,14 +7,14 @@ import javax.persistence.*;
 
 @Entity
 @Data
-@Table(name = "TASK_STATUS")
-public class TaskStatus extends AbstractEntity {
+@Table(name = "MESSAGE_TYPE")
+public class MessageType extends AbstractEntity {
     @Id
-    @SequenceGenerator(name = "TASK_STATUS_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_TASK_STATUS_ID",
+    @SequenceGenerator(name = "MESSAGE_TYPE_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_MESSAGE_TYPE_ID",
             initialValue = 1,
             allocationSize = 1)
-    @GeneratedValue(generator = "TASK_STATUS_SEQUENCE_GENERATOR")
+    @GeneratedValue(generator = "MESSAGE_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID", nullable = false, unique = true)
     private Long id;
     @Column(name = "NAME", nullable = false, length = 100)

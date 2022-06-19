@@ -7,24 +7,24 @@ import javax.persistence.*;
 
 @Entity
 @Data
-@Table(name = "Flow")
+@Table(name = "FLOW")
 public class Flow extends AbstractEntity {
     @Id
-    @SequenceGenerator(name = "Flow_Sequence_Generator",
-            sequenceName = "Seq_Flow_ID",
+    @SequenceGenerator(name = "FLOW_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_FLOW_ID",
             initialValue = 1,
             allocationSize = 1)
-    @GeneratedValue(generator = "Flow_Sequence_Generator")
-    @Column(name = "Id")
+    @GeneratedValue(generator = "FLOW_SEQUENCE_GENERATOR")
+    @Column(name = "ID")
     private Long id;
-    @Column(name = "Name", nullable = false, length = 100)
+    @Column(name = "NAME", nullable = false, length = 100)
     private String name;
-    @Column(name = "Descripton", nullable = false, length = 1000)
+    @Column(name = "DESCRIPTION", nullable = false, length = 1000)
     private String description;
-    @Column(name = "Enabled", nullable = false)
+    @Column(name = "ENABLED", nullable = false)
     private Boolean enabled;
-    @Column(name = "StartUpStepId", nullable = false)
+    @Column(name = "STARTUP_STEP_ID", nullable = false)
     private Long startUpStepId;
-    @Column(name = "StartUpPermissionId")
+    @Column(name = "STARTUP_PERMISSION_ID")
     private Long startUpPermissionId;
 }

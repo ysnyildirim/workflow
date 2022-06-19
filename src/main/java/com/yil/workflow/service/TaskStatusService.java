@@ -43,4 +43,7 @@ public class TaskStatusService {
         return taskStatusRepository.findAllByDeletedTimeIsNull(pageable);
     }
 
+    public boolean existsAllByNameAndDeletedTimeIsNull(String name) {
+        return taskStatusRepository.existsAllByNameAndDeletedTimeIsNull(name);
+    }
 }

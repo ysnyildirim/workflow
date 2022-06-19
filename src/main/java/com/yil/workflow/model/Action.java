@@ -7,34 +7,34 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "Action")
+@Table(name = "ACTION")
 public class Action extends AbstractEntity {
 
     @Id
-    @SequenceGenerator(name = "Action_Sequence_Generator",
-            sequenceName = "Seq_Action_ID",
+    @SequenceGenerator(name = "ACTION_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_ACTION_ID",
             initialValue = 1,
             allocationSize = 1)
-    @GeneratedValue(generator = "Action_Sequence_Generator")
-    @Column(name = "Id")
+    @GeneratedValue(generator = "ACTION_SEQUENCE_GENERATOR")
+    @Column(name = "ID")
     private Long id;
-    @Column(name = "Name", nullable = false, length = 100)
+    @Column(name = "NAME", nullable = false, length = 100)
     private String name;
-    @Column(name = "Descripton", nullable = false, length = 1000)
+    @Column(name = "DESCRIPTION", nullable = false, length = 1000)
     private String description;
-    @Column(name = "Enabled", nullable = false)
+    @Column(name = "ENABLED", nullable = false)
     private Boolean enabled;
-    @Column(name = "StepId", nullable = false)
+    @Column(name = "STEP_ID", nullable = false)
     private Long stepId;
-    @Column(name = "PermissionId")
+    @Column(name = "PERMISSION_ID")
     private Long permissionId;
-    @Column(name = "NextFlowId", nullable = false)
+    @Column(name = "NEXT_FLOW_ID", nullable = false)
     private Long nextFlowId;
-    @Column(name = "NextStepId", nullable = false)
+    @Column(name = "NEXT_STEP_ID", nullable = false)
     private Long nextStepId;
-    @Column(name = "NextGroupId")
+    @Column(name = "NEXT_GROUP_ID")
     private Long nextGroupId;
-    @Column(name = "NextUserId")
+    @Column(name = "NEXT_USER_ID")
     private Long nextUserId;
 
 }
