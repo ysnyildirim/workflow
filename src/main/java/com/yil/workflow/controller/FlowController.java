@@ -5,9 +5,12 @@ import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.FlowDto;
 import com.yil.workflow.dto.FlowRequest;
 import com.yil.workflow.dto.FlowResponce;
+import com.yil.workflow.dto.PriorityDto;
 import com.yil.workflow.exception.FlowNotFoundException;
 import com.yil.workflow.model.Flow;
+import com.yil.workflow.model.Priority;
 import com.yil.workflow.service.FlowService;
+import com.yil.workflow.service.PriorityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,17 +31,13 @@ public class FlowController {
     private final FlowService flowService;
 
     @GetMapping
-    public ResponseEntity<PageDto<FlowDto>> findAll(
-            @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
-            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
-        if (page < 0)
-            page = 0;
-        if (size <= 0 || size > 1000)
-            size = 1000;
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Flow> flowPage = flowService.findAllByDeletedTimeIsNull(pageable);
-        PageDto<FlowDto> pageDto = PageDto.toDto(flowPage, FlowService::toDto);
-        return ResponseEntity.ok(pageDto);
+    public ResponseEntity<List<FlowDto>> findAll() {
+        List<Flow> data = flowService.findAllByDeletedTimeIsNull();
+        List<FlowDto> dto = new ArrayList<>();
+        data.forEach(f -> {
+            dto.add(FlowService.toDto(f));
+        });
+        return ResponseEntity.ok(dto);
     }
 
 
@@ -62,7 +63,7 @@ public class FlowController {
     public ResponseEntity<FlowResponce> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                 @PathVariable Long id,
                                                 @Valid @RequestBody FlowRequest request) throws FlowNotFoundException {
-        FlowResponce responce = flowService.replace(request, id,authenticatedUserId);
+        FlowResponce responce = flowService.replace(request, id, authenticatedUserId);
         return ResponseEntity.ok(responce);
     }
 

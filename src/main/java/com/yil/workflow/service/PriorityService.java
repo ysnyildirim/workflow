@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Transactional
 @Service
@@ -37,7 +39,7 @@ public class PriorityService {
         return priorityRepository.existsById(id);
     }
 
-    public Page<Priority> findAll(Pageable pageable) {
-        return priorityRepository.findAll(pageable);
+    public List<Priority> findAll() {
+        return priorityRepository.findAll();
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Date;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional
@@ -45,10 +46,6 @@ public class FlowService {
         return flowRepository.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
     }
 
-    public Page<Flow> findAllByDeletedTimeIsNull(Pageable pageable) {
-        return flowRepository.findAllByDeletedTimeIsNull(pageable);
-    }
-
     public FlowResponce save(FlowRequest request, Long userId) {
         Flow flow = new Flow();
         return getFlowResponce(request, userId, flow);
@@ -74,5 +71,9 @@ public class FlowService {
         flow.setDeletedUserId(userId);
         flow.setDeletedTime(new Date());
         flowRepository.save(flow);
+    }
+
+    public List<Flow> findAllByDeletedTimeIsNull() {
+        return flowRepository.findAllByDeletedTimeIsNull();
     }
 }

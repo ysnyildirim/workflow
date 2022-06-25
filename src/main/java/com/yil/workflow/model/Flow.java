@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Data
 @Table(name = "FLOW")
@@ -24,4 +24,7 @@ public class Flow extends AbstractEntity {
     private String description;
     @Column(name = "ENABLED", nullable = false)
     private Boolean enabled;
+    @Column(name = "START_UP_PERMISSION_ID")
+    private Long startPermissionId;
+
 }

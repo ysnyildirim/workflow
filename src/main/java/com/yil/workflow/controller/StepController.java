@@ -1,7 +1,6 @@
 package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
-import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.StepDto;
 import com.yil.workflow.dto.StepRequest;
 import com.yil.workflow.dto.StepResponce;
@@ -12,14 +11,13 @@ import com.yil.workflow.exception.StepTypeNotFoundException;
 import com.yil.workflow.model.Step;
 import com.yil.workflow.service.StepService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,18 +27,13 @@ public class StepController {
     private final StepService stepService;
 
     @GetMapping
-    public ResponseEntity<PageDto<StepDto>> findAll(
-            @PathVariable Long flowId,
-            @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
-            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
-        if (page < 0)
-            page = 0;
-        if (size <= 0 || size > 1000)
-            size = 1000;
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Step> stepPage = stepService.findAllByFlowIdAndDeletedTimeIsNull(pageable, flowId);
-        PageDto<StepDto> pageDto = PageDto.toDto(stepPage, StepService::toDto);
-        return ResponseEntity.ok(pageDto);
+    public ResponseEntity<List<StepDto>> findAll(@PathVariable Long flowId) {
+        List<Step> stepList = stepService.findAllByFlowIdAndDeletedTimeIsNull(flowId);
+        List<StepDto> stepDtos = new ArrayList<>();
+        stepList.forEach(f -> {
+            stepDtos.add(StepService.toDto(f));
+        });
+        return ResponseEntity.ok(stepDtos);
     }
 
 

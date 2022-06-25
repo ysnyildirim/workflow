@@ -14,16 +14,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Transactional
 @Service
 public class ActionTypeService {
 
     private final ActionTypeDao actionTypeDao;
-
-    public Page<ActionType> findAll(Pageable pageable) {
-        return actionTypeDao.findAll(pageable);
-    }
 
     public static ActionTypeDto toDto(ActionType actionType) {
         if (actionType == null)
@@ -36,6 +34,10 @@ public class ActionTypeService {
     }
 
     public ActionType findById(Integer id) throws ActionTypeNotFoundException {
-        return actionTypeDao.findById(id).orElseThrow(()-> new ActionTypeNotFoundException());
+        return actionTypeDao.findById(id).orElseThrow(() -> new ActionTypeNotFoundException());
+    }
+
+    public List<ActionType> findAll() {
+        return actionTypeDao.findAll();
     }
 }

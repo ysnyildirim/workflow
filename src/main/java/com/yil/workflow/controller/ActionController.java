@@ -1,7 +1,6 @@
 package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
-import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.ActionRequest;
 import com.yil.workflow.dto.ActionResponce;
@@ -10,14 +9,13 @@ import com.yil.workflow.exception.StepNotFoundException;
 import com.yil.workflow.model.Action;
 import com.yil.workflow.service.ActionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -27,17 +25,13 @@ public class ActionController {
     private final ActionService actionService;
 
     @GetMapping
-    public ResponseEntity<PageDto<ActionDto>> findAll(@PathVariable Long stepId,
-                                                      @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
-                                                      @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
-        if (page < 0)
-            page = 0;
-        if (size <= 0 || size > 1000)
-            size = 1000;
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Action> actionPage = actionService.findAllByStepIdAndDeletedTimeIsNull(pageable, stepId);
-        PageDto<ActionDto> pageDto = PageDto.toDto(actionPage, ActionService::toDto);
-        return ResponseEntity.ok(pageDto);
+    public ResponseEntity<List<ActionDto>> findAll(@PathVariable Long stepId) {
+        List<Action> actionList = actionService.findAllByStepIdAndDeletedTimeIsNull(stepId);
+        List<ActionDto> actions = new ArrayList<>();
+        actionList.forEach(f -> {
+            actions.add(ActionService.toDto(f));
+        });
+        return ResponseEntity.ok(actions);
     }
 
 

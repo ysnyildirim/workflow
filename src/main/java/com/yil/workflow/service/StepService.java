@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -49,8 +50,8 @@ public class StepService {
         return stepRepository.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId).orElseThrow(() -> new StepNotFoundException());
     }
 
-    public Page<Step> findAllByFlowIdAndDeletedTimeIsNull(Pageable pageable, Long flowId) {
-        return stepRepository.findAllByFlowIdAndDeletedTimeIsNull(pageable, flowId);
+    public List<Step> findAllByFlowIdAndDeletedTimeIsNull(Long flowId) {
+        return stepRepository.findAllByFlowIdAndDeletedTimeIsNull(flowId);
     }
 
     public StepResponce save(StepRequest request, Long flowId, Long userId) throws FlowNotFoundException, StepTypeNotFoundException, StatusNotFoundException {

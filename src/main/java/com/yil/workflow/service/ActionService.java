@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -48,10 +49,6 @@ public class ActionService {
 
     public Action save(Action action) {
         return actionRepository.save(action);
-    }
-
-    public Page<Action> findAllByStepIdAndDeletedTimeIsNull(Pageable pageable, Long stepId) {
-        return actionRepository.findAllByStepIdAndDeletedTimeIsNull(pageable, stepId);
     }
 
     public Action findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) throws ActionNotFoundException {
@@ -110,5 +107,9 @@ public class ActionService {
         action.setDeletedUserId(userId);
         action.setDeletedTime(new Date());
         actionRepository.save(action);
+    }
+
+    public List<Action> findAllByStepIdAndDeletedTimeIsNull(Long stepId) {
+        return actionRepository.findAllByStepIdAndDeletedTimeIsNull(stepId);
     }
 }

@@ -9,20 +9,16 @@ import com.yil.workflow.exception.StepTypeNotFoundException;
 import com.yil.workflow.model.StepType;
 import com.yil.workflow.repository.StepTypeDao;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional
 @Service
 public class StepTypeService {
     private final StepTypeDao stepTypeDao;
-
-    public Page<StepType> findAll(Pageable pageable) {
-        return stepTypeDao.findAll(pageable);
-    }
 
     public static StepTypeDto toDto(StepType stepType) {
         if (stepType == null)
@@ -40,5 +36,9 @@ public class StepTypeService {
 
     public boolean existsById(Integer stepTypeId) {
         return stepTypeDao.existsById(stepTypeId);
+    }
+
+    public List<StepType> findAll() {
+        return stepTypeDao.findAll();
     }
 }
