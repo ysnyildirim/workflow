@@ -17,7 +17,6 @@ import java.util.Date;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class TaskActionDocumentService {
 
     private final DocumentService documentService;
@@ -49,6 +48,7 @@ public class TaskActionDocumentService {
         return taskActionDocumentRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new TaskActionDocumentNotFoundException());
     }
 
+    @Transactional
     public TaskActionDocumentResponce save(TaskActionDocumentRequest doc, long taskActionId, long userId) {
         Document document = new Document();
         document.setContent(doc.getContent());
@@ -72,6 +72,7 @@ public class TaskActionDocumentService {
                 .build();
     }
 
+    @Transactional
     public void delete(long id, long authenticatedUserId) throws TaskActionDocumentNotFoundException {
         TaskActionDocument entity = findByIdAndDeletedTimeIsNull(id);
         entity.setDeletedUserId(authenticatedUserId);

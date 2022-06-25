@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class ActionTypeService {
 
@@ -39,5 +38,9 @@ public class ActionTypeService {
 
     public List<ActionType> findAll() {
         return actionTypeDao.findAll();
+    }
+
+    public boolean existsById(Integer actionTypeId) {
+        return actionTypeDao.existsById(actionTypeId);
     }
 }

@@ -10,8 +10,6 @@ import com.yil.workflow.exception.StepTypeNotFoundException;
 import com.yil.workflow.model.Step;
 import com.yil.workflow.repository.StepRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +18,6 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class StepService {
 
     private final StepRepository stepRepository;
@@ -46,6 +43,22 @@ public class StepService {
         return stepRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new StepNotFoundException());
     }
 
+    public Step findByIdAndStepTypeIdAndDeletedTimeIsNull(Long id, Integer stepTypeId) throws StepNotFoundException {
+        return stepRepository.findByIdAndStepTypeIdAndDeletedTimeIsNull(id, stepTypeId).orElseThrow(() -> new StepNotFoundException());
+    }
+
+    public List<Step> findByStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(int stepTypeId) {
+        return stepRepository.findByStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(stepTypeId);
+    }
+
+    public List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long flowId,int stepTypeId) {
+        return stepRepository.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flowId,stepTypeId);
+    }
+
+    public boolean existsByIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long id, int stepTypeId) {
+        return stepRepository.existsByIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(id, stepTypeId);
+    }
+
     public Step findByIdAndFlowIdAndDeletedTimeIsNull(Long id, Long flowId) throws StepNotFoundException {
         return stepRepository.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId).orElseThrow(() -> new StepNotFoundException());
     }
@@ -54,6 +67,7 @@ public class StepService {
         return stepRepository.findAllByFlowIdAndDeletedTimeIsNull(flowId);
     }
 
+    @Transactional
     public StepResponce save(StepRequest request, Long flowId, Long userId) throws FlowNotFoundException, StepTypeNotFoundException, StatusNotFoundException {
         if (!flowService.existsById(flowId))
             throw new FlowNotFoundException();
@@ -78,11 +92,13 @@ public class StepService {
         return StepResponce.builder().id(step.getId()).build();
     }
 
+    @Transactional
     public StepResponce replace(StepRequest request, Long stepId, Long userId) throws StepNotFoundException, StepTypeNotFoundException, StatusNotFoundException {
         Step step = findByIdAndDeletedTimeIsNull(stepId);
         return getStepResponce(request, userId, step);
     }
 
+    @Transactional
     public void delete(Long stepId, Long userId) throws StepNotFoundException {
         Step step = findByIdAndDeletedTimeIsNull(stepId);
         step.setDeletedUserId(userId);

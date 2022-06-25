@@ -5,6 +5,7 @@ import com.yil.workflow.dto.TaskDto;
 import com.yil.workflow.dto.TaskRequest;
 import com.yil.workflow.dto.TaskResponce;
 import com.yil.workflow.exception.*;
+import com.yil.workflow.model.ActionUser;
 import com.yil.workflow.model.Flow;
 import com.yil.workflow.model.Task;
 import com.yil.workflow.repository.TaskRepository;
@@ -15,16 +16,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class TaskService {
 
     private final TaskRepository taskRepository;
     private final FlowService flowService;
     private final PriorityService priorityService;
     private final TaskActionService taskActionService;
+    private final ActionUserService actionUserService;
+
 
     public static TaskDto toDto(Task task) throws NullPointerException {
         if (task == null)
@@ -55,6 +58,7 @@ public class TaskService {
         return true;
     }
 
+    @Transactional
     public void delete(long id, long userId) throws YouDoNotHavePermissionException, TaskNotFoundException {
         if (!isDeletable(id, userId))
             throw new YouDoNotHavePermissionException();
@@ -64,10 +68,11 @@ public class TaskService {
         task = taskRepository.save(task);
     }
 
-    public TaskResponce save(TaskBaseRequest request, long id, long userId) throws YouDoNotHavePermissionException, TaskNotFoundException {
-        if (!isEditable(id, userId))
+    @Transactional
+    public TaskResponce replace(TaskBaseRequest request, long taskId, long userId) throws YouDoNotHavePermissionException, TaskNotFoundException {
+        if (!isEditable(taskId, userId))
             throw new YouDoNotHavePermissionException();
-        Task task = findByIdAndDeletedTimeIsNull(id);
+        Task task = findByIdAndDeletedTimeIsNull(taskId);
         task.setPriorityId(request.getPriorityId());
         task.setStartDate(request.getStartDate());
         task.setFinishDate(request.getFinishDate());
@@ -79,7 +84,8 @@ public class TaskService {
                 .build();
     }
 
-    public TaskResponce save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, NotAvailableActionException {
+    @Transactional(rollbackFor = Exception.class)
+    public TaskResponce save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, NotAvailableActionException, StepNotFoundException {
         Flow flow = flowService.findByIdAndEnabledTrueAndDeletedTimeIsNull(request.getFlowId());
         if (!priorityService.existsByIdAndDeletedTimeIsNull(request.getPriorityId()))
             throw new PriorityNotFoundException();
@@ -100,4 +106,14 @@ public class TaskService {
         return responce;
     }
 
+    public TaskResponce getTaskByUserId(Long userId) {
+        List<ActionUser> actionUsers = actionUserService.findByUserId(userId);
+
+
+        return null;
+    }
+
+    public boolean existsById(Long taskId) {
+        return taskRepository.existsById(taskId);
+    }
 }

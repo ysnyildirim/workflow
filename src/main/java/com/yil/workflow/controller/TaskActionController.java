@@ -7,6 +7,7 @@ import com.yil.workflow.dto.TaskActionResponce;
 import com.yil.workflow.exception.*;
 import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.service.TaskActionService;
+import com.yil.workflow.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ import javax.validation.Valid;
 public class TaskActionController {
 
     private final TaskActionService taskActionService;
+    private final TaskService taskService;
 
     @GetMapping
     public ResponseEntity<PageDto<TaskActionResponce>> findAll(
@@ -54,7 +56,9 @@ public class TaskActionController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<TaskActionResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                      @PathVariable Long taskId,
-                                                     @Valid @RequestBody TaskActionRequest request) throws ActionNotFoundException, NotAvailableActionException, YouDoNotHavePermissionException {
+                                                     @Valid @RequestBody TaskActionRequest request) throws ActionNotFoundException, NotAvailableActionException, YouDoNotHavePermissionException, TaskNotFoundException, StepNotFoundException {
+        if (!taskService.existsById(taskId))
+            throw new TaskNotFoundException();
         TaskActionResponce responce = taskActionService.save(request, taskId, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }

@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class FlowService {
 
@@ -46,11 +45,13 @@ public class FlowService {
         return flowRepository.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
     }
 
+    @Transactional
     public FlowResponce save(FlowRequest request, Long userId) {
         Flow flow = new Flow();
         return getFlowResponce(request, userId, flow);
     }
 
+    @Transactional
     public FlowResponce replace(FlowRequest request, Long flowId, Long userId) throws FlowNotFoundException {
         Flow flow = findByIdAndDeletedTimeIsNull(flowId);
         return getFlowResponce(request, userId, flow);
@@ -66,6 +67,7 @@ public class FlowService {
         return FlowResponce.builder().id(flow.getId()).build();
     }
 
+    @Transactional
     public void delete(Long id, Long userId) throws FlowNotFoundException {
         Flow flow = findByIdAndDeletedTimeIsNull(id);
         flow.setDeletedUserId(userId);

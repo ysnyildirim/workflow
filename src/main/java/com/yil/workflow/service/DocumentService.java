@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class DocumentService {
 
@@ -20,6 +19,7 @@ public class DocumentService {
         return documentRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(()-> new DocumentNotFoundException());
     }
 
+    @Transactional
     public Document save(Document document) {
         return documentRepository.save(document);
     }

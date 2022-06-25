@@ -4,12 +4,11 @@ import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.ActionRequest;
 import com.yil.workflow.dto.ActionResponce;
 import com.yil.workflow.exception.ActionNotFoundException;
+import com.yil.workflow.exception.ActionTypeNotFoundException;
 import com.yil.workflow.exception.StepNotFoundException;
 import com.yil.workflow.model.Action;
 import com.yil.workflow.repository.ActionRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +17,12 @@ import java.util.List;
 
 
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class ActionService {
 
     private final ActionRepository actionRepository;
     private final StepService stepService;
+    private final ActionTypeService actionTypeService;
 
     public static ActionDto toDto(Action action) throws NullPointerException {
         if (action == null)
@@ -45,10 +44,6 @@ public class ActionService {
 
     public Action findByIdAndStepId(Long id, Long stepId) throws ActionNotFoundException {
         return actionRepository.findByIdAndStepId(id, stepId).orElseThrow(() -> new ActionNotFoundException());
-    }
-
-    public Action save(Action action) {
-        return actionRepository.save(action);
     }
 
     public Action findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) throws ActionNotFoundException {
@@ -76,32 +71,38 @@ public class ActionService {
         return existsActionPermission;
     }
 
-    public ActionResponce save(ActionRequest request, Long stepId, Long userId) throws StepNotFoundException {
+    @Transactional
+    public ActionResponce save(ActionRequest request, Long stepId, Long userId) throws StepNotFoundException, ActionTypeNotFoundException {
+        if (!stepService.existsById(stepId))
+            throw new StepNotFoundException();
         Action action = new Action();
+        action.setStepId(stepId);
         return getActionResponce(request, userId, action);
     }
 
-    public ActionResponce replace(ActionRequest request, Long actionId, Long userId) throws ActionNotFoundException, StepNotFoundException {
+    @Transactional
+    public ActionResponce replace(ActionRequest request, Long actionId, Long userId) throws ActionNotFoundException, StepNotFoundException, ActionTypeNotFoundException {
         Action action = findByIdAndEnabledTrueAndDeletedTimeIsNull(actionId);
         return getActionResponce(request, userId, action);
     }
 
-    private ActionResponce getActionResponce(ActionRequest request, Long userId, Action action) throws StepNotFoundException {
-        if (!stepService.existsById(request.getStepId()))
-            throw new StepNotFoundException();
+    public ActionResponce getActionResponce(ActionRequest request, Long userId, Action action) throws StepNotFoundException, ActionTypeNotFoundException {
         if (!stepService.existsById(request.getNextStepId()))
             throw new StepNotFoundException();
-        action.setStepId(request.getStepId());
+        if (!actionTypeService.existsById(request.getActionTypeId()))
+            throw new ActionTypeNotFoundException();
         action.setName(request.getName());
         action.setDescription(request.getDescription());
         action.setEnabled(request.getEnabled());
         action.setNextStepId(request.getNextStepId());
+        action.setActionTypeId(request.getActionTypeId());
         action.setCreatedUserId(userId);
         action.setCreatedTime(new Date());
         action = actionRepository.save(action);
         return ActionResponce.builder().id(action.getId()).build();
     }
 
+    @Transactional
     public void delete(Long actionId, Long userId) throws ActionNotFoundException {
         Action action = findByIdAndDeletedTimeIsNull(actionId);
         action.setDeletedUserId(userId);

@@ -52,7 +52,7 @@ public class TaskController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<TaskResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                               @Valid @RequestBody TaskRequest request) throws FlowNotFoundException, ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, NotAvailableActionException, TaskNotFoundException, TaskActionNotFoundException {
+                                               @Valid @RequestBody TaskRequest request) throws FlowNotFoundException, ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, NotAvailableActionException, TaskNotFoundException, TaskActionNotFoundException, StepNotFoundException {
         TaskResponce responce = taskService.save(request, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }
@@ -62,7 +62,7 @@ public class TaskController {
     public ResponseEntity<TaskResponce> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                 @PathVariable Long id,
                                                 @Valid @RequestBody TaskBaseRequest request) throws TaskNotFoundException, YouDoNotHavePermissionException {
-        TaskResponce responce = taskService.save(request, id, authenticatedUserId);
+        TaskResponce responce = taskService.replace(request, id, authenticatedUserId);
         return ResponseEntity.ok(responce);
     }
 

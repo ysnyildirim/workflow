@@ -16,7 +16,6 @@ import java.util.Date;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class TaskActionMessageService {
 
     private final TaskActionMessageRepository taskActionMessageRepository;
@@ -36,6 +35,7 @@ public class TaskActionMessageService {
         return taskActionMessageRepository.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId).orElseThrow(() -> new TaskActionMessageNotFoundException());
     }
 
+    @Transactional
     public TaskActionMessage save(TaskActionMessage taskActionMessage) {
         return taskActionMessageRepository.save(taskActionMessage);
     }
@@ -44,6 +44,7 @@ public class TaskActionMessageService {
         return taskActionMessageRepository.findAllByTaskActionIdAndDeletedTimeIsNull(pageable, taskActionId);
     }
 
+    @Transactional
     public TaskActionMessageResponce save(TaskActionMessageRequest message, long taskActionId, long userId) {
         TaskActionMessage taskActionMessage = new TaskActionMessage();
         taskActionMessage.setTaskActionId(taskActionId);

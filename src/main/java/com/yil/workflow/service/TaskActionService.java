@@ -18,30 +18,38 @@ import java.util.Date;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class TaskActionService {
 
     private final TaskActionRepository taskActionRepository;
     private final ActionService actionService;
     private final TaskActionDocumentService taskActionDocumentService;
     private final TaskActionMessageService taskActionMessageService;
+    private final StepService stepService;
 
     public TaskAction getLastAction(long taskId) {
         return taskActionRepository.getLastAction(taskId);
     }
 
-    public TaskActionResponce save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, NotAvailableActionException, YouDoNotHavePermissionException {
+    @Transactional
+    public TaskActionResponce save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, NotAvailableActionException, YouDoNotHavePermissionException, StepNotFoundException {
         if (!isTaskActionCreatable(taskId, userId))
             throw new YouDoNotHavePermissionException();
         TaskAction currentTaskAction = getLastAction(taskId);
-        Action currentAction = actionService.findById(currentTaskAction.getActionId());
-        Action action = actionService.findByIdAndStepIdAndEnabledTrueAndDeletedTimeIsNotNull(request.getActionId(), currentAction.getNextStepId());
+        Action action;
+        if (currentTaskAction == null) { // yeni ise başlangıç aksiyonu mu ?
+            action = actionService.findByIdAndDeletedTimeIsNull(request.getActionId());
+            if (!stepService.existsByIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(action.getStepId(), 1))
+                throw new StepNotFoundException();
+        } else {
+            Action currentAction = actionService.findById(currentTaskAction.getActionId());
+            action = actionService.findByIdAndStepIdAndEnabledTrueAndDeletedTimeIsNotNull(request.getActionId(), currentAction.getNextStepId());
+        }
         //bu action yapabilme yetkisi varmı ?
         if (!actionService.availableAction(action.getId(), userId))
             throw new NotAvailableActionException();
 
         TaskAction taskAction = new TaskAction();
-        taskAction.setTaskId(currentTaskAction.getTaskId());
+        taskAction.setTaskId(taskId);
         taskAction.setActionId(action.getId());
         taskAction.setCreatedUserId(userId);
         taskAction.setCreatedTime(new Date());
@@ -63,6 +71,7 @@ public class TaskActionService {
                 .build();
     }
 
+    @Transactional
     public void delete(long taskActionId, long userId) throws YouDoNotHavePermissionException, TaskActionNotFoundException {
         if (!isTaskActionDeletable(taskActionId, userId))
             throw new YouDoNotHavePermissionException();

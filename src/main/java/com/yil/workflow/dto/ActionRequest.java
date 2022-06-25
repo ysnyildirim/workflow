@@ -22,6 +22,6 @@ public class ActionRequest {
     private String description;
     @NotNull
     private Boolean enabled;
-    private Long stepId;
     private Long nextStepId;
+    private Integer actionTypeId;
 }
