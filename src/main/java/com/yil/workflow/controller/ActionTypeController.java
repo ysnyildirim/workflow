@@ -3,7 +3,7 @@ package com.yil.workflow.controller;
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.ActionTypeDto;
-import com.yil.workflow.exception.ActionTypeNotFound;
+import com.yil.workflow.exception.ActionTypeNotFoundException;
 import com.yil.workflow.model.ActionType;
 import com.yil.workflow.service.ActionTypeService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class ActionTypeController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ActionTypeDto> findById(@PathVariable Integer id) throws ActionTypeNotFound {
+    public ResponseEntity<ActionTypeDto> findById(@PathVariable Integer id) throws ActionTypeNotFoundException {
         ActionType actionType = actionTypeService.findById(id);
         ActionTypeDto dto = ActionTypeService.toDto(actionType);
         return ResponseEntity.ok(dto);

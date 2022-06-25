@@ -11,5 +11,5 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 @ApiException(code = ErrorCode.ActionTypeNotFound)
-public class ActionTypeNotFound extends Exception {
+public class ActionTypeNotFoundException extends Exception {
 }

@@ -5,7 +5,7 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.ActionTypeDto;
-import com.yil.workflow.exception.ActionTypeNotFound;
+import com.yil.workflow.exception.ActionTypeNotFoundException;
 import com.yil.workflow.model.ActionType;
 import com.yil.workflow.repository.ActionTypeDao;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class ActionTypeService {
         return dto;
     }
 
-    public ActionType findById(Integer id) throws ActionTypeNotFound {
-        return actionTypeDao.findById(id).orElseThrow(()-> new ActionTypeNotFound());
+    public ActionType findById(Integer id) throws ActionTypeNotFoundException {
+        return actionTypeDao.findById(id).orElseThrow(()-> new ActionTypeNotFoundException());
     }
 }
