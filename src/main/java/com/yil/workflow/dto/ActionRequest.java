@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateFlowDto {
+public class ActionRequest {
     @NotBlank
     @Length(min = 1, max = 100)
     private String name;
@@ -22,6 +22,6 @@ public class CreateFlowDto {
     private String description;
     @NotNull
     private Boolean enabled;
-    private Long startUpStepId;
-    private Long startUpPermissionId;
+    private Long stepId;
+    private Long nextStepId;
 }

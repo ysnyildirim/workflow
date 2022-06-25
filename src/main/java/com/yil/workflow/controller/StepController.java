@@ -2,14 +2,16 @@ package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.CreateStepDto;
 import com.yil.workflow.dto.StepDto;
+import com.yil.workflow.dto.StepRequest;
+import com.yil.workflow.dto.StepResponce;
+import com.yil.workflow.exception.FlowNotFoundException;
+import com.yil.workflow.exception.StatusNotFoundException;
 import com.yil.workflow.exception.StepNotFoundException;
+import com.yil.workflow.exception.StepTypeNotFoundException;
 import com.yil.workflow.model.Step;
 import com.yil.workflow.service.StepService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Date;
 
 @RequiredArgsConstructor
 @RestController
@@ -54,36 +55,22 @@ public class StepController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<StepDto> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                          @PathVariable Long flowId,
-                                          @Valid @RequestBody CreateStepDto request) {
-        Step step = new Step();
-        step.setName(request.getName());
-        step.setDescription(request.getDescription());
-        step.setEnabled(request.getEnabled());
-        step.setFlowId(flowId);
-        step.setCreatedUserId(authenticatedUserId);
-        step.setCreatedTime(new Date());
-        step = stepService.save(step);
-        StepDto dto = StepService.toDto(step);
-        return ResponseEntity.created(null).body(dto);
+    public ResponseEntity<StepResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                               @PathVariable Long flowId,
+                                               @Valid @RequestBody StepRequest request) throws FlowNotFoundException, StatusNotFoundException, StepTypeNotFoundException {
+        StepResponce responce = stepService.save(request, flowId, authenticatedUserId);
+        return ResponseEntity.created(null).body(responce);
     }
 
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<StepDto> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                           @PathVariable Long flowId,
-                                           @PathVariable Long id,
-                                           @Valid @RequestBody CreateStepDto request) throws StepNotFoundException {
-        Step step = stepService.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId);
-        step.setName(request.getName());
-        step.setDescription(request.getDescription());
-        step.setEnabled(request.getEnabled());
-        step.setFlowId(flowId);
-        step = stepService.save(step);
-        StepDto dto = StepService.toDto(step);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<StepResponce> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                                @PathVariable Long flowId,
+                                                @PathVariable Long id,
+                                                @Valid @RequestBody StepRequest request) throws StepNotFoundException, StatusNotFoundException, StepTypeNotFoundException {
+        StepResponce responce = stepService.replace(request, id, authenticatedUserId);
+        return ResponseEntity.ok(responce);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -91,10 +78,7 @@ public class StepController {
     public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                          @PathVariable Long flowId,
                                          @PathVariable Long id) throws StepNotFoundException {
-        Step step = stepService.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId);
-        step.setDeletedUserId(authenticatedUserId);
-        step.setDeletedTime(new Date());
-        stepService.save(step);
+        stepService.delete(id, authenticatedUserId);
         return ResponseEntity.ok("Step deleted.");
     }
 

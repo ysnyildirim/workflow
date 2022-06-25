@@ -19,7 +19,5 @@ public class TaskDto {
     private Date startDate;
     private Date finishDate;
     private Date estimatedFinishDate;
-    private Long currentTaskActionId;
-    private Long statusId;
-    private Long priorityId;
+    private Integer priorityId;
 }

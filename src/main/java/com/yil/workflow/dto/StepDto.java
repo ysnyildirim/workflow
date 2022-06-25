@@ -17,4 +17,6 @@ public class StepDto {
     private String description;
     private Boolean enabled;
     private Long flowId;
+    private Integer statusId;
+    private Integer stepTypeId;
 }

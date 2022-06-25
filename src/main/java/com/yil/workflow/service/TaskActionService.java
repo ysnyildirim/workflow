@@ -1,51 +1,105 @@
 package com.yil.workflow.service;
 
-import com.yil.workflow.dto.TaskActionDto;
-import com.yil.workflow.exception.TaskActionNotFoundException;
+import com.yil.workflow.dto.TaskActionDocumentRequest;
+import com.yil.workflow.dto.TaskActionMessageRequest;
+import com.yil.workflow.dto.TaskActionRequest;
+import com.yil.workflow.dto.TaskActionResponce;
+import com.yil.workflow.exception.*;
+import com.yil.workflow.model.Action;
 import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.repository.TaskActionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import java.util.Optional;
+import java.util.Date;
 
+@RequiredArgsConstructor
 @Service
+@Transactional
 public class TaskActionService {
 
     private final TaskActionRepository taskActionRepository;
+    private final ActionService actionService;
+    private final TaskActionDocumentService taskActionDocumentService;
+    private final TaskActionMessageService taskActionMessageService;
 
-    @Autowired
-    public TaskActionService(TaskActionRepository taskActionRepository) {
-        this.taskActionRepository = taskActionRepository;
+    public TaskAction getLastAction(long taskId) {
+        return taskActionRepository.getLastAction(taskId);
     }
 
-    public static TaskActionDto toDto(TaskAction taskAction) throws NullPointerException {
+    public TaskActionResponce save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, NotAvailableActionException, YouDoNotHavePermissionException {
+        if (!isTaskActionCreatable(taskId, userId))
+            throw new YouDoNotHavePermissionException();
+        TaskAction currentTaskAction = getLastAction(taskId);
+        Action currentAction = actionService.findById(currentTaskAction.getActionId());
+        Action action = actionService.findByIdAndStepIdAndEnabledTrueAndDeletedTimeIsNotNull(request.getActionId(), currentAction.getNextStepId());
+        //bu action yapabilme yetkisi varmı ?
+        if (!actionService.availableAction(action.getId(), userId))
+            throw new NotAvailableActionException();
+
+        TaskAction taskAction = new TaskAction();
+        taskAction.setTaskId(currentTaskAction.getTaskId());
+        taskAction.setActionId(action.getId());
+        taskAction.setCreatedUserId(userId);
+        taskAction.setCreatedTime(new Date());
+        taskAction = taskActionRepository.save(taskAction);
+
+        if (request.getDocuments() != null)
+            for (TaskActionDocumentRequest doc : request.getDocuments()) {
+                taskActionDocumentService.save(doc, taskAction.getId(), userId);
+            }
+
+        if (request.getMessages() != null)
+            for (TaskActionMessageRequest message : request.getMessages()) {
+                taskActionMessageService.save(message, taskAction.getId(), userId);
+            }
+
+        return TaskActionResponce
+                .builder()
+                .id(taskAction.getId())
+                .build();
+    }
+
+    public void delete(long taskActionId, long userId) throws YouDoNotHavePermissionException, TaskActionNotFoundException {
+        if (!isTaskActionDeletable(taskActionId, userId))
+            throw new YouDoNotHavePermissionException();
+        TaskAction entity = findByIdAndDeletedTimeIsNull(taskActionId);
+        entity.setDeletedUserId(userId);
+        entity.setDeletedTime(new Date());
+        entity = taskActionRepository.save(entity);
+    }
+
+    public static TaskActionResponce toDto(TaskAction taskAction) throws NullPointerException {
         if (taskAction == null)
             throw new NullPointerException("TaskAction is null");
-        TaskActionDto dto = new TaskActionDto();
+        TaskActionResponce dto = new TaskActionResponce();
         dto.setId(taskAction.getId());
         dto.setActionId(taskAction.getActionId());
         dto.setTaskId(taskAction.getTaskId());
-        dto.setUserId(taskAction.getUserId());
         return dto;
     }
 
-    public TaskAction save(TaskAction taskAction) {
-        return taskActionRepository.save(taskAction);
+    public TaskAction findByIdAndDeletedTimeIsNull(Long id) throws TaskActionNotFoundException {
+        return taskActionRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new TaskActionNotFoundException());
     }
 
-    public Page<TaskAction> findAllByDeletedTimeIsNull(Pageable pageable) {
-        return taskActionRepository.findAllByDeletedTimeIsNull(pageable);
-    }
-
-    public Page<TaskAction> findAllByAndTaskIdAndDeletedTimeIsNull(Pageable pageable, Long taskId) {
-        return taskActionRepository.findAllByAndTaskIdAndDeletedTimeIsNull(pageable,taskId);
+    public Page<TaskAction> findAllByTaskIdAndDeletedTimeIsNull(Pageable pageable, Long taskId) {
+        return taskActionRepository.findAllByTaskIdAndDeletedTimeIsNull(pageable, taskId);
     }
 
     public TaskAction findByIdAndTaskIdAndDeletedTimeIsNull(Long id, Long taskId) throws TaskActionNotFoundException {
-        return  taskActionRepository.findByIdAndTaskIdAndDeletedTimeIsNull(id,taskId).orElseThrow(() -> new TaskActionNotFoundException());
+        return taskActionRepository.findByIdAndTaskIdAndDeletedTimeIsNull(id, taskId).orElseThrow(() -> new TaskActionNotFoundException());
     }
+
+    public boolean isTaskActionCreatable(long taskId, long userId) {
+        return true;
+    }
+
+    public boolean isTaskActionDeletable(long id, long userId) {
+        return true;
+    }
+
 }

@@ -13,10 +13,17 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateTaskActionMessageDto { 
+public class StepRequest {
     @NotBlank
     @Length(min = 1, max = 100)
-    private String subject;
+    private String name;
     @NotBlank
-    private String content;
+    @Length(min = 1, max = 1000)
+    private String description;
+    @NotNull
+    private Boolean enabled;
+    @NotNull
+    private Integer statusId;
+    @NotNull
+    private Integer stepTypeId;
 }

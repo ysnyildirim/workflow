@@ -2,14 +2,13 @@ package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.CreateFlowDto;
 import com.yil.workflow.dto.FlowDto;
+import com.yil.workflow.dto.FlowRequest;
+import com.yil.workflow.dto.FlowResponce;
 import com.yil.workflow.exception.FlowNotFoundException;
 import com.yil.workflow.model.Flow;
 import com.yil.workflow.service.FlowService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Date;
 
 @RequiredArgsConstructor
 @RestController
@@ -52,46 +50,27 @@ public class FlowController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                 @Valid @RequestBody CreateFlowDto request) {
-        Flow flow = new Flow();
-        flow.setName(request.getName());
-        flow.setDescription(request.getDescription());
-        flow.setEnabled(request.getEnabled());
-        flow.setStartUpStepId(request.getStartUpStepId());
-        flow.setStartUpPermissionId(request.getStartUpPermissionId());
-        flow.setCreatedUserId(authenticatedUserId);
-        flow.setCreatedTime(new Date());
-        flow = flowService.save(flow);
-        FlowDto dto = FlowService.toDto(flow);
-        return ResponseEntity.created(null).body(dto);
+    public ResponseEntity<FlowResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                               @Valid @RequestBody FlowRequest request) {
+        FlowResponce responce = flowService.save(request, authenticatedUserId);
+        return ResponseEntity.created(null).body(responce);
     }
 
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<FlowDto> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                           @PathVariable Long id,
-                                           @Valid @RequestBody CreateFlowDto request) throws FlowNotFoundException {
-        Flow flow = flowService.findByIdAndDeletedTimeIsNull(id);
-        flow.setName(request.getName());
-        flow.setDescription(request.getDescription());
-        flow.setEnabled(request.getEnabled());
-        flow.setStartUpStepId(request.getStartUpStepId());
-        flow.setStartUpPermissionId(request.getStartUpPermissionId());
-        flow = flowService.save(flow);
-        FlowDto dto = FlowService.toDto(flow);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<FlowResponce> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                                @PathVariable Long id,
+                                                @Valid @RequestBody FlowRequest request) throws FlowNotFoundException {
+        FlowResponce responce = flowService.replace(request, id,authenticatedUserId);
+        return ResponseEntity.ok(responce);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                          @PathVariable Long id) throws FlowNotFoundException {
-        Flow flow = flowService.findByIdAndDeletedTimeIsNull(id);
-        flow.setDeletedUserId(authenticatedUserId);
-        flow.setDeletedTime(new Date());
-        flowService.save(flow);
+        flowService.delete(id, authenticatedUserId);
         return ResponseEntity.ok("Flow deleted.");
     }
 

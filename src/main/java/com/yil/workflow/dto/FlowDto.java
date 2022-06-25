@@ -16,6 +16,4 @@ public class FlowDto {
     private String name;
     private String description;
     private Boolean enabled;
-    private Long startUpStepId;
-    private Long startUpPermissionId;
 }

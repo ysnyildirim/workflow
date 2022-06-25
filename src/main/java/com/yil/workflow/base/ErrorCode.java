@@ -8,6 +8,10 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+    StepTypeNotFound(7000013, "Step type not found"),
+    ActionTypeNotFound(7000012, "Action type not found"),
+    YouDoNotHavePermission(7000011, "You do not have permission"),
+    NotAvailableAction(7000010, "Action not available"),
     TaskNotFound(7000009, "Task not found"),
     TaskActionMessageNotFound(7000008, "Task action message not found"),
     TaskActionDocumentNotFound(7000007, "Task action document not found"),

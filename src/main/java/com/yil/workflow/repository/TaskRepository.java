@@ -13,5 +13,6 @@ import java.util.Optional;
 public interface TaskRepository extends JpaRepository<Task, Long> {
     Page<Task> findAllByDeletedTimeIsNull(Pageable pageable);
 
-     Optional<Task> findByIdAndDeletedTimeIsNull(Long id);
+    Optional<Task> findByIdAndDeletedTimeIsNull(Long id);
+
 }

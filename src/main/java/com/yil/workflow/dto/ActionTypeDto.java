@@ -4,23 +4,19 @@
 
 package com.yil.workflow.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.NotBlank;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreatePriorityDto {
-    @NotBlank
-    @Length(min = 1, max = 100)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ActionTypeDto {
+    private Integer id;
     private String name;
-    @NotBlank
-    @Length(min = 1, max = 100)
     private String description;
 }

@@ -2,14 +2,14 @@ package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.CreateTaskDto;
+import com.yil.workflow.dto.TaskRequest;
+import com.yil.workflow.dto.TaskBaseRequest;
 import com.yil.workflow.dto.TaskDto;
-import com.yil.workflow.exception.TaskNotFoundException;
+import com.yil.workflow.dto.TaskResponce;
+import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Task;
 import com.yil.workflow.service.TaskService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,14 +18,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Date;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/api/wf/v1/tasks")
 public class TaskController {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
     private final TaskService taskService;
 
     @GetMapping
@@ -53,52 +51,27 @@ public class TaskController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<TaskDto> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                          @Valid @RequestBody CreateTaskDto request) {
-        Task task = new Task();
-        task.setFlowId(request.getFlowId());
-        task.setStatusId(request.getStatusId());
-        task.setPriorityId(request.getPriorityId());
-        task.setCurrentTaskActionId(request.getCurrentTaskActionId());
-        task.setStartDate(request.getStartDate());
-        task.setFinishDate(request.getFinishDate());
-        task.setEstimatedFinishDate(request.getEstimatedFinishDate());
-        task.setCreatedUserId(authenticatedUserId);
-        task.setCreatedTime(new Date());
-        task = taskService.save(task);
-        TaskDto dto = TaskService.toDto(task);
-        return ResponseEntity.created(null).body(dto);
+    public ResponseEntity<TaskResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                               @Valid @RequestBody TaskRequest request) throws FlowNotFoundException, ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, NotAvailableActionException, TaskNotFoundException, TaskActionNotFoundException {
+        TaskResponce responce = taskService.save(request, authenticatedUserId);
+        return ResponseEntity.created(null).body(responce);
     }
-
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                  @PathVariable Long id,
-                                  @Valid @RequestBody CreateTaskDto request) throws TaskNotFoundException {
-        Task task = taskService.findByIdAndDeletedTimeIsNull(id);
-        task.setFlowId(request.getFlowId());
-        task.setStatusId(request.getStatusId());
-        task.setPriorityId(request.getPriorityId());
-        task.setCurrentTaskActionId(request.getCurrentTaskActionId());
-        task.setStartDate(request.getStartDate());
-        task.setFinishDate(request.getFinishDate());
-        task.setEstimatedFinishDate(request.getEstimatedFinishDate());
-        task = taskService.save(task);
-        TaskDto dto = TaskService.toDto(task);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<TaskResponce> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                                @PathVariable Long id,
+                                                @Valid @RequestBody TaskBaseRequest request) throws TaskNotFoundException, YouDoNotHavePermissionException {
+        TaskResponce responce = taskService.save(request, id, authenticatedUserId);
+        return ResponseEntity.ok(responce);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                         @PathVariable Long id) throws TaskNotFoundException {
-        Task task = taskService.findByIdAndDeletedTimeIsNull(id);
-        task.setDeletedUserId(authenticatedUserId);
-        task.setDeletedTime(new Date());
-        task = taskService.save(task);
+                                         @PathVariable Long id) throws TaskNotFoundException, YouDoNotHavePermissionException {
+        taskService.delete(id, authenticatedUserId);
         return ResponseEntity.ok("Task deleted.");
     }
-
 
 }

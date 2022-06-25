@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PriorityDto {
-    private Long id;
+    private Integer id;
     private String name;
     private String description;
 }

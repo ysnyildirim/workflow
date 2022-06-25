@@ -1,24 +1,33 @@
+/*
+ * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
+ */
+
 package com.yil.workflow.model;
 
-import com.yil.workflow.base.AbstractEntity;
+import com.yil.workflow.base.IEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "STATUS")
-public class Status extends AbstractEntity {
+public class Status implements IEntity {
     @Id
     @SequenceGenerator(name = "STATUS_SEQUENCE_GENERATOR",
             sequenceName = "SEQ_STATUS_ID",
-            initialValue = 1,
             allocationSize = 1)
     @GeneratedValue(generator = "STATUS_SEQUENCE_GENERATOR")
     @Column(name = "ID", nullable = false, unique = true)
-    private Long id;
+    private Integer id;
     @Column(name = "NAME", nullable = false, length = 100)
     private String name;
-    @Column(name="IS_CLOSED",nullable = false)
-    private Boolean isClosed;
+    @Column(name = "DESCRIPTION", nullable = false, length = 100)
+    private String description;
 }

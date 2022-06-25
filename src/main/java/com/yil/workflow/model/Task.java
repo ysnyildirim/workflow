@@ -2,10 +2,12 @@ package com.yil.workflow.model;
 
 import com.yil.workflow.base.AbstractEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @Table(name = "TASK")
@@ -13,7 +15,6 @@ public class Task extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "TASK_SEQUENCE_GENERATOR",
             sequenceName = "SEQ_TASK_ID",
-            initialValue = 1,
             allocationSize = 1)
     @GeneratedValue(generator = "TASK_SEQUENCE_GENERATOR")
     @Column(name = "ID")
@@ -29,10 +30,6 @@ public class Task extends AbstractEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "ESTIMATED_FINISH_DATE")
     private Date estimatedFinishDate;
-    @Column(name = "CURRENT_TASK_ACTION_ID", nullable = false)
-    private Long currentTaskActionId;
-    @Column(name = "STATUS_ID", nullable = false)
-    private Long statusId;
     @Column(name = "PRIORITY_ID", nullable = false)
-    private Long priorityId;
+    private Integer priorityId;
 }

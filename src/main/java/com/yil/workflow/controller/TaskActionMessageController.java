@@ -2,14 +2,16 @@ package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.CreateTaskActionMessageDto;
+import com.yil.workflow.dto.TaskActionMessageRequest;
+import com.yil.workflow.dto.TaskActionMessageResponce;
 import com.yil.workflow.dto.TaskActionMessageDto;
 import com.yil.workflow.exception.TaskActionMessageNotFoundException;
+import com.yil.workflow.exception.TaskActionNotFoundException;
+import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.model.TaskActionMessage;
 import com.yil.workflow.service.TaskActionMessageService;
+import com.yil.workflow.service.TaskActionService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ import java.util.Date;
 public class TaskActionMessageController {
 
     private final TaskActionMessageService taskActionMessageService;
+    private final TaskActionService taskActionService;
 
     @GetMapping
     public ResponseEntity<PageDto<TaskActionMessageDto>> findAll(
@@ -42,7 +45,6 @@ public class TaskActionMessageController {
         return ResponseEntity.ok(pageDto);
     }
 
-
     @GetMapping(value = "/{id}")
     public ResponseEntity<TaskActionMessageDto> findById(
             @PathVariable Long taskActionId,
@@ -52,36 +54,14 @@ public class TaskActionMessageController {
         return ResponseEntity.ok(dto);
     }
 
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<TaskActionMessageDto> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                                       @PathVariable Long taskActionId,
-                                                       @Valid @RequestBody CreateTaskActionMessageDto request) {
-        TaskActionMessage entity = new TaskActionMessage();
-        entity.setTaskActionId(taskActionId);
-        entity.setSubject(request.getSubject());
-        entity.setContent(request.getContent());
-        entity.setCreatedUserId(authenticatedUserId);
-        entity.setCreatedTime(new Date());
-        entity = taskActionMessageService.save(entity);
-        TaskActionMessageDto dto = TaskActionMessageService.toDto(entity);
-        return ResponseEntity.created(null).body(dto);
-    }
-
-
-    @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                  @PathVariable Long taskActionId,
-                                  @PathVariable Long id,
-                                  @Valid @RequestBody CreateTaskActionMessageDto request) throws TaskActionMessageNotFoundException {
-        TaskActionMessage entity = taskActionMessageService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
-        entity.setSubject(request.getSubject());
-        entity.setContent(request.getContent());
-        entity = taskActionMessageService.save(entity);
-        TaskActionMessageDto dto = TaskActionMessageService.toDto(entity);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<TaskActionMessageResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                                            @PathVariable Long taskActionId,
+                                                            @Valid @RequestBody TaskActionMessageRequest request) throws TaskActionNotFoundException {
+        TaskAction taskAction = taskActionService.findByIdAndDeletedTimeIsNull(taskActionId);
+        TaskActionMessageResponce taskActionMessageResponce = taskActionMessageService.save(request, taskAction.getId(), authenticatedUserId);
+        return ResponseEntity.created(null).body(taskActionMessageResponce);
     }
 
     @DeleteMapping(value = "/{id}")

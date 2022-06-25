@@ -1,6 +1,5 @@
 package com.yil.workflow.repository;
 
-import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.model.TaskActionDocument;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +16,6 @@ public interface TaskActionDocumentRepository extends JpaRepository<TaskActionDo
     Page<TaskActionDocument> findAllByTaskActionIdAndDeletedTimeIsNull(Pageable pageable, Long taskActionId);
 
     Optional<TaskActionDocument> findByIdAndTaskActionIdAndDeletedTimeIsNull(Long id, Long taskActionId);
+
+    Optional<TaskActionDocument> findByIdAndDeletedTimeIsNull(long id);
 }

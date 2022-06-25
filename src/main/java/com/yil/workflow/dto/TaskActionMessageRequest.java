@@ -7,19 +7,15 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateStepDto {
+public class TaskActionMessageRequest {
     @NotBlank
     @Length(min = 1, max = 100)
-    private String name;
+    private String subject;
     @NotBlank
-    @Length(min = 1, max = 1000)
-    private String description;
-    @NotNull
-    private Boolean enabled;
+    private String content;
 }

@@ -2,10 +2,12 @@ package com.yil.workflow.model;
 
 import com.yil.workflow.base.AbstractEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "TASK_ACTION_DOCUMENT",
@@ -16,7 +18,6 @@ public class TaskActionDocument extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "TASK_ACTION_DOCUMENT_SEQUENCE_GENERATOR",
             sequenceName = "SEQ_TASK_ACTION_DOCUMENT_ID",
-            initialValue = 1,
             allocationSize = 1)
     @GeneratedValue(generator = "TASK_ACTION_DOCUMENT_SEQUENCE_GENERATOR")
     @Column(name = "ID")

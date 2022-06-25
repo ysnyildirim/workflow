@@ -3,8 +3,10 @@ package com.yil.workflow.controller;
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.ActionDto;
-import com.yil.workflow.dto.CreateActionDto;
+import com.yil.workflow.dto.ActionRequest;
+import com.yil.workflow.dto.ActionResponce;
 import com.yil.workflow.exception.ActionNotFoundException;
+import com.yil.workflow.exception.StepNotFoundException;
 import com.yil.workflow.model.Action;
 import com.yil.workflow.service.ActionService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Date;
 
 @RequiredArgsConstructor
 @RestController
@@ -51,40 +52,22 @@ public class ActionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ActionDto> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                            @PathVariable Long stepId,
-                                            @Valid @RequestBody CreateActionDto request) {
-        Action action = new Action();
-        action.setStepId(stepId);
-        action.setName(request.getName());
-        action.setDescription(request.getDescription());
-        action.setEnabled(request.getEnabled());
-        action.setNextStepId(request.getNextStepId());
-        action.setPermissionId(request.getPermissionId());
-        action.setCreatedUserId(authenticatedUserId);
-        action.setCreatedTime(new Date());
-        action = actionService.save(action);
-        ActionDto dto = ActionService.toDto(action);
-        return ResponseEntity.created(null).body(dto);
+    public ResponseEntity<ActionResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                                 @PathVariable Long stepId,
+                                                 @Valid @RequestBody ActionRequest request) throws StepNotFoundException {
+        ActionResponce responce = actionService.save(request, stepId, authenticatedUserId);
+        return ResponseEntity.created(null).body(responce);
     }
 
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                  @PathVariable Long stepId,
-                                  @PathVariable Long id,
-                                  @Valid @RequestBody CreateActionDto request) throws ActionNotFoundException {
-        Action action = actionService.findByIdAndStepIdAndDeletedTimeIsNull(id, stepId);
-        action.setStepId(stepId);
-        action.setName(request.getName());
-        action.setDescription(request.getDescription());
-        action.setEnabled(request.getEnabled());
-        action.setNextStepId(request.getNextStepId());
-        action.setPermissionId(request.getPermissionId());
-        action = actionService.save(action);
-        ActionDto dto = ActionService.toDto(action);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<ActionResponce> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                                  @PathVariable Long stepId,
+                                                  @PathVariable Long id,
+                                                  @Valid @RequestBody ActionRequest request) throws ActionNotFoundException, StepNotFoundException {
+        ActionResponce responce = actionService.replace(request, id, authenticatedUserId);
+        return ResponseEntity.ok(responce);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -92,12 +75,7 @@ public class ActionController {
     public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                          @PathVariable Long stepId,
                                          @PathVariable Long id) throws ActionNotFoundException {
-        Action action = actionService.findByIdAndStepIdAndDeletedTimeIsNull(id, stepId);
-        if (action.getStepId().equals(stepId))
-            throw new ActionNotFoundException();
-        action.setDeletedUserId(authenticatedUserId);
-        action.setDeletedTime(new Date());
-        actionService.save(action);
+        actionService.delete(id, authenticatedUserId);
         return ResponseEntity.ok("Action deleted.");
     }
 

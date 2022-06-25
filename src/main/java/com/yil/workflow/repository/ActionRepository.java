@@ -17,4 +17,8 @@ public interface ActionRepository extends JpaRepository<Action, Long> {
 
     Optional<Action> findByIdAndStepId(Long id, Long stepId);
 
+    Optional<Action> findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id);
+
+    Optional<Action> findByIdAndDeletedTimeIsNull(Long id);
+
 }

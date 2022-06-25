@@ -2,15 +2,19 @@ package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.CreateTaskActionDocumentDto;
+import com.yil.workflow.dto.TaskActionDocumentRequest;
+import com.yil.workflow.dto.TaskActionDocumentResponce;
 import com.yil.workflow.dto.TaskActionDocumentDetailDto;
 import com.yil.workflow.dto.TaskActionDocumentDto;
 import com.yil.workflow.exception.DocumentNotFoundException;
 import com.yil.workflow.exception.TaskActionDocumentNotFoundException;
+import com.yil.workflow.exception.TaskActionNotFoundException;
 import com.yil.workflow.model.Document;
+import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.model.TaskActionDocument;
 import com.yil.workflow.service.DocumentService;
 import com.yil.workflow.service.TaskActionDocumentService;
+import com.yil.workflow.service.TaskActionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Date;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,6 +32,7 @@ public class TaskActionDocumentController {
 
     private final TaskActionDocumentService taskActionDocumentService;
     private final DocumentService documentService;
+    private final TaskActionService taskActionService;
 
     @GetMapping
     public ResponseEntity<PageDto<TaskActionDocumentDto>> findAll(
@@ -46,7 +50,7 @@ public class TaskActionDocumentController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<TaskActionDocumentDetailDto> findByIdAndTaskActionIdAAndDeletedTimeIsNull(
+    public ResponseEntity<TaskActionDocumentDetailDto> findByIdAndTaskActionIdAndDeletedTimeIsNull(
             @PathVariable Long taskActionId,
             @PathVariable Long id) throws TaskActionDocumentNotFoundException, DocumentNotFoundException {
         TaskActionDocument task = taskActionDocumentService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
@@ -63,42 +67,12 @@ public class TaskActionDocumentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<TaskActionDocumentDto> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                                        @PathVariable Long taskActionId,
-                                                        @Valid @RequestBody CreateTaskActionDocumentDto request) {
-        Document document = new Document();
-        document.setContent(request.getContent());
-        document = documentService.save(document);
-        TaskActionDocument entity = new TaskActionDocument();
-        entity.setTaskActionId(taskActionId);
-        entity.setDocumentId(document.getId());
-        entity.setExtension(request.getExtension());
-        entity.setName(request.getName());
-        entity.setUploadedDate(request.getUploadedDate());
-        entity.setCreatedUserId(authenticatedUserId);
-        entity.setCreatedTime(new Date());
-        entity = taskActionDocumentService.save(entity);
-        TaskActionDocumentDto dto = TaskActionDocumentService.toDto(entity);
-        return ResponseEntity.created(null).body(dto);
-    }
-
-
-    @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<TaskActionDocumentDto> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                                         @PathVariable Long taskActionId,
-                                                         @PathVariable Long id,
-                                                         @Valid @RequestBody CreateTaskActionDocumentDto request) throws TaskActionDocumentNotFoundException, DocumentNotFoundException {
-
-        TaskActionDocument entity = taskActionDocumentService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
-        Document document = documentService.findByIdAndDeletedTimeIsNull(id);
-        document.setContent(request.getContent());
-        documentService.save(document);
-        entity.setExtension(request.getExtension());
-        entity.setName(request.getName());
-        entity = taskActionDocumentService.save(entity);
-        TaskActionDocumentDto dto = TaskActionDocumentService.toDto(entity);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<TaskActionDocumentResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                                             @PathVariable Long taskActionId,
+                                                             @Valid @RequestBody TaskActionDocumentRequest request) throws TaskActionNotFoundException {
+        TaskAction taskAction = taskActionService.findByIdAndDeletedTimeIsNull(taskActionId);
+        TaskActionDocumentResponce responce = taskActionDocumentService.save(request, taskAction.getId(), authenticatedUserId);
+        return ResponseEntity.created(null).body(responce);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -106,10 +80,7 @@ public class TaskActionDocumentController {
     public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                          @PathVariable Long taskActionId,
                                          @PathVariable Long id) throws TaskActionDocumentNotFoundException {
-        TaskActionDocument entity = taskActionDocumentService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
-        entity.setDeletedUserId(authenticatedUserId);
-        entity.setDeletedTime(new Date());
-        entity = taskActionDocumentService.save(entity);
+        taskActionDocumentService.delete(id, authenticatedUserId);
         return ResponseEntity.ok("Task action document deleted.");
     }
 

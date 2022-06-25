@@ -4,23 +4,18 @@ import com.yil.workflow.dto.PriorityDto;
 import com.yil.workflow.exception.PriorityNotFoundException;
 import com.yil.workflow.model.Priority;
 import com.yil.workflow.repository.PriorityRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import java.util.Optional;
-
+@RequiredArgsConstructor
+@Transactional
 @Service
 public class PriorityService {
 
     private final PriorityRepository priorityRepository;
-
-    @Autowired
-    public PriorityService(PriorityRepository priorityRepository) {
-        this.priorityRepository = priorityRepository;
-    }
 
     public static PriorityDto toDto(Priority priority) throws NullPointerException {
         if (priority == null)
@@ -32,25 +27,17 @@ public class PriorityService {
         return dto;
     }
 
-    public Priority findById(Long id) throws EntityNotFoundException {
+    public Priority findById(Integer id) throws PriorityNotFoundException {
         return priorityRepository.findById(id).orElseThrow(() -> {
-            return new EntityNotFoundException();
+            return new PriorityNotFoundException();
         });
     }
 
-    public Priority findByIdAndDeletedTimeIsNull(Long id) throws PriorityNotFoundException {
-        return priorityRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new PriorityNotFoundException());
+    public boolean existsByIdAndDeletedTimeIsNull(Integer id) {
+        return priorityRepository.existsById(id);
     }
 
-    public Priority save(Priority priority) {
-        return priorityRepository.save(priority);
-    }
-
-    public Page<Priority> findAllByDeletedTimeIsNull(Pageable pageable) {
-        return priorityRepository.findAllByDeletedTimeIsNull(pageable);
-    }
-
-    public boolean existsAllByNameAndDeletedTimeIsNull(String name) {
-        return priorityRepository.existsAllByNameAndDeletedTimeIsNull(name);
+    public Page<Priority> findAll(Pageable pageable) {
+        return priorityRepository.findAll(pageable);
     }
 }

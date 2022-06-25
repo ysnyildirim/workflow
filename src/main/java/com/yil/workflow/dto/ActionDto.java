@@ -17,9 +17,6 @@ public class ActionDto {
     private String description;
     private Boolean enabled;
     private Long stepId;
-    private Long permissionId;
-    private Long nextFlowId;
     private Long nextStepId;
-    private Long nextGroupId;
-    private Long nextUserId;
+    private Integer actionTypeId;
 }

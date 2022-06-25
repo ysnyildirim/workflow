@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
+ */
+
 package com.yil.workflow.dto;
 
+
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,19 +13,13 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateTaskDto {
-    @NotNull
-    private Long flowId;
+public class TaskBaseRequest {
     @NotNull
     private Date startDate;
     private Date finishDate;
     private Date estimatedFinishDate;
-    private Long currentTaskActionId;
     @NotNull
-    private Long statusId;
-    @NotNull
-    private Long priorityId;
+    private Integer priorityId;
 }
