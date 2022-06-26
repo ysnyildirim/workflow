@@ -1,8 +1,8 @@
 package com.yil.workflow.service;
 
-import com.yil.workflow.dto.TaskActionMessageRequest;
-import com.yil.workflow.dto.TaskActionMessageResponce;
 import com.yil.workflow.dto.TaskActionMessageDto;
+import com.yil.workflow.dto.TaskActionMessageRequest;
+import com.yil.workflow.dto.TaskActionMessageResponse;
 import com.yil.workflow.exception.TaskActionMessageNotFoundException;
 import com.yil.workflow.model.TaskActionMessage;
 import com.yil.workflow.repository.TaskActionMessageRepository;
@@ -45,7 +45,7 @@ public class TaskActionMessageService {
     }
 
     @Transactional
-    public TaskActionMessageResponce save(TaskActionMessageRequest message, long taskActionId, long userId) {
+    public TaskActionMessageResponse save(TaskActionMessageRequest message, long taskActionId, long userId) {
         TaskActionMessage taskActionMessage = new TaskActionMessage();
         taskActionMessage.setTaskActionId(taskActionId);
         taskActionMessage.setSubject(message.getSubject());
@@ -53,7 +53,7 @@ public class TaskActionMessageService {
         taskActionMessage.setCreatedUserId(userId);
         taskActionMessage.setCreatedTime(new Date());
         taskActionMessage = taskActionMessageRepository.save(taskActionMessage);
-        return TaskActionMessageResponce
+        return TaskActionMessageResponse
                 .builder()
                 .id(taskActionMessage.getId())
                 .taskActionId(taskActionMessage.getTaskActionId())

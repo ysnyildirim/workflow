@@ -11,5 +11,5 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 @ApiException(code = ErrorCode.TaskNotFound)
-public class    TaskNotFoundException extends Exception {
+public class TaskNotFoundException extends Exception {
 }

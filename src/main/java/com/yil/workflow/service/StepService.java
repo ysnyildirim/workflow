@@ -2,7 +2,7 @@ package com.yil.workflow.service;
 
 import com.yil.workflow.dto.StepDto;
 import com.yil.workflow.dto.StepRequest;
-import com.yil.workflow.dto.StepResponce;
+import com.yil.workflow.dto.StepResponse;
 import com.yil.workflow.exception.FlowNotFoundException;
 import com.yil.workflow.exception.StatusNotFoundException;
 import com.yil.workflow.exception.StepNotFoundException;
@@ -51,8 +51,8 @@ public class StepService {
         return stepRepository.findByStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(stepTypeId);
     }
 
-    public List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long flowId,int stepTypeId) {
-        return stepRepository.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flowId,stepTypeId);
+    public List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long flowId, int stepTypeId) {
+        return stepRepository.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flowId, stepTypeId);
     }
 
     public boolean existsByIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long id, int stepTypeId) {
@@ -68,7 +68,7 @@ public class StepService {
     }
 
     @Transactional
-    public StepResponce save(StepRequest request, Long flowId, Long userId) throws FlowNotFoundException, StepTypeNotFoundException, StatusNotFoundException {
+    public StepResponse save(StepRequest request, Long flowId, Long userId) throws FlowNotFoundException, StepTypeNotFoundException, StatusNotFoundException {
         if (!flowService.existsById(flowId))
             throw new FlowNotFoundException();
         Step step = new Step();
@@ -76,7 +76,7 @@ public class StepService {
         return getStepResponce(request, userId, step);
     }
 
-    private StepResponce getStepResponce(StepRequest request, Long userId, Step step) throws StepTypeNotFoundException, StatusNotFoundException {
+    private StepResponse getStepResponce(StepRequest request, Long userId, Step step) throws StepTypeNotFoundException, StatusNotFoundException {
         if (!stepTypeService.existsById(request.getStepTypeId()))
             throw new StepTypeNotFoundException();
         if (!statusService.existsById(request.getStatusId()))
@@ -89,11 +89,11 @@ public class StepService {
         step.setCreatedUserId(userId);
         step.setCreatedTime(new Date());
         step = stepRepository.save(step);
-        return StepResponce.builder().id(step.getId()).build();
+        return StepResponse.builder().id(step.getId()).build();
     }
 
     @Transactional
-    public StepResponce replace(StepRequest request, Long stepId, Long userId) throws StepNotFoundException, StepTypeNotFoundException, StatusNotFoundException {
+    public StepResponse replace(StepRequest request, Long stepId, Long userId) throws StepNotFoundException, StepTypeNotFoundException, StatusNotFoundException {
         Step step = findByIdAndDeletedTimeIsNull(stepId);
         return getStepResponce(request, userId, step);
     }

@@ -1,15 +1,21 @@
+/*
+ * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
+ */
+
 package com.yil.workflow.model;
 
 import com.yil.workflow.base.IEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+@EqualsAndHashCode
 @Data
 @Entity
-@Table(name = "ACTION_USER")
-public class ActionUser implements IEntity {
+@Table(name = "FLOW_GROUP_USER")
+public class FlowGroupUser implements IEntity {
 
     @EmbeddedId
     private Pk id;
@@ -17,10 +23,9 @@ public class ActionUser implements IEntity {
     @Data
     @Embeddable
     public static class Pk implements Serializable {
-        @Column(name = "USER_ID", nullable = false)
+        @Column(name = "FLOW_GROUP_ID")
+        private Long flowGroupId;
+        @Column(name = "USER_ID")
         private Long userId;
-        @Column(name = "ACTION_ID", nullable = false)
-        private Long actionId;
     }
-
 }

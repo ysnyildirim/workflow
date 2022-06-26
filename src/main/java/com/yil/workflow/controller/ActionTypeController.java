@@ -1,14 +1,10 @@
 package com.yil.workflow.controller;
 
-import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.ActionTypeDto;
 import com.yil.workflow.exception.ActionTypeNotFoundException;
 import com.yil.workflow.model.ActionType;
 import com.yil.workflow.service.ActionTypeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

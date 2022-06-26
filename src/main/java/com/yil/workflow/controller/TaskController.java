@@ -2,10 +2,10 @@ package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.TaskRequest;
 import com.yil.workflow.dto.TaskBaseRequest;
 import com.yil.workflow.dto.TaskDto;
-import com.yil.workflow.dto.TaskResponce;
+import com.yil.workflow.dto.TaskRequest;
+import com.yil.workflow.dto.TaskResponse;
 import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Task;
 import com.yil.workflow.service.TaskService;
@@ -51,18 +51,18 @@ public class TaskController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<TaskResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity<TaskResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                @Valid @RequestBody TaskRequest request) throws FlowNotFoundException, ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, NotAvailableActionException, TaskNotFoundException, TaskActionNotFoundException, StepNotFoundException {
-        TaskResponce responce = taskService.save(request, authenticatedUserId);
+        TaskResponse responce = taskService.save(request, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<TaskResponce> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity<TaskResponse> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                 @PathVariable Long id,
                                                 @Valid @RequestBody TaskBaseRequest request) throws TaskNotFoundException, YouDoNotHavePermissionException {
-        TaskResponce responce = taskService.replace(request, id, authenticatedUserId);
+        TaskResponse responce = taskService.replace(request, id, authenticatedUserId);
         return ResponseEntity.ok(responce);
     }
 

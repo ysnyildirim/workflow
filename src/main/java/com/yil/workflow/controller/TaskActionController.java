@@ -3,7 +3,7 @@ package com.yil.workflow.controller;
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.TaskActionRequest;
-import com.yil.workflow.dto.TaskActionResponce;
+import com.yil.workflow.dto.TaskActionResponse;
 import com.yil.workflow.exception.*;
 import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.service.TaskActionService;
@@ -27,7 +27,7 @@ public class TaskActionController {
     private final TaskService taskService;
 
     @GetMapping
-    public ResponseEntity<PageDto<TaskActionResponce>> findAll(
+    public ResponseEntity<PageDto<TaskActionResponse>> findAll(
             @PathVariable Long taskId,
             @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
             @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
@@ -37,29 +37,29 @@ public class TaskActionController {
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
         Page<TaskAction> taskPage = taskActionService.findAllByTaskIdAndDeletedTimeIsNull(pageable, taskId);
-        PageDto<TaskActionResponce> pageDto = PageDto.toDto(taskPage, TaskActionService::toDto);
+        PageDto<TaskActionResponse> pageDto = PageDto.toDto(taskPage, TaskActionService::toDto);
         return ResponseEntity.ok(pageDto);
     }
 
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<TaskActionResponce> findByIdAndTaskIdAndDeletedTimeIsNull(
+    public ResponseEntity<TaskActionResponse> findByIdAndTaskIdAndDeletedTimeIsNull(
             @PathVariable Long taskId,
             @PathVariable Long id) throws TaskActionNotFoundException {
         TaskAction task = taskActionService.findByIdAndTaskIdAndDeletedTimeIsNull(id, taskId);
-        TaskActionResponce dto = TaskActionService.toDto(task);
+        TaskActionResponse dto = TaskActionService.toDto(task);
         return ResponseEntity.ok(dto);
     }
 
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<TaskActionResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity<TaskActionResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                      @PathVariable Long taskId,
                                                      @Valid @RequestBody TaskActionRequest request) throws ActionNotFoundException, NotAvailableActionException, YouDoNotHavePermissionException, TaskNotFoundException, StepNotFoundException {
         if (!taskService.existsById(taskId))
             throw new TaskNotFoundException();
-        TaskActionResponce responce = taskActionService.save(request, taskId, authenticatedUserId);
+        TaskActionResponse responce = taskActionService.save(request, taskId, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }
 

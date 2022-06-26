@@ -19,7 +19,7 @@ public interface StepRepository extends JpaRepository<Step, Long> {
 
     List<Step> findByStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(int stepTypeId);
 
-    List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long flowId,int stepTypeId);
+    List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long flowId, int stepTypeId);
 
     boolean existsByIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long id, int stepTypeId);
 

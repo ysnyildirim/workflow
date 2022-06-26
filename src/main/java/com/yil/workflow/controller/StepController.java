@@ -3,7 +3,7 @@ package com.yil.workflow.controller;
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.dto.StepDto;
 import com.yil.workflow.dto.StepRequest;
-import com.yil.workflow.dto.StepResponce;
+import com.yil.workflow.dto.StepResponse;
 import com.yil.workflow.exception.FlowNotFoundException;
 import com.yil.workflow.exception.StatusNotFoundException;
 import com.yil.workflow.exception.StepNotFoundException;
@@ -48,21 +48,21 @@ public class StepController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<StepResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity<StepResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                @PathVariable Long flowId,
                                                @Valid @RequestBody StepRequest request) throws FlowNotFoundException, StatusNotFoundException, StepTypeNotFoundException {
-        StepResponce responce = stepService.save(request, flowId, authenticatedUserId);
+        StepResponse responce = stepService.save(request, flowId, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }
 
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<StepResponce> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity<StepResponse> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                 @PathVariable Long flowId,
                                                 @PathVariable Long id,
                                                 @Valid @RequestBody StepRequest request) throws StepNotFoundException, StatusNotFoundException, StepTypeNotFoundException {
-        StepResponce responce = stepService.replace(request, id, authenticatedUserId);
+        StepResponse responce = stepService.replace(request, id, authenticatedUserId);
         return ResponseEntity.ok(responce);
     }
 

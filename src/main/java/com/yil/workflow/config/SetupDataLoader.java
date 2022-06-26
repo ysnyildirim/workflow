@@ -24,17 +24,44 @@ import java.util.Random;
 public class SetupDataLoader implements ApplicationListener<ContextStartedEvent> {
 
 
+    public static final String upper = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    @Autowired
+    ThreadPoolTaskExecutor threadPoolTaskExecutor;
+    @Autowired
+    private TaskActionService taskActionService;
+    @Autowired
+    private ActionService actionService;
+    @Autowired
+    private StepService stepService;
+    @Autowired
+    private FlowService flowService;
+    @Autowired
+    private FlowRepository flowRepository;
+    @Autowired
+    private TaskService taskService;
+    @Autowired
+    private StepTypeDao stepTypeDao;
+    @Autowired
+    private ActionTypeDao actionTypeDao;
+    @Autowired
+    private PriorityRepository priorityRepository;
+    @Autowired
+    private StatusRepository statusRepository;
+    @Autowired
+    private TargetDao targetDao;
+
     @Override
     public void onApplicationEvent(ContextStartedEvent event) {
         System.out.println("Start Up Events");
         System.out.println(new Date(event.getTimestamp()));
         System.out.println("----------------------");
         initStatus();
+        initTarget();
         initPriority();
         initActionType();
         initStepType();
 
-       // generateTask();
+        // generateTask();
 
         //       try {
         //           for (int i = 0; i < 10; i++)
@@ -45,10 +72,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
 
     }
 
-    @Autowired
-    ThreadPoolTaskExecutor threadPoolTaskExecutor;
-
-
     public void generateTask() {
         try {
             List<Flow> flows = flowRepository.findAllByDeletedTimeIsNull();
@@ -57,10 +80,10 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 Step step = stepService.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flow.getId(), 1).get(0);
                 Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(step.getId()).get(0);
                 for (int j = 0; j < 100000; j++) {
-                //    threadPoolTaskExecutor.execute(() -> {
-                        taskStart(flow, action);
-                        //   System.out.println(Thread.currentThread().getId());
-                  //  });
+                    //    threadPoolTaskExecutor.execute(() -> {
+                    taskStart(flow, action);
+                    //   System.out.println(Thread.currentThread().getId());
+                    //  });
                 }
             }
 //            while (threadPoolTaskExecutor.getActiveCount() > 0) {
@@ -77,9 +100,9 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         try {
             int u = new Random().nextInt(1, 50);
             TaskRequest request = generateTaskRequest(flow, action);
-            TaskResponce taskResponce = taskService.save(request, u);
-            finishTask(taskResponce.getTaskId(), (long) u);
-            System.out.println(taskResponce.getTaskId());
+            TaskResponse taskResponse = taskService.save(request, u);
+            finishTask(taskResponse.getTaskId(), (long) u);
+            System.out.println(taskResponse.getTaskId());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -91,7 +114,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(currentAction.getNextStepId()).get(0);
         while (action != null) {
             TaskActionRequest request = generateTaskAction(action);
-            TaskActionResponce taskActionResponce = taskActionService.save(request, taskAction.getTaskId(), userId);
+            TaskActionResponse taskActionResponse = taskActionService.save(request, taskAction.getTaskId(), userId);
             List<Action> actionList = actionService.findAllByStepIdAndDeletedTimeIsNull(action.getNextStepId());
             if (actionList.isEmpty())
                 action = null;
@@ -100,17 +123,13 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         }
     }
 
-    @Autowired
-    private TaskActionService taskActionService;
-
-
     @Transactional(timeoutString = "5000", rollbackFor = Exception.class)
     public void generateFlow(long userId) throws Exception {
         FlowRequest request = new FlowRequest();
         request.setName(randomString(20));
         request.setDescription(randomString(100));
         request.setEnabled(true);
-        FlowResponce responce = flowService.save(request, userId);
+        FlowResponse responce = flowService.save(request, userId);
         int k = new Random().nextInt(5, 15);
         for (int i = 0; i < k; i++)
             generateStep(responce.getId(), userId);
@@ -131,7 +150,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
             request.setStepTypeId(2);
             step = stepList.get(stepList.size() - 1);
         }
-        StepResponce responce = stepService.save(request, flowId, userId);
+        StepResponse responce = stepService.save(request, flowId, userId);
         if (step != null) {
             int k = new Random().nextInt(10, 15);
             for (int i = 0; i < k; i++)
@@ -139,11 +158,8 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         }
     }
 
-    @Autowired
-    private ActionService actionService;
-
     @Transactional
-    public ActionResponce generateAction(long stepId, long userId, long nextStepId) throws Exception {
+    public ActionResponse generateAction(long stepId, long userId, long nextStepId) throws Exception {
         ActionRequest request = new ActionRequest();
         request.setName(randomString(20));
         request.setDescription(randomString(100));
@@ -152,15 +168,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         request.setActionTypeId(1);
         return actionService.save(request, stepId, userId);
     }
-
-    @Autowired
-    private StepService stepService;
-
-    @Autowired
-    private FlowService flowService;
-
-    @Autowired
-    private FlowRepository flowRepository;
 
     private TaskRequest generateTaskRequest(Flow flow, Action action) {
         TaskRequest request = new TaskRequest();
@@ -217,9 +224,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 .build();
     }
 
-    public static final String upper = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-
     private String randomString(int i) {
         String s = "";
         for (int k = 0; k < i; k++)
@@ -231,10 +235,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
 //        return generatedString;
     }
 
-
-    @Autowired
-    private TaskService taskService;
-
     private void initStepType() {
         addStepType(StepType.builder().id(1).name("Start").description("Should only be one per process. This state is the state into which a new Request is placed when it is created.").build());
         addStepType(StepType.builder().id(2).name("Normal").description("A regular state with no special designation.").build());
@@ -242,9 +242,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         addStepType(StepType.builder().id(4).name("Denied").description("A state signifying that any Request in this state has been denied (e.g. never got started and will not be worked on).").build());
         addStepType(StepType.builder().id(5).name("Cancelled").description("A state signifying that any Request in this state has been cancelled (e.g. work was started but never completed).").build());
     }
-
-    @Autowired
-    private StepTypeDao stepTypeDao;
 
     private void addStepType(StepType stepType) {
         if (stepTypeDao.existsById(stepType.getId()))
@@ -259,9 +256,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         addActionType(ActionType.builder().id(4).name("Restart").description("The actioner suggesting that the request be moved back to the Start state in the process.").build());
         addActionType(ActionType.builder().id(5).name("Resolve").description("The actioner is suggesting that the request be moved all the way to the Completed state.").build());
     }
-
-    @Autowired
-    private ActionTypeDao actionTypeDao;
 
     private void addActionType(ActionType actionType) {
         if (actionTypeDao.existsById(actionType.getId()))
@@ -284,12 +278,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         priorityRepository.save(priority);
     }
 
-    @Autowired
-    private PriorityRepository priorityRepository;
-
-    @Autowired
-    private StatusRepository statusRepository;
-
     private void initStatus() {
         addStatus(Status.builder().id(1).name("Start").description("Started").build());
         addStatus(Status.builder().id(2).name("Continue").description("Continue").build());
@@ -300,6 +288,19 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         if (statusRepository.existsById(status.getId()))
             return;
         statusRepository.save(status);
+    }
+
+    private void initTarget() {
+        addTarget(Target.builder().id(1).name("Creator").description("Task creator").build());
+        addTarget(Target.builder().id(2).name("Stakeholders").description("Stakeholders").build());
+        addTarget(Target.builder().id(3).name("Group Members").description("Group Members").build());
+        addTarget(Target.builder().id(4).name("Flow Admins").description("Flow Admins").build());
+    }
+
+    private void addTarget(Target target) {
+        if (targetDao.existsById(target.getId()))
+            return;
+        targetDao.save(target);
     }
 
 

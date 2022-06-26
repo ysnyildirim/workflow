@@ -16,5 +16,5 @@ public interface TaskActionMessageRepository extends JpaRepository<TaskActionMes
     Page<TaskActionMessage> findAllByTaskActionIdAndDeletedTimeIsNull(Pageable pageable, Long taskActionId);
 
 
-    Optional<TaskActionMessage> findByIdAndTaskActionIdAndDeletedTimeIsNull(Long id,Long taskActionId);
+    Optional<TaskActionMessage> findByIdAndTaskActionIdAndDeletedTimeIsNull(Long id, Long taskActionId);
 }

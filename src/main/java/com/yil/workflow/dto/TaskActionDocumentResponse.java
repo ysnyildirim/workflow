@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskResponce {
-    private Long taskId;
+public class TaskActionDocumentResponse {
+    private Long id;
+    private Long taskActionId;
+    private Long documentId;
 }

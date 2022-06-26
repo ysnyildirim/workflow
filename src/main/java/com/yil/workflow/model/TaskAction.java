@@ -12,8 +12,7 @@ import javax.persistence.*;
 @Table(name = "TASK_ACTION",
         indexes = {
                 @Index(name = "IDX_TASK_ACTION_TASK_ID_ACTION_ID", columnList = "TASK_ID,ACTION_ID"),
-                @Index(name = "IDX_TASK_ACTION_PARENT_ID", columnList = "PARENT_ID", unique = true),
-                @Index(name = "IDX_TASK_ACTION_NEXT_USER_ID", columnList = "NEXT_USER_ID")
+                @Index(name = "IDX_TASK_ACTION_PARENT_ID", columnList = "PARENT_ID", unique = true)
         })
 public class TaskAction extends AbstractEntity {
     @Id
@@ -29,6 +28,4 @@ public class TaskAction extends AbstractEntity {
     private Long actionId;
     @Column(name = "PARENT_ID")
     private Long parentId;
-    @Column(name = "NEXT_USER_ID")
-    private Long nextUserId;
 }

@@ -4,10 +4,10 @@
 
 package com.yil.workflow.repository;
 
-import com.yil.workflow.model.ActionGroup;
+import com.yil.workflow.model.ActionTarget;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ActionGroupDao extends JpaRepository<ActionGroup, ActionGroup.Pk> {
+public interface ActionTargetDao extends JpaRepository<ActionTarget, Long> {
 }

@@ -17,14 +17,14 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Optional<Task> findByIdAndDeletedTimeIsNull(Long id);
 
     @Query(nativeQuery = true,
-    value = "select * from task t\n" +
-            "where exists \n" +
-            "( \n" +
-            "select 1 from task_action ta \n" +
-            "where t.ID=ta.TASK_ID\n" +
-            "and ta.ID= (select max(ta2.ID) from TASK_ACTION ta2 where ta2.TASK_ID=ta.TASK_ID)\n" +
-            "and exists  (select 1 from ACTION_USER au where ta.ACTION_ID=au.ACTION_ID and au.USER_ID=1)\n" +
-            ");")
+            value = "select * from task t\n" +
+                    "where exists \n" +
+                    "( \n" +
+                    "select 1 from task_action ta \n" +
+                    "where t.ID=ta.TASK_ID\n" +
+                    "and ta.ID= (select max(ta2.ID) from TASK_ACTION ta2 where ta2.TASK_ID=ta.TASK_ID)\n" +
+                    "and exists  (select 1 from ACTION_USER au where ta.ACTION_ID=au.ACTION_ID and au.USER_ID=1)\n" +
+                    ");")
     Page<Task> getAllByUserId(Pageable pageable);
 
 

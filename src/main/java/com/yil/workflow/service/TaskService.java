@@ -3,9 +3,8 @@ package com.yil.workflow.service;
 import com.yil.workflow.dto.TaskBaseRequest;
 import com.yil.workflow.dto.TaskDto;
 import com.yil.workflow.dto.TaskRequest;
-import com.yil.workflow.dto.TaskResponce;
+import com.yil.workflow.dto.TaskResponse;
 import com.yil.workflow.exception.*;
-import com.yil.workflow.model.ActionUser;
 import com.yil.workflow.model.Flow;
 import com.yil.workflow.model.Task;
 import com.yil.workflow.repository.TaskRepository;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -26,7 +24,6 @@ public class TaskService {
     private final FlowService flowService;
     private final PriorityService priorityService;
     private final TaskActionService taskActionService;
-    private final ActionUserService actionUserService;
 
 
     public static TaskDto toDto(Task task) throws NullPointerException {
@@ -69,7 +66,7 @@ public class TaskService {
     }
 
     @Transactional
-    public TaskResponce replace(TaskBaseRequest request, long taskId, long userId) throws YouDoNotHavePermissionException, TaskNotFoundException {
+    public TaskResponse replace(TaskBaseRequest request, long taskId, long userId) throws YouDoNotHavePermissionException, TaskNotFoundException {
         if (!isEditable(taskId, userId))
             throw new YouDoNotHavePermissionException();
         Task task = findByIdAndDeletedTimeIsNull(taskId);
@@ -78,14 +75,14 @@ public class TaskService {
         task.setFinishDate(request.getFinishDate());
         task.setEstimatedFinishDate(request.getEstimatedFinishDate());
         task = taskRepository.save(task);
-        return TaskResponce
+        return TaskResponse
                 .builder()
                 .taskId(task.getId())
                 .build();
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public TaskResponce save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, NotAvailableActionException, StepNotFoundException {
+    public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, NotAvailableActionException, StepNotFoundException {
         Flow flow = flowService.findByIdAndEnabledTrueAndDeletedTimeIsNull(request.getFlowId());
         if (!priorityService.existsByIdAndDeletedTimeIsNull(request.getPriorityId()))
             throw new PriorityNotFoundException();
@@ -101,16 +98,9 @@ public class TaskService {
 
         taskActionService.save(request.getActionRequest(), task.getId(), userId);
 
-        TaskResponce responce = new TaskResponce();
+        TaskResponse responce = new TaskResponse();
         responce.setTaskId(task.getId());
         return responce;
-    }
-
-    public TaskResponce getTaskByUserId(Long userId) {
-        List<ActionUser> actionUsers = actionUserService.findByUserId(userId);
-
-
-        return null;
     }
 
     public boolean existsById(Long taskId) {

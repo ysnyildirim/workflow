@@ -1,8 +1,8 @@
 package com.yil.workflow.service;
 
-import com.yil.workflow.dto.TaskActionDocumentRequest;
-import com.yil.workflow.dto.TaskActionDocumentResponce;
 import com.yil.workflow.dto.TaskActionDocumentDto;
+import com.yil.workflow.dto.TaskActionDocumentRequest;
+import com.yil.workflow.dto.TaskActionDocumentResponse;
 import com.yil.workflow.exception.TaskActionDocumentNotFoundException;
 import com.yil.workflow.model.Document;
 import com.yil.workflow.model.TaskActionDocument;
@@ -49,7 +49,7 @@ public class TaskActionDocumentService {
     }
 
     @Transactional
-    public TaskActionDocumentResponce save(TaskActionDocumentRequest doc, long taskActionId, long userId) {
+    public TaskActionDocumentResponse save(TaskActionDocumentRequest doc, long taskActionId, long userId) {
         Document document = new Document();
         document.setContent(doc.getContent());
         document = documentService.save(document);
@@ -64,7 +64,7 @@ public class TaskActionDocumentService {
         taskActionDocument.setCreatedTime(new Date());
         taskActionDocument = taskActionDocumentRepository.save(taskActionDocument);
 
-        return TaskActionDocumentResponce
+        return TaskActionDocumentResponse
                 .builder()
                 .documentId(taskActionDocument.getDocumentId())
                 .id(taskActionDocument.getId())

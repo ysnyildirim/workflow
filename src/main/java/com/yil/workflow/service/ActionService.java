@@ -2,7 +2,7 @@ package com.yil.workflow.service;
 
 import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.ActionRequest;
-import com.yil.workflow.dto.ActionResponce;
+import com.yil.workflow.dto.ActionResponse;
 import com.yil.workflow.exception.ActionNotFoundException;
 import com.yil.workflow.exception.ActionTypeNotFoundException;
 import com.yil.workflow.exception.StepNotFoundException;
@@ -72,7 +72,7 @@ public class ActionService {
     }
 
     @Transactional
-    public ActionResponce save(ActionRequest request, Long stepId, Long userId) throws StepNotFoundException, ActionTypeNotFoundException {
+    public ActionResponse save(ActionRequest request, Long stepId, Long userId) throws StepNotFoundException, ActionTypeNotFoundException {
         if (!stepService.existsById(stepId))
             throw new StepNotFoundException();
         Action action = new Action();
@@ -81,12 +81,12 @@ public class ActionService {
     }
 
     @Transactional
-    public ActionResponce replace(ActionRequest request, Long actionId, Long userId) throws ActionNotFoundException, StepNotFoundException, ActionTypeNotFoundException {
+    public ActionResponse replace(ActionRequest request, Long actionId, Long userId) throws ActionNotFoundException, StepNotFoundException, ActionTypeNotFoundException {
         Action action = findByIdAndEnabledTrueAndDeletedTimeIsNull(actionId);
         return getActionResponce(request, userId, action);
     }
 
-    public ActionResponce getActionResponce(ActionRequest request, Long userId, Action action) throws StepNotFoundException, ActionTypeNotFoundException {
+    public ActionResponse getActionResponce(ActionRequest request, Long userId, Action action) throws StepNotFoundException, ActionTypeNotFoundException {
         if (!stepService.existsById(request.getNextStepId()))
             throw new StepNotFoundException();
         if (!actionTypeService.existsById(request.getActionTypeId()))
@@ -99,7 +99,7 @@ public class ActionService {
         action.setCreatedUserId(userId);
         action.setCreatedTime(new Date());
         action = actionRepository.save(action);
-        return ActionResponce.builder().id(action.getId()).build();
+        return ActionResponse.builder().id(action.getId()).build();
     }
 
     @Transactional

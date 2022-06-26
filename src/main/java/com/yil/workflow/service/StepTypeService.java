@@ -10,7 +10,6 @@ import com.yil.workflow.model.StepType;
 import com.yil.workflow.repository.StepTypeDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

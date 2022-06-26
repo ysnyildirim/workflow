@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskActionMessageResponce {
+public class StepResponse {
     private Long id;
-    private Long taskActionId;
 }

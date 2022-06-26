@@ -2,10 +2,10 @@ package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.TaskActionDocumentRequest;
-import com.yil.workflow.dto.TaskActionDocumentResponce;
 import com.yil.workflow.dto.TaskActionDocumentDetailDto;
 import com.yil.workflow.dto.TaskActionDocumentDto;
+import com.yil.workflow.dto.TaskActionDocumentRequest;
+import com.yil.workflow.dto.TaskActionDocumentResponse;
 import com.yil.workflow.exception.DocumentNotFoundException;
 import com.yil.workflow.exception.TaskActionDocumentNotFoundException;
 import com.yil.workflow.exception.TaskActionNotFoundException;
@@ -67,11 +67,11 @@ public class TaskActionDocumentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<TaskActionDocumentResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity<TaskActionDocumentResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                              @PathVariable Long taskActionId,
                                                              @Valid @RequestBody TaskActionDocumentRequest request) throws TaskActionNotFoundException {
         TaskAction taskAction = taskActionService.findByIdAndDeletedTimeIsNull(taskActionId);
-        TaskActionDocumentResponce responce = taskActionDocumentService.save(request, taskAction.getId(), authenticatedUserId);
+        TaskActionDocumentResponse responce = taskActionDocumentService.save(request, taskAction.getId(), authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }
 

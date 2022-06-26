@@ -2,17 +2,14 @@ package com.yil.workflow.service;
 
 import com.yil.workflow.dto.FlowDto;
 import com.yil.workflow.dto.FlowRequest;
-import com.yil.workflow.dto.FlowResponce;
+import com.yil.workflow.dto.FlowResponse;
 import com.yil.workflow.exception.FlowNotFoundException;
 import com.yil.workflow.model.Flow;
 import com.yil.workflow.repository.FlowRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.Date;
 import java.util.List;
 
@@ -46,25 +43,25 @@ public class FlowService {
     }
 
     @Transactional
-    public FlowResponce save(FlowRequest request, Long userId) {
+    public FlowResponse save(FlowRequest request, Long userId) {
         Flow flow = new Flow();
         return getFlowResponce(request, userId, flow);
     }
 
     @Transactional
-    public FlowResponce replace(FlowRequest request, Long flowId, Long userId) throws FlowNotFoundException {
+    public FlowResponse replace(FlowRequest request, Long flowId, Long userId) throws FlowNotFoundException {
         Flow flow = findByIdAndDeletedTimeIsNull(flowId);
         return getFlowResponce(request, userId, flow);
     }
 
-    private FlowResponce getFlowResponce(FlowRequest request, Long userId, Flow flow) {
+    private FlowResponse getFlowResponce(FlowRequest request, Long userId, Flow flow) {
         flow.setName(request.getName());
         flow.setDescription(request.getDescription());
         flow.setEnabled(request.getEnabled());
         flow.setCreatedUserId(userId);
         flow.setCreatedTime(new Date());
         flow = flowRepository.save(flow);
-        return FlowResponce.builder().id(flow.getId()).build();
+        return FlowResponse.builder().id(flow.getId()).build();
     }
 
     @Transactional

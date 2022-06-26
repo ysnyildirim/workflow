@@ -2,9 +2,9 @@ package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.TaskActionMessageRequest;
-import com.yil.workflow.dto.TaskActionMessageResponce;
 import com.yil.workflow.dto.TaskActionMessageDto;
+import com.yil.workflow.dto.TaskActionMessageRequest;
+import com.yil.workflow.dto.TaskActionMessageResponse;
 import com.yil.workflow.exception.TaskActionMessageNotFoundException;
 import com.yil.workflow.exception.TaskActionNotFoundException;
 import com.yil.workflow.model.TaskAction;
@@ -56,11 +56,11 @@ public class TaskActionMessageController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<TaskActionMessageResponce> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+    public ResponseEntity<TaskActionMessageResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                             @PathVariable Long taskActionId,
                                                             @Valid @RequestBody TaskActionMessageRequest request) throws TaskActionNotFoundException {
         TaskAction taskAction = taskActionService.findByIdAndDeletedTimeIsNull(taskActionId);
-        TaskActionMessageResponce taskActionMessageResponce = taskActionMessageService.save(request, taskAction.getId(), authenticatedUserId);
+        TaskActionMessageResponse taskActionMessageResponce = taskActionMessageService.save(request, taskAction.getId(), authenticatedUserId);
         return ResponseEntity.created(null).body(taskActionMessageResponce);
     }
 

@@ -1,17 +1,10 @@
 package com.yil.workflow.controller;
 
-import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.PriorityDto;
 import com.yil.workflow.dto.StepTypeDto;
 import com.yil.workflow.exception.StepTypeNotFoundException;
-import com.yil.workflow.model.Priority;
 import com.yil.workflow.model.StepType;
-import com.yil.workflow.service.PriorityService;
 import com.yil.workflow.service.StepTypeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
