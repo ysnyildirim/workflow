@@ -14,6 +14,7 @@ public class ActionUser implements IEntity {
     @EmbeddedId
     private Pk id;
 
+    @Data
     @Embeddable
     public static class Pk implements Serializable {
         @Column(name = "USER_ID", nullable = false)

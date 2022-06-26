@@ -14,6 +14,7 @@ public class ActionGroup implements IEntity {
     @EmbeddedId
     private Pk id;
 
+    @Data
     @Embeddable
     public static class Pk implements Serializable {
         @Column(name = "GROUP_ID", nullable = false)

@@ -9,6 +9,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Random;
 
 @Component
+@EnableAsync
 public class SetupDataLoader implements ApplicationListener<ContextStartedEvent> {
 
 
@@ -33,31 +36,50 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
 
        // generateTask();
 
-//        try {
-//            int k = new Random().nextInt(5,10);
-//            for (int i = 0; i < k; i++)
-//                generateFlow(1L);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        //       try {
+        //           for (int i = 0; i < 10; i++)
+        //               generateFlow(1L);
+        //       } catch (Exception e) {
+        //           e.printStackTrace();
+        //       }
 
     }
+
+    @Autowired
+    ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
 
     public void generateTask() {
         try {
             List<Flow> flows = flowRepository.findAllByDeletedTimeIsNull();
-
-
-            for (Flow flow : flows) {
+            for (int i = 5; i < flows.size(); i++) {
+                Flow flow = flows.get(i);
                 Step step = stepService.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flow.getId(), 1).get(0);
                 Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(step.getId()).get(0);
-                for (int i = 0; i < 100000; i++) {
-                    int u = new Random().nextInt(1, 50);
-                    TaskRequest request = generateTaskRequest(flow, action);
-                    TaskResponce taskResponce = taskService.save(request, u);
-                    finishTask(taskResponce.getTaskId(), (long) u);
+                for (int j = 0; j < 100000; j++) {
+                //    threadPoolTaskExecutor.execute(() -> {
+                        taskStart(flow, action);
+                        //   System.out.println(Thread.currentThread().getId());
+                  //  });
                 }
             }
+//            while (threadPoolTaskExecutor.getActiveCount() > 0) {
+//                System.out.println("Number of tasks left: " + threadPoolTaskExecutor.getActiveCount());
+//                Thread.sleep(5000);
+//            }
+            threadPoolTaskExecutor.shutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void taskStart(Flow flow, Action action) {
+        try {
+            int u = new Random().nextInt(1, 50);
+            TaskRequest request = generateTaskRequest(flow, action);
+            TaskResponce taskResponce = taskService.save(request, u);
+            finishTask(taskResponce.getTaskId(), (long) u);
+            System.out.println(taskResponce.getTaskId());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -51,6 +51,7 @@ public class TaskActionService {
         TaskAction taskAction = new TaskAction();
         taskAction.setTaskId(taskId);
         taskAction.setActionId(action.getId());
+        taskAction.setParentId(currentTaskAction != null ? currentTaskAction.getId() : null);
         taskAction.setCreatedUserId(userId);
         taskAction.setCreatedTime(new Date());
         taskAction = taskActionRepository.save(taskAction);
