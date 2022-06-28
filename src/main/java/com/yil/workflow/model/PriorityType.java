@@ -19,13 +19,13 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "PRIORITY")
-public class Priority implements IEntity {
+@Table(name = "PRIORITY_TYPE")
+public class PriorityType implements IEntity {
     @Id
-    @SequenceGenerator(name = "PRIORITY_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_PRIORITY_ID",
+    @SequenceGenerator(name = "PRIORITY_TYPE_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_PRIORITY_TYPE_ID",
             allocationSize = 1)
-    @GeneratedValue(generator = "PRIORITY_SEQUENCE_GENERATOR")
+    @GeneratedValue(generator = "PRIORITY_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID", nullable = false, unique = true)
     private Integer id;
     @Column(name = "NAME", nullable = false, length = 100)

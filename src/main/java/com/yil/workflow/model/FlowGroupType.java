@@ -4,6 +4,7 @@
 
 package com.yil.workflow.model;
 
+
 import com.yil.workflow.base.IEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,23 +14,21 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 /**
- * 1- Request Creator (Requester)
- * 2- Request Stakeholders
- * 3- Group Members
- * 4- Process Admins
+ * Admin : flow select,edit,update,delete
+ * Stake : select edit,update
  */
 @Data
 @Entity
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(name = "TARGET")
-public class Target implements IEntity {
+@Table(name = "FLOW_GROUP_TYPE")
+public class FlowGroupType implements IEntity {
     @Id
-    @SequenceGenerator(name = "TARGET_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_TARGET_ID",
+    @SequenceGenerator(name = "FLOW_GROUP_TYPE_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_FLOW_GROUP_TYPE_ID",
             allocationSize = 1)
-    @GeneratedValue(generator = "TARGET_SEQUENCE_GENERATOR")
+    @GeneratedValue(generator = "FLOW_GROUP_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Integer id;
     @Column(name = "NAME", nullable = false, length = 100)

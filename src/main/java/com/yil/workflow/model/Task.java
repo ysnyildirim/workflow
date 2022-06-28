@@ -10,7 +10,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
-@Table(name = "TASK")
+@Table(name = "TASK", indexes = {@Index(name = "IDX_TASK_FLOW_ID", columnList = "FLOW_ID")})
 public class Task extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "TASK_SEQUENCE_GENERATOR",
@@ -30,6 +30,6 @@ public class Task extends AbstractEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "ESTIMATED_FINISH_DATE")
     private Date estimatedFinishDate;
-    @Column(name = "PRIORITY_ID", nullable = false)
-    private Integer priorityId;
+    @Column(name = "PRIORITY_TYPE_ID", nullable = false)
+    private Integer priorityTypeId;
 }

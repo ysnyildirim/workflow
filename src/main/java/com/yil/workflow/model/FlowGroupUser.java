@@ -4,9 +4,9 @@
 
 package com.yil.workflow.model;
 
+import com.yil.workflow.base.AbstractEntity;
 import com.yil.workflow.base.IEntity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -21,6 +21,9 @@ public class FlowGroupUser implements IEntity {
     private Pk id;
 
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Embeddable
     public static class Pk implements Serializable {
         @Column(name = "FLOW_GROUP_ID")

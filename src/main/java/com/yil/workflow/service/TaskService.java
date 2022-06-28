@@ -22,7 +22,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final FlowService flowService;
-    private final PriorityService priorityService;
+    private final PriorityTypeService priorityTypeService;
     private final TaskActionService taskActionService;
 
 
@@ -33,7 +33,7 @@ public class TaskService {
         dto.setId(task.getId());
         dto.setFinishDate(task.getFinishDate());
         dto.setEstimatedFinishDate(task.getEstimatedFinishDate());
-        dto.setPriorityId(task.getPriorityId());
+        dto.setPriorityTypeId(task.getPriorityTypeId());
         dto.setStartDate(task.getStartDate());
         dto.setFlowId(task.getFlowId());
         return dto;
@@ -70,7 +70,7 @@ public class TaskService {
         if (!isEditable(taskId, userId))
             throw new YouDoNotHavePermissionException();
         Task task = findByIdAndDeletedTimeIsNull(taskId);
-        task.setPriorityId(request.getPriorityId());
+        task.setPriorityTypeId(request.getPriorityTypeId());
         task.setStartDate(request.getStartDate());
         task.setFinishDate(request.getFinishDate());
         task.setEstimatedFinishDate(request.getEstimatedFinishDate());
@@ -84,11 +84,11 @@ public class TaskService {
     @Transactional(rollbackFor = Exception.class)
     public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, NotAvailableActionException, StepNotFoundException {
         Flow flow = flowService.findByIdAndEnabledTrueAndDeletedTimeIsNull(request.getFlowId());
-        if (!priorityService.existsByIdAndDeletedTimeIsNull(request.getPriorityId()))
+        if (!priorityTypeService.existsByIdAndDeletedTimeIsNull(request.getPriorityTypeId()))
             throw new PriorityNotFoundException();
         Task task = new Task();
         task.setFlowId(flow.getId());
-        task.setPriorityId(request.getPriorityId());
+        task.setPriorityTypeId(request.getPriorityTypeId());
         task.setStartDate(request.getStartDate());
         task.setFinishDate(request.getFinishDate());
         task.setEstimatedFinishDate(request.getEstimatedFinishDate());

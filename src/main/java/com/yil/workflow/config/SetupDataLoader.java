@@ -44,11 +44,11 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     @Autowired
     private ActionTypeDao actionTypeDao;
     @Autowired
-    private PriorityRepository priorityRepository;
+    private PriorityTypeDao priorityTypeDao;
     @Autowired
     private StatusRepository statusRepository;
     @Autowired
-    private TargetDao targetDao;
+    private TargetTypeDao targetTypeDao;
 
     @Override
     public void onApplicationEvent(ContextStartedEvent event) {
@@ -60,6 +60,16 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         initPriority();
         initActionType();
         initStepType();
+        initFlowGroupType();
+
+
+//        List<Action> actionList = actionRepository.findAll();
+//        for (Action action : actionList)
+//            generateActionTarget(action.getId(), action.getCreatedUserId());
+
+//        for (Flow flow : flowService.findAllByDeletedTimeIsNull())
+//            generateFlowGroups(flow.getId(), flow.getCreatedUserId());
+
 
         // generateTask();
 
@@ -71,6 +81,12 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         //       }
 
     }
+
+    @Autowired
+    private ActionRepository actionRepository;
+
+    @Autowired
+    private FlowGroupDao flowGroupDao;
 
     public void generateTask() {
         try {
@@ -130,6 +146,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         request.setDescription(randomString(100));
         request.setEnabled(true);
         FlowResponse responce = flowService.save(request, userId);
+        generateFlowGroups(responce.getId(), userId);
         int k = new Random().nextInt(5, 15);
         for (int i = 0; i < k; i++)
             generateStep(responce.getId(), userId);
@@ -175,7 +192,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         request.setStartDate(new Date());
         request.setFinishDate(new Date());
         request.setEstimatedFinishDate(new Date());
-        request.setPriorityId(1);
+        request.setPriorityTypeId(1);
         request.setActionRequest(generateTaskAction(action));
         return request;
     }
@@ -264,18 +281,18 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     }
 
     private void initPriority() {
-        addPriority(Priority.builder().id(1).name("Highest").description("This problem will block progress").build());
-        addPriority(Priority.builder().id(2).name("High").description("Serious problem that could block progress").build());
-        addPriority(Priority.builder().id(3).name("Medium").description("Has the potential to effect progress").build());
-        addPriority(Priority.builder().id(4).name("Low").description("Minor problem or easily worked around").build());
-        addPriority(Priority.builder().id(5).name("Lowest").description("Trivial problem with little or no impact on progress").build());
+        addPriority(PriorityType.builder().id(1).name("Highest").description("This problem will block progress").build());
+        addPriority(PriorityType.builder().id(2).name("High").description("Serious problem that could block progress").build());
+        addPriority(PriorityType.builder().id(3).name("Medium").description("Has the potential to effect progress").build());
+        addPriority(PriorityType.builder().id(4).name("Low").description("Minor problem or easily worked around").build());
+        addPriority(PriorityType.builder().id(5).name("Lowest").description("Trivial problem with little or no impact on progress").build());
 
     }
 
-    private void addPriority(Priority priority) {
-        if (priorityRepository.existsById(priority.getId()))
+    private void addPriority(PriorityType priority) {
+        if (priorityTypeDao.existsById(priority.getId()))
             return;
-        priorityRepository.save(priority);
+        priorityTypeDao.save(priority);
     }
 
     private void initStatus() {
@@ -291,17 +308,96 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     }
 
     private void initTarget() {
-        addTarget(Target.builder().id(1).name("Creator").description("Task creator").build());
-        addTarget(Target.builder().id(2).name("Stakeholders").description("Stakeholders").build());
-        addTarget(Target.builder().id(3).name("Group Members").description("Group Members").build());
-        addTarget(Target.builder().id(4).name("Flow Admins").description("Flow Admins").build());
+        addTarget(TargetType.builder().id(1).name("Task Creator").description("Task creator").build());
+        addTarget(TargetType.builder().id(2).name("Action User").description("Action execute user").build());
+        addTarget(TargetType.builder().id(3).name("Group Members").description("Group Members").build());
     }
 
-    private void addTarget(Target target) {
-        if (targetDao.existsById(target.getId()))
+    private void addTarget(TargetType target) {
+        if (targetTypeDao.existsById(target.getId()))
             return;
-        targetDao.save(target);
+        targetTypeDao.save(target);
     }
 
+    @Autowired
+    private FlowGroupTypeDao flowGroupTypeDao;
+
+    private void initFlowGroupType() {
+        FlowGroupType admin = FlowGroupType.builder().id(1).name("ADMIN").description("select,edit,update,delete").build();
+        FlowGroupType staff = FlowGroupType.builder().id(2).name("STAFF").description("select,edit,update").build();
+        FlowGroupType user = FlowGroupType.builder().id(3).name("USER").description("select").build();
+
+        addFlowGroupType(admin);
+        addFlowGroupType(staff);
+        addFlowGroupType(user);
+    }
+
+    private void addFlowGroupType(FlowGroupType flowGroupType) {
+        if (flowGroupTypeDao.existsById(flowGroupType.getId()))
+            return;
+        flowGroupTypeDao.save(flowGroupType);
+    }
+
+    @Autowired
+    private FlowGroupService flowGroupService;
+
+    public void generateFlowGroups(long flowId, long userId) {
+        FlowGroupRequest admin = FlowGroupRequest.builder().groupTypeId(1).name("Admins").description("admin").build();
+        generateFlowGroup(admin, flowId, userId);
+        FlowGroupRequest staff = FlowGroupRequest.builder().groupTypeId(1).name("Employess").description("Employess").build();
+        generateFlowGroup(staff, flowId, userId);
+        FlowGroupRequest u1 = FlowGroupRequest.builder().groupTypeId(1).name("Users1").description("Users1").build();
+        generateFlowGroup(u1, flowId, userId);
+        FlowGroupRequest u2 = FlowGroupRequest.builder().groupTypeId(1).name("Users2").description("Users2").build();
+        generateFlowGroup(u2, flowId, userId);
+        FlowGroupRequest u3 = FlowGroupRequest.builder().groupTypeId(1).name("Users3").description("Users3").build();
+        generateFlowGroup(u3, flowId, userId);
+    }
+
+
+    private void generateFlowGroup(FlowGroupRequest request, long flowId, long userId) {
+        FlowGroupResponse response = flowGroupService.save(request, flowId, userId);
+        int i = new Random().nextInt(1, 10); //her gruba rastgele user at
+        for (int j = 0; j < i; j++)
+            generateFlowGroupUsers(response.getId(), userId);
+    }
+
+    @Autowired
+    private FlowGroupUserService flowGroupUserService;
+
+    public void generateFlowGroupUsers(long groupId, long userId) {
+        int i = new Random().nextInt(1, 50);
+        flowGroupUserService.save(FlowGroupUserRequest.builder().userId((long) i).build(), groupId, userId);
+    }
+
+
+    @Autowired
+    private ActionTargetService actionTargetService;
+
+    private void generateActionTarget(long actionId, long userId) {
+        try {
+            Action action = actionService.findByIdAndDeletedTimeIsNull(actionId);
+            Step step = stepService.findByIdAndDeletedTimeIsNull(action.getStepId());
+            Flow flow = flowService.findByIdAndDeletedTimeIsNull(step.getFlowId());
+            int k = new Random().nextInt(1, 3);
+            for (int i = 0; i < k; i++) {
+                Long flowGroupId = null;
+                int t = new Random().nextInt(1, 4);
+                if (t == 3) //grup
+                {
+                    List<FlowGroup> flowGroups = flowGroupDao.findAllByFlowIdAndDeletedTimeIsNull(flow.getId());
+                    FlowGroup flowGroup = null;
+                    if (!flowGroups.isEmpty())
+                        flowGroup = flowGroups.get(new Random().nextInt(1, flowGroups.size()));
+                    if (flowGroup != null)
+                        flowGroupId = flowGroup.getId();
+                }
+                actionTargetService.save(ActionTargetRequest.builder().targetId(t).flowGroupId(flowGroupId).build(), actionId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }

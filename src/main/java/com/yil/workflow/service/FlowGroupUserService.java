@@ -5,10 +5,15 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.FlowGroupUserDto;
+import com.yil.workflow.dto.FlowGroupUserRequest;
+import com.yil.workflow.dto.FlowGroupUserResponse;
 import com.yil.workflow.model.FlowGroupUser;
 import com.yil.workflow.repository.FlowGroupUserDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 @RequiredArgsConstructor
 @Service
@@ -24,5 +29,17 @@ public class FlowGroupUserService {
         dto.setFlowGroupId(flowGroupUser.getId().getFlowGroupId());
         return dto;
     }
+
+    @Transactional
+    public FlowGroupUserResponse save(FlowGroupUserRequest request, long flowGroupId, long userId) {
+        FlowGroupUser flowGroupUser = flowGroupUserDao.findById(new FlowGroupUser.Pk(flowGroupId, request.getUserId())).orElse(null);
+        if (flowGroupUser == null) {
+            flowGroupUser = new FlowGroupUser();
+            flowGroupUser.setId(new FlowGroupUser.Pk(flowGroupId, request.getUserId()));
+            flowGroupUser = flowGroupUserDao.save(flowGroupUser);
+        }
+        return FlowGroupUserResponse.builder().userId(flowGroupUser.getId().getUserId()).build();
+    }
+
 
 }

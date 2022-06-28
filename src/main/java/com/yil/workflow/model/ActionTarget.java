@@ -29,7 +29,7 @@ public class ActionTarget implements IEntity {
     @Column(name = "ACTION_ID", nullable = false)
     private Long actionId;
     @Column(name = "TARGET_ID", nullable = false)
-    private Long targetId;
+    private Integer targetId;
     @Column(name = "FLOW_GROUP_ID")
     private Long flowGroupId;
 }

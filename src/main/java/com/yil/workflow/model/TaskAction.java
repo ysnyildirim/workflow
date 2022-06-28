@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TASK_ACTION",
         indexes = {
-                @Index(name = "IDX_TASK_ACTION_TASK_ID_ACTION_ID", columnList = "TASK_ID,ACTION_ID"),
+                @Index(name = "IDX_TASK_ACTION_TASK_ID", columnList = "TASK_ID"),
                 @Index(name = "IDX_TASK_ACTION_PARENT_ID", columnList = "PARENT_ID", unique = true)
         })
 public class TaskAction extends AbstractEntity {

@@ -8,6 +8,9 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+    TargetNotFound(7000016, "Target not found"),
+    ActionTargetNotFound(7000015, "Action target not found"),
+    FlowGroupNotFound(7000014, "Flow group not found"),
     StepTypeNotFound(7000013, "Step type not found"),
     ActionTypeNotFound(7000012, "Action type not found"),
     YouDoNotHavePermission(7000011, "You do not have permission"),

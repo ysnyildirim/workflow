@@ -5,13 +5,15 @@
 package com.yil.workflow.model;
 
 import com.yil.workflow.base.AbstractEntity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.persistence.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "FLOW_GROUP")
 public class FlowGroup extends AbstractEntity {
@@ -28,4 +30,6 @@ public class FlowGroup extends AbstractEntity {
     private String description;
     @Column(name = "FLOW_ID", nullable = false)
     private Long flowId;
+    @Column(name = "FLOW_GROUP_TYPE_ID", nullable = false)
+    private Integer flowGroupTypeId;
 }

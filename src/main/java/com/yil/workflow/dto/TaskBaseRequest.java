@@ -21,5 +21,5 @@ public class TaskBaseRequest {
     private Date finishDate;
     private Date estimatedFinishDate;
     @NotNull
-    private Integer priorityId;
+    private Integer priorityTypeId;
 }

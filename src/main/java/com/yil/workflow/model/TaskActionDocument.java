@@ -12,8 +12,7 @@ import java.util.Date;
 @Entity
 @Table(name = "TASK_ACTION_DOCUMENT",
         indexes = {
-                @Index(name = "IDX_TASK_ACTION_DOCUMENT_TASK_ACTION_ID",
-                        columnList = "TASK_ACTION_ID")})
+                @Index(name = "IDX_TASK_ACTION_DOCUMENT_TASK_ACTION_ID", columnList = "TASK_ACTION_ID")})
 public class TaskActionDocument extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "TASK_ACTION_DOCUMENT_SEQUENCE_GENERATOR",
