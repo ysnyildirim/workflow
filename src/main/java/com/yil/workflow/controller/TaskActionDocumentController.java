@@ -9,6 +9,7 @@ import com.yil.workflow.dto.TaskActionDocumentResponse;
 import com.yil.workflow.exception.DocumentNotFoundException;
 import com.yil.workflow.exception.TaskActionDocumentNotFoundException;
 import com.yil.workflow.exception.TaskActionNotFoundException;
+import com.yil.workflow.exception.YouDoNotHavePermissionException;
 import com.yil.workflow.model.Document;
 import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.model.TaskActionDocument;
@@ -54,7 +55,7 @@ public class TaskActionDocumentController {
             @PathVariable Long taskActionId,
             @PathVariable Long id) throws TaskActionDocumentNotFoundException, DocumentNotFoundException {
         TaskActionDocument task = taskActionDocumentService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
-        Document document = documentService.findByIdAndDeletedTimeIsNull(task.getDocumentId());
+        Document document = documentService.findById(task.getDocumentId());
         TaskActionDocumentDetailDto dto = new TaskActionDocumentDetailDto();
         dto.setContent(document.getContent());
         dto.setTaskActionId(task.getTaskActionId());
@@ -70,18 +71,9 @@ public class TaskActionDocumentController {
     public ResponseEntity<TaskActionDocumentResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                              @PathVariable Long taskActionId,
                                                              @Valid @RequestBody TaskActionDocumentRequest request) throws TaskActionNotFoundException {
-        TaskAction taskAction = taskActionService.findByIdAndDeletedTimeIsNull(taskActionId);
+        TaskAction taskAction = taskActionService.findById(taskActionId);
         TaskActionDocumentResponse responce = taskActionDocumentService.save(request, taskAction.getId(), authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
-    }
-
-    @DeleteMapping(value = "/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                         @PathVariable Long taskActionId,
-                                         @PathVariable Long id) throws TaskActionDocumentNotFoundException {
-        taskActionDocumentService.delete(id, authenticatedUserId);
-        return ResponseEntity.ok("Task action document deleted.");
     }
 
 

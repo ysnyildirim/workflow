@@ -4,21 +4,20 @@ import com.yil.workflow.dto.TaskActionMessageDto;
 import com.yil.workflow.dto.TaskActionMessageRequest;
 import com.yil.workflow.dto.TaskActionMessageResponse;
 import com.yil.workflow.exception.TaskActionMessageNotFoundException;
+import com.yil.workflow.exception.YouDoNotHavePermissionException;
 import com.yil.workflow.model.TaskActionMessage;
-import com.yil.workflow.repository.TaskActionMessageRepository;
+import com.yil.workflow.repository.TaskActionMessageDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-
 @RequiredArgsConstructor
 @Service
 public class TaskActionMessageService {
 
-    private final TaskActionMessageRepository taskActionMessageRepository;
+    private final TaskActionMessageDao taskActionMessageDao;
 
     public static TaskActionMessageDto toDto(TaskActionMessage taskActionMessage) throws NullPointerException {
         if (taskActionMessage == null)
@@ -31,17 +30,17 @@ public class TaskActionMessageService {
         return dto;
     }
 
-    public TaskActionMessage findByIdAndTaskActionIdAndDeletedTimeIsNull(Long id, Long taskActionId) throws TaskActionMessageNotFoundException {
-        return taskActionMessageRepository.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId).orElseThrow(() -> new TaskActionMessageNotFoundException());
+    public TaskActionMessage findByIdAndTaskActionId(Long id, Long taskActionId) throws TaskActionMessageNotFoundException {
+        return taskActionMessageDao.findByIdAndTaskActionId(id, taskActionId).orElseThrow(() -> new TaskActionMessageNotFoundException());
     }
 
     @Transactional
     public TaskActionMessage save(TaskActionMessage taskActionMessage) {
-        return taskActionMessageRepository.save(taskActionMessage);
+        return taskActionMessageDao.save(taskActionMessage);
     }
 
-    public Page<TaskActionMessage> findAllByTaskActionIdAndDeletedTimeIsNull(Pageable pageable, Long taskActionId) {
-        return taskActionMessageRepository.findAllByTaskActionIdAndDeletedTimeIsNull(pageable, taskActionId);
+    public Page<TaskActionMessage> findAllByTaskActionId(Pageable pageable, Long taskActionId) {
+        return taskActionMessageDao.findAllByTaskActionId(pageable, taskActionId);
     }
 
     @Transactional
@@ -50,13 +49,22 @@ public class TaskActionMessageService {
         taskActionMessage.setTaskActionId(taskActionId);
         taskActionMessage.setSubject(message.getSubject());
         taskActionMessage.setContent(message.getContent());
-        taskActionMessage.setCreatedUserId(userId);
-        taskActionMessage.setCreatedTime(new Date());
-        taskActionMessage = taskActionMessageRepository.save(taskActionMessage);
+        taskActionMessage = taskActionMessageDao.save(taskActionMessage);
         return TaskActionMessageResponse
                 .builder()
                 .id(taskActionMessage.getId())
                 .taskActionId(taskActionMessage.getTaskActionId())
                 .build();
+    }
+
+    public boolean isDeletabled(long id, long userId) {
+        return true;
+    }
+
+    @Transactional
+    public void delete(long id, long userId) throws YouDoNotHavePermissionException {
+        if (!isDeletabled(id, userId))
+            throw new YouDoNotHavePermissionException();
+        taskActionMessageDao.deleteById(id);
     }
 }

@@ -8,6 +8,8 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+    ActionSourceNotFound(7000018, "Action source not found"),
+    FlowGroupTypeNotFound(7000017, "Flow group type not found"),
     TargetNotFound(7000016, "Target not found"),
     ActionTargetNotFound(7000015, "Action target not found"),
     FlowGroupNotFound(7000014, "Flow group not found"),

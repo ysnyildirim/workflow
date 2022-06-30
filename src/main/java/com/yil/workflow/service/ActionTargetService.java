@@ -27,7 +27,7 @@ public class ActionTargetService {
             throw new NullPointerException();
         ActionTargetDto dto = new ActionTargetDto();
         dto.setId(actionTarget.getId());
-        dto.setTargetId(actionTarget.getTargetId());
+        dto.setTargetTypeId(actionTarget.getTargetTypeId());
         dto.setActionId(actionTarget.getActionId());
         dto.setFlowGroupId(actionTarget.getFlowGroupId());
         return dto;
@@ -45,9 +45,9 @@ public class ActionTargetService {
     }
 
     private ActionTargetResponse getActionTargetResponse(ActionTargetRequest request, ActionTarget actionTarget) throws TargetNotFoundException {
-        if (!targetTypeService.existsById(request.getTargetId()))
+        if (!targetTypeService.existsById(request.getTargetTypeId()))
             throw new TargetNotFoundException();
-        actionTarget.setTargetId(request.getTargetId());
+        actionTarget.setTargetTypeId(request.getTargetTypeId());
         actionTarget.setFlowGroupId(request.getFlowGroupId());
         actionTarget = actionTargetDao.save(actionTarget);
         return ActionTargetResponse.builder().id(actionTarget.getId()).build();

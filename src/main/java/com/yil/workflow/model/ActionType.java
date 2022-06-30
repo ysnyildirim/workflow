@@ -25,11 +25,11 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "ACTION_TYPE")
+@Table(schema ="WFS",name = "ACTION_TYPE")
 public class ActionType implements IEntity {
     @Id
     @SequenceGenerator(name = "ACTION_TYPE_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_ACTION_TYPE_ID",
+            sequenceName = "SEQ_ACTION_TYPE_ID",schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "ACTION_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID")

@@ -7,7 +7,7 @@ import com.yil.workflow.exception.ActionNotFoundException;
 import com.yil.workflow.exception.ActionTypeNotFoundException;
 import com.yil.workflow.exception.StepNotFoundException;
 import com.yil.workflow.model.Action;
-import com.yil.workflow.repository.ActionRepository;
+import com.yil.workflow.repository.ActionDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 public class ActionService {
 
-    private final ActionRepository actionRepository;
+    private final ActionDao actionDao;
     private final StepService stepService;
     private final ActionTypeService actionTypeService;
 
@@ -39,36 +39,23 @@ public class ActionService {
     }
 
     public Action findById(Long id) throws ActionNotFoundException {
-        return actionRepository.findById(id).orElseThrow(() -> new ActionNotFoundException());
+        return actionDao.findById(id).orElseThrow(() -> new ActionNotFoundException());
     }
 
     public Action findByIdAndStepId(Long id, Long stepId) throws ActionNotFoundException {
-        return actionRepository.findByIdAndStepId(id, stepId).orElseThrow(() -> new ActionNotFoundException());
+        return actionDao.findByIdAndStepId(id, stepId).orElseThrow(() -> new ActionNotFoundException());
     }
 
     public Action findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) throws ActionNotFoundException {
-        return actionRepository.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
+        return actionDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
     }
 
-    public Action findByIdAndStepIdAndEnabledTrueAndDeletedTimeIsNotNull(Long id, Long stepId) throws ActionNotFoundException {
-        return actionRepository.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
+    public Action findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id, Long stepId) throws ActionNotFoundException {
+        return actionDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
     }
 
     public Action findByIdAndDeletedTimeIsNull(Long id) throws ActionNotFoundException {
-        return actionRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
-    }
-
-    public boolean availableAction(long id, long userId) {
-        //bu action nextuser veya grup bu kullanıcı mı ?
-        boolean existsGroupOrUser = true;
-        if (!existsGroupOrUser) {
-            //bu kişi bu işlemi yapamaz
-            return false;
-        }
-        //action yetkisi var mı ?
-        boolean existsActionPermission = true;
-        //execute yetkisi yok
-        return existsActionPermission;
+        return actionDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
     }
 
     @Transactional
@@ -98,7 +85,7 @@ public class ActionService {
         action.setActionTypeId(request.getActionTypeId());
         action.setCreatedUserId(userId);
         action.setCreatedTime(new Date());
-        action = actionRepository.save(action);
+        action = actionDao.save(action);
         return ActionResponse.builder().id(action.getId()).build();
     }
 
@@ -107,10 +94,10 @@ public class ActionService {
         Action action = findByIdAndDeletedTimeIsNull(actionId);
         action.setDeletedUserId(userId);
         action.setDeletedTime(new Date());
-        actionRepository.save(action);
+        actionDao.save(action);
     }
 
     public List<Action> findAllByStepIdAndDeletedTimeIsNull(Long stepId) {
-        return actionRepository.findAllByStepIdAndDeletedTimeIsNull(stepId);
+        return actionDao.findAllByStepIdAndDeletedTimeIsNull(stepId);
     }
 }

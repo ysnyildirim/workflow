@@ -11,10 +11,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
-    Page<Task> findAllByDeletedTimeIsNull(Pageable pageable);
-
-    Optional<Task> findByIdAndDeletedTimeIsNull(Long id);
+public interface TaskDao extends JpaRepository<Task, Long> {
 
     @Query(nativeQuery = true,
             value = "select * from task t\n" +

@@ -17,11 +17,11 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "STATUS")
+@Table(schema ="WFS",name = "STATUS")
 public class Status implements IEntity {
     @Id
     @SequenceGenerator(name = "STATUS_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_STATUS_ID",
+            sequenceName = "SEQ_STATUS_ID",schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "STATUS_SEQUENCE_GENERATOR")
     @Column(name = "ID", nullable = false, unique = true)

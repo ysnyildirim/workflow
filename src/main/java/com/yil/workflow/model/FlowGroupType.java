@@ -22,11 +22,11 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(name = "FLOW_GROUP_TYPE")
+@Table(schema ="WFS",name = "FLOW_GROUP_TYPE")
 public class FlowGroupType implements IEntity {
     @Id
     @SequenceGenerator(name = "FLOW_GROUP_TYPE_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_FLOW_GROUP_TYPE_ID",
+            sequenceName = "SEQ_FLOW_GROUP_TYPE_ID",schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "FLOW_GROUP_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID")

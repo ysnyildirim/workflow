@@ -36,7 +36,7 @@ public class TaskActionController {
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-        Page<TaskAction> taskPage = taskActionService.findAllByTaskIdAndDeletedTimeIsNull(pageable, taskId);
+        Page<TaskAction> taskPage = taskActionService.findAllByTaskId(pageable, taskId);
         PageDto<TaskActionResponse> pageDto = PageDto.toDto(taskPage, TaskActionService::toDto);
         return ResponseEntity.ok(pageDto);
     }
@@ -46,7 +46,7 @@ public class TaskActionController {
     public ResponseEntity<TaskActionResponse> findByIdAndTaskIdAndDeletedTimeIsNull(
             @PathVariable Long taskId,
             @PathVariable Long id) throws TaskActionNotFoundException {
-        TaskAction task = taskActionService.findByIdAndTaskIdAndDeletedTimeIsNull(id, taskId);
+        TaskAction task = taskActionService.findByIdAndTaskId(id, taskId);
         TaskActionResponse dto = TaskActionService.toDto(task);
         return ResponseEntity.ok(dto);
     }
@@ -61,15 +61,6 @@ public class TaskActionController {
             throw new TaskNotFoundException();
         TaskActionResponse responce = taskActionService.save(request, taskId, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
-    }
-
-    @DeleteMapping(value = "/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                         @PathVariable Long taskId,
-                                         @PathVariable Long id) throws TaskActionNotFoundException, YouDoNotHavePermissionException {
-        taskActionService.delete(id, authenticatedUserId);
-        return ResponseEntity.ok("Action deleted.");
     }
 
 

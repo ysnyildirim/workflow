@@ -9,7 +9,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface ActionRepository extends JpaRepository<Action, Long> {
+public interface ActionDao extends JpaRepository<Action, Long> {
     List<Action> findAllByStepIdAndDeletedTimeIsNull(Long stepId);
 
     Optional<Action> findByIdAndStepId(Long id, Long stepId);

@@ -16,7 +16,6 @@ public interface FlowGroupDao extends JpaRepository<FlowGroup, Long> {
 
     Optional<FlowGroup> findByIdAndDeletedTimeIsNull(Long id);
 
-    boolean existsByIdAndFlowId(Long id, Long flowId);
 
-    List<FlowGroup> findAllByFlowIdAndDeletedTimeIsNull(Long flowId);
+    List<FlowGroup> findAllByDeletedTimeIsNull();
 }

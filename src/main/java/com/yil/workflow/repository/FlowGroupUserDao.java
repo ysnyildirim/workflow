@@ -10,4 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FlowGroupUserDao extends JpaRepository<FlowGroupUser, FlowGroupUser.Pk> {
+
+    boolean existsById_UserId(long id, long userId);
+
 }

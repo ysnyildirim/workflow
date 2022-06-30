@@ -14,6 +14,6 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ActionTargetRequest {
     @NonNull
-    private Integer targetId;
+    private Integer targetTypeId;
     private Long flowGroupId;
 }

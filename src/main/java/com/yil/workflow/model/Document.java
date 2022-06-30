@@ -1,19 +1,17 @@
 package com.yil.workflow.model;
 
-import com.yil.workflow.base.AbstractEntity;
+import com.yil.workflow.base.IEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
-@Table(name = "DOCUMENT")
-public class Document extends AbstractEntity {
+@Table(schema = "WFS", name = "DOCUMENT")
+public class Document implements IEntity {
     @Id
     @SequenceGenerator(name = "DOCUMENT_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_DOCUMENT_ID",
+            sequenceName = "SEQ_DOCUMENT_ID", schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "DOCUMENT_SEQUENCE_GENERATOR")
     @Column(name = "ID")

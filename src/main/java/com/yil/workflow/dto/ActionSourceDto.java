@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ActionTargetDto {
+public class ActionSourceDto {
     private Long id;
     private Long actionId;
     private Integer targetTypeId;

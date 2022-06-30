@@ -6,8 +6,9 @@ import com.yil.workflow.dto.TaskActionRequest;
 import com.yil.workflow.dto.TaskActionResponse;
 import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Action;
+import com.yil.workflow.model.ActionSource;
 import com.yil.workflow.model.TaskAction;
-import com.yil.workflow.repository.TaskActionRepository;
+import com.yil.workflow.repository.TaskActionDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,12 +16,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class TaskActionService {
 
-    private final TaskActionRepository taskActionRepository;
+    private final TaskActionDao taskActionDao;
     private final ActionService actionService;
     private final TaskActionDocumentService taskActionDocumentService;
     private final TaskActionMessageService taskActionMessageService;
@@ -37,26 +39,80 @@ public class TaskActionService {
     }
 
     public TaskAction getLastAction(long taskId) {
-        return taskActionRepository.getLastAction(taskId);
+        return taskActionDao.getLastAction(taskId);
+    }
+
+    private final ActionSourceService actionSourceService;
+    private final FlowGroupUserService flowGroupUserService;
+
+    public TaskAction findByTaskIdOrderByIdAsc(long taskId) throws TaskActionNotFoundException {
+        return taskActionDao.findByTaskIdOrderByIdAsc(taskId).orElseThrow(() -> new TaskActionNotFoundException());
     }
 
     @Transactional
     public TaskActionResponse save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, NotAvailableActionException, YouDoNotHavePermissionException, StepNotFoundException {
-        if (!isTaskActionCreatable(taskId, userId))
-            throw new YouDoNotHavePermissionException();
         TaskAction currentTaskAction = getLastAction(taskId);
+
+        //region permission control
+        if (currentTaskAction == null) {
+            boolean state = false;
+            List<ActionSource> actionSources = actionSourceService.findAllByActionIdAndTargetTypeId(request.getActionId(), 3);
+            for (ActionSource actionSource : actionSources) {
+                if (flowGroupUserService.existsById(actionSource.getFlowGroupId(), userId)) {
+                    state = true;
+                    break;
+                }
+            }
+            if (!state)
+                throw new YouDoNotHavePermissionException();
+        } else {
+            TaskAction firstAction = null;
+            try {
+                if (currentTaskAction.getParentId() == null) //current action parent id is null then first action
+                    firstAction = findByTaskIdOrderByIdAsc(taskId);
+                else
+                    firstAction = currentTaskAction;
+            } catch (Exception e) {
+
+            }
+            boolean state = false;
+            List<ActionSource> actionSources = actionSourceService.findAllByActionId(request.getActionId());
+            for (ActionSource actionSource : actionSources) {
+                if (actionSource.getTargetTypeId().equals(1)) { // task creator
+                    if (firstAction != null && firstAction.getCreatedUserId().equals(userId)) { // first task creator is user ?
+                        state = true;
+                        break;
+                    }
+                } else if (actionSource.getTargetTypeId().equals(2)) { //last action user
+                    if (currentTaskAction.getCreatedUserId().equals(userId)) // last action is user ?
+                    {
+                        state = true;
+                        break;
+                    }
+                } else if (actionSource.getTargetTypeId().equals(3)) {
+                    if (flowGroupUserService.existsById(actionSource.getFlowGroupId(), userId)) {
+                        state = true;
+                        break;
+                    }
+                }
+            }
+            if (!state)
+                throw new YouDoNotHavePermissionException();
+        }
+        //endregion permission control
+
         Action action;
+
+        //region action control
         if (currentTaskAction == null) { // yeni ise başlangıç aksiyonu mu ?
             action = actionService.findByIdAndDeletedTimeIsNull(request.getActionId());
-            if (!stepService.existsByIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(action.getStepId(), 1))
+            if (!stepService.existsByIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(action.getStepId(), 1)) //action stepi aktif ve başlangıç step mi ?
                 throw new StepNotFoundException();
         } else {
-            Action currentAction = actionService.findById(currentTaskAction.getActionId());
-            action = actionService.findByIdAndStepIdAndEnabledTrueAndDeletedTimeIsNotNull(request.getActionId(), currentAction.getNextStepId());
+            Action currentAction = actionService.findByIdAndDeletedTimeIsNull(currentTaskAction.getActionId()); //sonraki adım doğrumu ?
+            action = actionService.findByIdAndEnabledTrueAndDeletedTimeIsNull(request.getActionId(), currentAction.getNextStepId());
         }
-        //bu action yapabilme yetkisi varmı ?
-        if (!actionService.availableAction(action.getId(), userId))
-            throw new NotAvailableActionException();
+        //endregion action control
 
         TaskAction taskAction = new TaskAction();
         taskAction.setTaskId(taskId);
@@ -64,7 +120,7 @@ public class TaskActionService {
         taskAction.setParentId(currentTaskAction != null ? currentTaskAction.getId() : null);
         taskAction.setCreatedUserId(userId);
         taskAction.setCreatedTime(new Date());
-        taskAction = taskActionRepository.save(taskAction);
+        taskAction = taskActionDao.save(taskAction);
 
         if (request.getDocuments() != null)
             for (TaskActionDocumentRequest doc : request.getDocuments()) {
@@ -83,33 +139,20 @@ public class TaskActionService {
     }
 
     @Transactional
-    public void delete(long taskActionId, long userId) throws YouDoNotHavePermissionException, TaskActionNotFoundException {
-        if (!isTaskActionDeletable(taskActionId, userId))
-            throw new YouDoNotHavePermissionException();
-        TaskAction entity = findByIdAndDeletedTimeIsNull(taskActionId);
-        entity.setDeletedUserId(userId);
-        entity.setDeletedTime(new Date());
-        entity = taskActionRepository.save(entity);
+    public void delete(long taskActionId, long userId) throws YouDoNotHavePermissionException {
+        taskActionDao.deleteById(taskActionId);
     }
 
-    public TaskAction findByIdAndDeletedTimeIsNull(Long id) throws TaskActionNotFoundException {
-        return taskActionRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new TaskActionNotFoundException());
+    public TaskAction findById(Long id) throws TaskActionNotFoundException {
+        return taskActionDao.findById(id).orElseThrow(() -> new TaskActionNotFoundException());
     }
 
-    public Page<TaskAction> findAllByTaskIdAndDeletedTimeIsNull(Pageable pageable, Long taskId) {
-        return taskActionRepository.findAllByTaskIdAndDeletedTimeIsNull(pageable, taskId);
+    public Page<TaskAction> findAllByTaskId(Pageable pageable, Long taskId) {
+        return taskActionDao.findAllByTaskId(pageable, taskId);
     }
 
-    public TaskAction findByIdAndTaskIdAndDeletedTimeIsNull(Long id, Long taskId) throws TaskActionNotFoundException {
-        return taskActionRepository.findByIdAndTaskIdAndDeletedTimeIsNull(id, taskId).orElseThrow(() -> new TaskActionNotFoundException());
-    }
-
-    public boolean isTaskActionCreatable(long taskId, long userId) {
-        return true;
-    }
-
-    public boolean isTaskActionDeletable(long id, long userId) {
-        return true;
+    public TaskAction findByIdAndTaskId(Long id, Long taskId) throws TaskActionNotFoundException {
+        return taskActionDao.findByIdAndTaskId(id, taskId).orElseThrow(() -> new TaskActionNotFoundException());
     }
 
 }

@@ -1,20 +1,18 @@
 package com.yil.workflow.model;
 
-import com.yil.workflow.base.AbstractEntity;
+import com.yil.workflow.base.IEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
-@Table(name = "TASK", indexes = {@Index(name = "IDX_TASK_FLOW_ID", columnList = "FLOW_ID")})
-public class Task extends AbstractEntity {
+@Table(schema = "WFS", name = "TASK", indexes = {@Index(name = "IDX_TASK_FLOW_ID", columnList = "FLOW_ID")})
+public class Task implements IEntity {
     @Id
     @SequenceGenerator(name = "TASK_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_TASK_ID",
+            sequenceName = "SEQ_TASK_ID", schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "TASK_SEQUENCE_GENERATOR")
     @Column(name = "ID")

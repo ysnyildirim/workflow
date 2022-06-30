@@ -19,11 +19,11 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "PRIORITY_TYPE")
+@Table(schema ="WFS",name = "PRIORITY_TYPE")
 public class PriorityType implements IEntity {
     @Id
     @SequenceGenerator(name = "PRIORITY_TYPE_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_PRIORITY_TYPE_ID",
+            sequenceName = "SEQ_PRIORITY_TYPE_ID",schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "PRIORITY_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID", nullable = false, unique = true)

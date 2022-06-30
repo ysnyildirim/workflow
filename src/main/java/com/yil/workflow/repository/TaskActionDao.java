@@ -12,17 +12,17 @@ import java.util.Optional;
 
 
 @Repository
-public interface TaskActionRepository extends JpaRepository<TaskAction, Long> {
+public interface TaskActionDao extends JpaRepository<TaskAction, Long> {
 
-    Page<TaskAction> findAllByTaskIdAndDeletedTimeIsNull(Pageable pageable, Long taskId);
+    Page<TaskAction> findAllByTaskId(Pageable pageable, Long taskId);
 
-    Optional<TaskAction> findByIdAndTaskIdAndDeletedTimeIsNull(Long id, Long taskId);
-
-    Optional<TaskAction> findByIdAndDeletedTimeIsNull(Long id);
+    Optional<TaskAction> findByIdAndTaskId(Long id, Long taskId);
 
     @Query(nativeQuery = true,
             value = " select * from TASK_ACTION ta " +
                     " where ta.TASK_ID=:p_task_id" +
                     " and ta.Id = (select max(ta2.Id) from TASK_ACTION ta2 where ta2.TASK_ID=ta.TASK_ID)")
     TaskAction getLastAction(@Param(value = "p_task_id") long taskId);
+
+    Optional<TaskAction> findByTaskIdOrderByIdAsc(long taskId);
 }

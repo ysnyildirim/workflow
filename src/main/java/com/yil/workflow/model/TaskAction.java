@@ -1,23 +1,22 @@
 package com.yil.workflow.model;
 
-import com.yil.workflow.base.AbstractEntity;
+import com.yil.workflow.base.IEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import java.util.Date;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(name = "TASK_ACTION",
+@Table(schema = "WFS", name = "TASK_ACTION",
         indexes = {
                 @Index(name = "IDX_TASK_ACTION_TASK_ID", columnList = "TASK_ID"),
                 @Index(name = "IDX_TASK_ACTION_PARENT_ID", columnList = "PARENT_ID", unique = true)
         })
-public class TaskAction extends AbstractEntity {
+public class TaskAction implements IEntity {
     @Id
     @SequenceGenerator(name = "TASK_ACTION_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_TASK_ACTION_ID",
+            sequenceName = "SEQ_TASK_ACTION_ID", schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "TASK_ACTION_SEQUENCE_GENERATOR")
     @Column(name = "ID")
@@ -28,4 +27,9 @@ public class TaskAction extends AbstractEntity {
     private Long actionId;
     @Column(name = "PARENT_ID")
     private Long parentId;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "CREATED_TIME")
+    private Date createdTime;
+    @Column(name = "CREATED_USER_ID")
+    private Long createdUserId;
 }

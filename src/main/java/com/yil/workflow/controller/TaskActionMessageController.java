@@ -20,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Date;
 
 @RequiredArgsConstructor
 @RestController
@@ -40,7 +39,7 @@ public class TaskActionMessageController {
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-        Page<TaskActionMessage> taskPage = taskActionMessageService.findAllByTaskActionIdAndDeletedTimeIsNull(pageable, taskActionId);
+        Page<TaskActionMessage> taskPage = taskActionMessageService.findAllByTaskActionId(pageable, taskActionId);
         PageDto<TaskActionMessageDto> pageDto = PageDto.toDto(taskPage, TaskActionMessageService::toDto);
         return ResponseEntity.ok(pageDto);
     }
@@ -49,7 +48,7 @@ public class TaskActionMessageController {
     public ResponseEntity<TaskActionMessageDto> findById(
             @PathVariable Long taskActionId,
             @PathVariable Long id) throws TaskActionMessageNotFoundException {
-        TaskActionMessage task = taskActionMessageService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
+        TaskActionMessage task = taskActionMessageService.findByIdAndTaskActionId(id, taskActionId);
         TaskActionMessageDto dto = TaskActionMessageService.toDto(task);
         return ResponseEntity.ok(dto);
     }
@@ -59,22 +58,9 @@ public class TaskActionMessageController {
     public ResponseEntity<TaskActionMessageResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                             @PathVariable Long taskActionId,
                                                             @Valid @RequestBody TaskActionMessageRequest request) throws TaskActionNotFoundException {
-        TaskAction taskAction = taskActionService.findByIdAndDeletedTimeIsNull(taskActionId);
+        TaskAction taskAction = taskActionService.findById(taskActionId);
         TaskActionMessageResponse taskActionMessageResponce = taskActionMessageService.save(request, taskAction.getId(), authenticatedUserId);
         return ResponseEntity.created(null).body(taskActionMessageResponce);
     }
-
-    @DeleteMapping(value = "/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> delete(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                         @PathVariable Long taskActionId,
-                                         @PathVariable Long id) throws TaskActionMessageNotFoundException {
-        TaskActionMessage entity = taskActionMessageService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
-        entity.setDeletedUserId(authenticatedUserId);
-        entity.setDeletedTime(new Date());
-        entity = taskActionMessageService.save(entity);
-        return ResponseEntity.ok("Message deleted.");
-    }
-
 
 }

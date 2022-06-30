@@ -5,7 +5,7 @@ import com.yil.workflow.dto.FlowRequest;
 import com.yil.workflow.dto.FlowResponse;
 import com.yil.workflow.exception.FlowNotFoundException;
 import com.yil.workflow.model.Flow;
-import com.yil.workflow.repository.FlowRepository;
+import com.yil.workflow.repository.FlowDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 public class FlowService {
 
-    private final FlowRepository flowRepository;
+    private final FlowDao flowDao;
 
     public static FlowDto toDto(Flow flow) throws NullPointerException {
         if (flow == null)
@@ -31,15 +31,19 @@ public class FlowService {
     }
 
     public boolean existsById(long id) {
-        return flowRepository.existsById(id);
+        return flowDao.existsById(id);
     }
 
     public Flow findByIdAndDeletedTimeIsNull(Long id) throws FlowNotFoundException {
-        return flowRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
+        return flowDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
     }
 
     public Flow findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) throws FlowNotFoundException {
-        return flowRepository.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
+        return flowDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
+    }
+
+    public boolean existsByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) {
+        return flowDao.existsByIdAndEnabledTrueAndDeletedTimeIsNull(id);
     }
 
     @Transactional
@@ -60,7 +64,7 @@ public class FlowService {
         flow.setEnabled(request.getEnabled());
         flow.setCreatedUserId(userId);
         flow.setCreatedTime(new Date());
-        flow = flowRepository.save(flow);
+        flow = flowDao.save(flow);
         return FlowResponse.builder().id(flow.getId()).build();
     }
 
@@ -69,10 +73,10 @@ public class FlowService {
         Flow flow = findByIdAndDeletedTimeIsNull(id);
         flow.setDeletedUserId(userId);
         flow.setDeletedTime(new Date());
-        flowRepository.save(flow);
+        flowDao.save(flow);
     }
 
     public List<Flow> findAllByDeletedTimeIsNull() {
-        return flowRepository.findAllByDeletedTimeIsNull();
+        return flowDao.findAllByDeletedTimeIsNull();
     }
 }

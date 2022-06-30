@@ -15,11 +15,11 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "FLOW_GROUP")
+@Table(schema = "WFS", name = "FLOW_GROUP")
 public class FlowGroup extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "FLOW_GROUP_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_FLOW_GROUP_ID",
+            sequenceName = "SEQ_FLOW_GROUP_ID",schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "FLOW_GROUP_SEQUENCE_GENERATOR")
     @Column(name = "ID")
@@ -28,8 +28,9 @@ public class FlowGroup extends AbstractEntity {
     private String name;
     @Column(name = "DESCRIPTION", nullable = false, length = 1000)
     private String description;
-    @Column(name = "FLOW_ID", nullable = false)
+    @Column(name = "GROUP_TYPE_ID", nullable = false)
+    private Integer groupTypeId;
+    @Column(name = "FLOW_ID")
     private Long flowId;
-    @Column(name = "FLOW_GROUP_TYPE_ID", nullable = false)
-    private Integer flowGroupTypeId;
+
 }

@@ -4,7 +4,6 @@
 
 package com.yil.workflow.model;
 
-import com.yil.workflow.base.AbstractEntity;
 import com.yil.workflow.base.IEntity;
 import lombok.*;
 
@@ -14,7 +13,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Data
 @Entity
-@Table(name = "FLOW_GROUP_USER")
+@Table(schema ="WFS",name = "FLOW_GROUP_USER")
 public class FlowGroupUser implements IEntity {
 
     @EmbeddedId

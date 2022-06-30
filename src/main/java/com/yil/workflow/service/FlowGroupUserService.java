@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-
 @RequiredArgsConstructor
 @Service
 public class FlowGroupUserService {
@@ -41,5 +39,8 @@ public class FlowGroupUserService {
         return FlowGroupUserResponse.builder().userId(flowGroupUser.getId().getUserId()).build();
     }
 
+    public boolean existsById(long id, long userId) {
+        return flowGroupUserDao.existsById(new FlowGroupUser.Pk(id,userId));
+    }
 
 }

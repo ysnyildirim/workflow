@@ -24,4 +24,6 @@ public class FlowGroupRequest {
     private String description;
     @NonNull
     private Integer groupTypeId;
+    @NonNull
+    private Long flowId;
 }

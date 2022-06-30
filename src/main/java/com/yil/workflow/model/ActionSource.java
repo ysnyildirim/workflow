@@ -17,13 +17,13 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(schema ="WFS",name = "ACTION_TARGET")
-public class ActionTarget implements IEntity {
+@Table(schema = "WFS", name = "ACTION_SOURCE")
+public class ActionSource implements IEntity {
     @Id
-    @SequenceGenerator(name = "ACTION_TARGET_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_ACTION_TARGET_ID",schema = "WFS",
+    @SequenceGenerator(name = "ACTION_SOURCE_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_ACTION_SOURCE_ID", schema = "WFS",
             allocationSize = 1)
-    @GeneratedValue(generator = "ACTION_TARGET_SEQUENCE_GENERATOR")
+    @GeneratedValue(generator = "ACTION_SOURCE_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Long id;
     @Column(name = "ACTION_ID", nullable = false)

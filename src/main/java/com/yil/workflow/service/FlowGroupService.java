@@ -8,6 +8,7 @@ import com.yil.workflow.dto.FlowGroupDto;
 import com.yil.workflow.dto.FlowGroupRequest;
 import com.yil.workflow.dto.FlowGroupResponse;
 import com.yil.workflow.exception.FlowGroupNotFoundException;
+import com.yil.workflow.exception.FlowGroupTypeNotFoundException;
 import com.yil.workflow.model.FlowGroup;
 import com.yil.workflow.repository.FlowGroupDao;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +16,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class FlowGroupService {
 
     private final FlowGroupDao flowGroupDao;
+    private final FlowGroupTypeService flowGroupTypeService;
 
     public static FlowGroupDto toDto(FlowGroup flowGroup) {
         if (flowGroup == null)
@@ -38,21 +39,19 @@ public class FlowGroupService {
         return flowGroupDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(FlowGroupNotFoundException::new);
     }
 
-    public List<FlowGroup> findAllByFlowIdAndDeletedTimeIsNull(Long flowId) {
-        return flowGroupDao.findAllByFlowIdAndDeletedTimeIsNull(flowId);
-    }
-
     @Transactional
-    public FlowGroupResponse save(FlowGroupRequest request, long flowId, long userId) {
+    public FlowGroupResponse save(FlowGroupRequest request, long flowId, long userId) throws FlowGroupTypeNotFoundException {
         FlowGroup flowGroup = new FlowGroup();
         flowGroup.setFlowId(flowId);
         return getFlowGroupResponse(request, userId, flowGroup);
     }
 
-    private FlowGroupResponse getFlowGroupResponse(FlowGroupRequest request, long userId, FlowGroup flowGroup) {
+    private FlowGroupResponse getFlowGroupResponse(FlowGroupRequest request, long userId, FlowGroup flowGroup) throws FlowGroupTypeNotFoundException {
+        if (!flowGroupTypeService.existsById(request.getGroupTypeId()))
+            throw new FlowGroupTypeNotFoundException();
         flowGroup.setName(request.getName());
         flowGroup.setDescription(request.getDescription());
-        flowGroup.setFlowGroupTypeId(request.getGroupTypeId());
+        flowGroup.setGroupTypeId(request.getGroupTypeId());
         flowGroup.setCreatedTime(new Date());
         flowGroup.setCreatedUserId(userId);
         flowGroup = flowGroupDao.save(flowGroup);
@@ -60,8 +59,8 @@ public class FlowGroupService {
     }
 
     @Transactional
-    public FlowGroupResponse replace(FlowGroupRequest request, long flowGroupId, long userId) throws FlowGroupNotFoundException {
-        FlowGroup flowGroup = findByIdAndDeletedTimeIsNull(flowGroupId);
+    public FlowGroupResponse replace(FlowGroupRequest request, long groupId, long userId) throws FlowGroupNotFoundException, FlowGroupTypeNotFoundException {
+        FlowGroup flowGroup = findByIdAndDeletedTimeIsNull(groupId);
         return getFlowGroupResponse(request, userId, flowGroup);
     }
 

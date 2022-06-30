@@ -23,11 +23,11 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(name = "TARGET_TYPE")
+@Table(schema ="WFS",name = "TARGET_TYPE")
 public class TargetType implements IEntity {
     @Id
     @SequenceGenerator(name = "TARGET_TYPE_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_TARGET_TYPE_ID",
+            sequenceName = "SEQ_TARGET_TYPE_ID",schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "TARGET_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID")
