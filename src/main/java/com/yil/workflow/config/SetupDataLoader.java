@@ -42,8 +42,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     @Autowired
     private StepTypeDao stepTypeDao;
     @Autowired
-    private ActionTypeDao actionTypeDao;
-    @Autowired
     private PriorityTypeDao priorityTypeDao;
     @Autowired
     private StatusRepository statusRepository;
@@ -58,10 +56,12 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         initStatus();
         initTargetTypes();
         initPriorityTypes();
-        initActionType();
         initStepType();
         initFlowGroupType();
 
+
+//        for (Action action : actionDao.findAll())
+//            generateActionSource(action.getId(), 1);
 
 //         generateTask();
 
@@ -174,8 +174,8 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         request.setDescription(randomString(100));
         request.setEnabled(true);
         request.setNextStepId(nextStepId);
-        request.setActionTypeId(1);
         ActionResponse response = actionService.save(request, stepId, userId);
+        generateActionSource(response.getId(), userId);
         generateActionTarget(response.getId(), userId);
         return response;
     }
@@ -258,20 +258,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         if (stepTypeDao.existsById(stepType.getId()))
             return;
         stepTypeDao.save(stepType);
-    }
-
-    private void initActionType() {
-        addActionType(ActionType.builder().id(1).name("Approve").description("The actioner is suggesting that the request should move to the next state.").build());
-        addActionType(ActionType.builder().id(2).name("Deny").description("The actioner is suggesting that the request should move to the previous state").build());
-        addActionType(ActionType.builder().id(3).name("Cancel").description("The actioner is suggesting that the request should move to the Cancelled state in the process.").build());
-        addActionType(ActionType.builder().id(4).name("Restart").description("The actioner suggesting that the request be moved back to the Start state in the process.").build());
-        addActionType(ActionType.builder().id(5).name("Resolve").description("The actioner is suggesting that the request be moved all the way to the Completed state.").build());
-    }
-
-    private void addActionType(ActionType actionType) {
-        if (actionTypeDao.existsById(actionType.getId()))
-            return;
-        actionTypeDao.save(actionType);
     }
 
     private void initPriorityTypes() {
@@ -373,13 +359,14 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
             Action action = actionService.findByIdAndDeletedTimeIsNull(actionId);
             Step step = stepService.findByIdAndDeletedTimeIsNull(action.getStepId());
             Flow flow = flowService.findByIdAndDeletedTimeIsNull(step.getFlowId());
+
+            List<FlowGroup> flowGroups = flowGroupDao.findAllByFlowIdAndDeletedTimeIsNull(flow.getId());
             int k = new Random().nextInt(1, 3);
             for (int i = 0; i < k; i++) {
                 Long flowGroupId = null;
                 int t = new Random().nextInt(1, 4);
                 if (t == 3) //grup
                 {
-                    List<FlowGroup> flowGroups = flowGroupDao.findAllByDeletedTimeIsNull();
                     FlowGroup flowGroup = null;
                     if (!flowGroups.isEmpty())
                         flowGroup = flowGroups.get(new Random().nextInt(1, flowGroups.size()));
@@ -393,5 +380,38 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         }
 
     }
+
+    @Autowired
+    private ActionSourceService actionSourceService;
+
+    private void generateActionSource(long actionId, long userId) {
+        try {
+            Action action = actionService.findByIdAndDeletedTimeIsNull(actionId);
+            Step step = stepService.findByIdAndDeletedTimeIsNull(action.getStepId());
+            Flow flow = flowService.findByIdAndDeletedTimeIsNull(step.getFlowId());
+
+            List<FlowGroup> flowGroups = flowGroupDao.findAllByFlowIdAndDeletedTimeIsNull(flow.getId());
+            if (flowGroups.isEmpty())
+                return;
+            int k = new Random().nextInt(1, 5);
+            for (int i = 0; i < k; i++) {
+                int targetTypeId;
+                Long flowGroupId = null;
+                if (step.getStepTypeId().equals(1)) //başlangıç adımı sadece gruplara gitsin
+                {
+                    targetTypeId = 3;
+                    FlowGroup flowGroup = flowGroups.get(new Random().nextInt(1, flowGroups.size()));
+                    flowGroupId = flowGroup.getId();
+                }
+                else
+                    targetTypeId = new Random().nextInt(1, 3);
+                actionSourceService.save(ActionSourceRequest.builder().targetTypeId(targetTypeId).flowGroupId(flowGroupId).build(), actionId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 }

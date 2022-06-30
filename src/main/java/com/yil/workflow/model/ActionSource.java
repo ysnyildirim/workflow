@@ -17,7 +17,10 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(schema = "WFS", name = "ACTION_SOURCE")
+@Table(schema = "WFS", name = "ACTION_SOURCE",
+        indexes = {
+                @Index(name = "IDX_ACTION_SOURCE_ACTION_ID", columnList = "ACTION_ID")
+        })
 public class ActionSource implements IEntity {
     @Id
     @SequenceGenerator(name = "ACTION_SOURCE_SEQUENCE_GENERATOR",

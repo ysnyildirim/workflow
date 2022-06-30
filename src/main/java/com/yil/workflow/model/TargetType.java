@@ -13,21 +13,20 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 /**
- * 1- Request Creator (Requester)
- * 2- Request Stakeholders
+ * 1- Task Creator
+ * 2- Action User
  * 3- Group Members
- * 4- Process Admins
  */
 @Data
 @Entity
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(schema ="WFS",name = "TARGET_TYPE")
+@Table(schema = "WFS", name = "TARGET_TYPE")
 public class TargetType implements IEntity {
     @Id
     @SequenceGenerator(name = "TARGET_TYPE_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_TARGET_TYPE_ID",schema = "WFS",
+            sequenceName = "SEQ_TARGET_TYPE_ID", schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "TARGET_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID")

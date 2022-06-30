@@ -24,6 +24,7 @@ public class FlowController {
     private final FlowService flowService;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<FlowDto>> findAll() {
         List<Flow> data = flowService.findAllByDeletedTimeIsNull();
         List<FlowDto> dto = new ArrayList<>();
@@ -35,6 +36,7 @@ public class FlowController {
 
 
     @GetMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<FlowDto> findById(@PathVariable Long id) throws FlowNotFoundException {
         Flow flow = flowService.findByIdAndDeletedTimeIsNull(id);
         FlowDto dto = FlowService.toDto(flow);
@@ -66,6 +68,17 @@ public class FlowController {
                                          @PathVariable Long id) throws FlowNotFoundException {
         flowService.delete(id, authenticatedUserId);
         return ResponseEntity.ok("Flow deleted.");
+    }
+
+    @GetMapping(value = "/start-up")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<FlowDto>> getStartUpFlows(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId) {
+        List<Flow> data = flowService.getStartUpFlows(authenticatedUserId);
+        List<FlowDto> dto = new ArrayList<>();
+        data.forEach(f -> {
+            dto.add(FlowService.toDto(f));
+        });
+        return ResponseEntity.ok(dto);
     }
 
 

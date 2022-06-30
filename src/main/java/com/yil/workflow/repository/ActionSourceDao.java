@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ActionSourceDao extends JpaRepository<ActionSource, Long> {
@@ -18,5 +19,6 @@ public interface ActionSourceDao extends JpaRepository<ActionSource, Long> {
 
     List<ActionSource> findAllByActionId(long actionId);
 
+    Optional<ActionSource> findByActionIdAndFlowGroupIdAndTargetTypeId(Long actionId, Long flowGroupId, Integer targetTypeId);
 
 }

@@ -5,7 +5,6 @@ import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.ActionRequest;
 import com.yil.workflow.dto.ActionResponse;
 import com.yil.workflow.exception.ActionNotFoundException;
-import com.yil.workflow.exception.ActionTypeNotFoundException;
 import com.yil.workflow.exception.StepNotFoundException;
 import com.yil.workflow.model.Action;
 import com.yil.workflow.service.ActionService;
@@ -49,7 +48,7 @@ public class ActionController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ActionResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                  @PathVariable Long stepId,
-                                                 @Valid @RequestBody ActionRequest request) throws StepNotFoundException, ActionTypeNotFoundException {
+                                                 @Valid @RequestBody ActionRequest request) throws StepNotFoundException {
         ActionResponse responce = actionService.save(request, stepId, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }
@@ -60,7 +59,7 @@ public class ActionController {
     public ResponseEntity<ActionResponse> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                   @PathVariable Long stepId,
                                                   @PathVariable Long id,
-                                                  @Valid @RequestBody ActionRequest request) throws ActionNotFoundException, StepNotFoundException, ActionTypeNotFoundException {
+                                                  @Valid @RequestBody ActionRequest request) throws ActionNotFoundException, StepNotFoundException {
         ActionResponse responce = actionService.replace(request, id, authenticatedUserId);
         return ResponseEntity.ok(responce);
     }

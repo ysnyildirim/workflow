@@ -46,6 +46,10 @@ public class FlowService {
         return flowDao.existsByIdAndEnabledTrueAndDeletedTimeIsNull(id);
     }
 
+    public List<Flow> getStartUpFlows(long userId) {
+        return flowDao.getStartUpFlows(userId);
+    }
+
     @Transactional
     public FlowResponse save(FlowRequest request, Long userId) {
         Flow flow = new Flow();

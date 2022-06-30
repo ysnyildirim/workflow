@@ -33,6 +33,4 @@ public class Action extends AbstractEntity {
     private Long stepId;
     @Column(name = "NEXT_STEP_ID", nullable = false)
     private Long nextStepId;
-    @Column(name = "ACTION_TYPE_ID", nullable = false)
-    private Integer actionTypeId;
 }

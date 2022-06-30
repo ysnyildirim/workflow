@@ -4,7 +4,6 @@ import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.ActionRequest;
 import com.yil.workflow.dto.ActionResponse;
 import com.yil.workflow.exception.ActionNotFoundException;
-import com.yil.workflow.exception.ActionTypeNotFoundException;
 import com.yil.workflow.exception.StepNotFoundException;
 import com.yil.workflow.model.Action;
 import com.yil.workflow.repository.ActionDao;
@@ -22,7 +21,6 @@ public class ActionService {
 
     private final ActionDao actionDao;
     private final StepService stepService;
-    private final ActionTypeService actionTypeService;
 
     public static ActionDto toDto(Action action) throws NullPointerException {
         if (action == null)
@@ -34,7 +32,6 @@ public class ActionService {
         dto.setName(action.getName());
         dto.setStepId(action.getStepId());
         dto.setNextStepId(action.getNextStepId());
-        dto.setActionTypeId(action.getActionTypeId());
         return dto;
     }
 
@@ -59,7 +56,7 @@ public class ActionService {
     }
 
     @Transactional
-    public ActionResponse save(ActionRequest request, Long stepId, Long userId) throws StepNotFoundException, ActionTypeNotFoundException {
+    public ActionResponse save(ActionRequest request, Long stepId, Long userId) throws StepNotFoundException {
         if (!stepService.existsById(stepId))
             throw new StepNotFoundException();
         Action action = new Action();
@@ -68,21 +65,18 @@ public class ActionService {
     }
 
     @Transactional
-    public ActionResponse replace(ActionRequest request, Long actionId, Long userId) throws ActionNotFoundException, StepNotFoundException, ActionTypeNotFoundException {
+    public ActionResponse replace(ActionRequest request, Long actionId, Long userId) throws ActionNotFoundException, StepNotFoundException {
         Action action = findByIdAndEnabledTrueAndDeletedTimeIsNull(actionId);
         return getActionResponce(request, userId, action);
     }
 
-    public ActionResponse getActionResponce(ActionRequest request, Long userId, Action action) throws StepNotFoundException, ActionTypeNotFoundException {
+    public ActionResponse getActionResponce(ActionRequest request, Long userId, Action action) throws StepNotFoundException {
         if (!stepService.existsById(request.getNextStepId()))
             throw new StepNotFoundException();
-        if (!actionTypeService.existsById(request.getActionTypeId()))
-            throw new ActionTypeNotFoundException();
         action.setName(request.getName());
         action.setDescription(request.getDescription());
         action.setEnabled(request.getEnabled());
         action.setNextStepId(request.getNextStepId());
-        action.setActionTypeId(request.getActionTypeId());
         action.setCreatedUserId(userId);
         action.setCreatedTime(new Date());
         action = actionDao.save(action);

@@ -14,7 +14,6 @@ public enum ErrorCode {
     ActionTargetNotFound(7000015, "Action target not found"),
     FlowGroupNotFound(7000014, "Flow group not found"),
     StepTypeNotFound(7000013, "Step type not found"),
-    ActionTypeNotFound(7000012, "Action type not found"),
     YouDoNotHavePermission(7000011, "You do not have permission"),
     NotAvailableAction(7000010, "Action not available"),
     TaskNotFound(7000009, "Task not found"),

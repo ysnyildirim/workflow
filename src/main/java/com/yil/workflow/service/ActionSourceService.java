@@ -46,12 +46,24 @@ public class ActionSourceService {
         return getActionSourceResponse(request, actionSource);
     }
 
+    public ActionSource findByActionIdAndFlowGroupIdAndTargetTypeId(Long actionId, Long flowGroupId, Integer targetTypeId) throws ActionSourceNotFoundException {
+        return actionSourceDao.findByActionIdAndFlowGroupIdAndTargetTypeId(actionId, flowGroupId, targetTypeId).orElseThrow(ActionSourceNotFoundException::new);
+    }
+
     private ActionSourceResponse getActionSourceResponse(ActionSourceRequest request, ActionSource actionSource) throws TargetNotFoundException {
         if (!targetTypeService.existsById(request.getTargetTypeId()))
             throw new TargetNotFoundException();
-        actionSource.setTargetTypeId(request.getTargetTypeId());
-        actionSource.setFlowGroupId(request.getFlowGroupId());
-        actionSource = actionSourceDao.save(actionSource);
+        ActionSource data = null;
+        try {
+            data = findByActionIdAndFlowGroupIdAndTargetTypeId(actionSource.getActionId(), request.getFlowGroupId(), request.getTargetTypeId());
+        } catch (Exception e) {
+        }
+        if (data == null) {
+            actionSource.setTargetTypeId(request.getTargetTypeId());
+            actionSource.setFlowGroupId(request.getFlowGroupId());
+            actionSource = actionSourceDao.save(actionSource);
+        } else
+            actionSource = data;
         return ActionSourceResponse.builder().id(actionSource.getId()).build();
     }
 
