@@ -19,5 +19,5 @@ public class ActionTargetDto {
     private Long id;
     private Long actionId;
     private Integer targetTypeId;
-    private Long flowGroupId;
+    private Long groupId;
 }

@@ -43,7 +43,7 @@ public class TaskActionMessageService {
         return taskActionMessageDao.findAllByTaskActionId(pageable, taskActionId);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public TaskActionMessageResponse save(TaskActionMessageRequest message, long taskActionId, long userId) {
         TaskActionMessage taskActionMessage = new TaskActionMessage();
         taskActionMessage.setTaskActionId(taskActionId);

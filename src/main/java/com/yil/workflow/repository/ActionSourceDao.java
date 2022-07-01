@@ -19,6 +19,6 @@ public interface ActionSourceDao extends JpaRepository<ActionSource, Long> {
 
     List<ActionSource> findAllByActionId(long actionId);
 
-    Optional<ActionSource> findByActionIdAndFlowGroupIdAndTargetTypeId(Long actionId, Long flowGroupId, Integer targetTypeId);
+    Optional<ActionSource> findByActionIdAndGroupIdAndTargetTypeId(Long actionId, Long groupId, Integer targetTypeId);
 
 }

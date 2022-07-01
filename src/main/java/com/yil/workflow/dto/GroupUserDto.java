@@ -15,9 +15,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FlowGroupDto {
-    private Long id;
-    private String name;
-    private String description;
-    private Long flowId;
+public class GroupUserDto {
+    private Long groupId;
+    private Long userId;
+    private Integer groupUserTypeId;
 }

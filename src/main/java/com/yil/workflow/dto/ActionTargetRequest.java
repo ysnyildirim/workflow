@@ -15,5 +15,5 @@ import lombok.*;
 public class ActionTargetRequest {
     @NonNull
     private Integer targetTypeId;
-    private Long flowGroupId;
+    private Long groupId;
 }

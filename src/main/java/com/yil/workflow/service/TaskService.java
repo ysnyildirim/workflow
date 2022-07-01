@@ -74,7 +74,7 @@ public class TaskService {
                 .build();
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = {Throwable.class})
     public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, NotAvailableActionException, StepNotFoundException {
         if (!flowService.existsByIdAndEnabledTrueAndDeletedTimeIsNull(request.getFlowId()))
             throw new FlowNotFoundException();

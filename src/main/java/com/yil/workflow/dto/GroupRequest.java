@@ -15,15 +15,11 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FlowGroupRequest {
+public class GroupRequest {
     @NotBlank
     @Length(min = 1, max = 100)
     private String name;
     @NotBlank
     @Length(min = 1, max = 1000)
     private String description;
-    @NonNull
-    private Integer groupTypeId;
-    @NonNull
-    private Long flowId;
 }

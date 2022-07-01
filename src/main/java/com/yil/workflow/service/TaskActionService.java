@@ -7,6 +7,7 @@ import com.yil.workflow.dto.TaskActionResponse;
 import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Action;
 import com.yil.workflow.model.ActionSource;
+import com.yil.workflow.model.GroupUser;
 import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.repository.TaskActionDao;
 import lombok.RequiredArgsConstructor;
@@ -43,13 +44,13 @@ public class TaskActionService {
     }
 
     private final ActionSourceService actionSourceService;
-    private final FlowGroupUserService flowGroupUserService;
+    private final GroupUserService groupUserService;
 
     public TaskAction findByTaskIdOrderByIdAsc(long taskId) throws TaskActionNotFoundException {
         return taskActionDao.findByTaskIdOrderByIdAsc(taskId).orElseThrow(() -> new TaskActionNotFoundException());
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public TaskActionResponse save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, NotAvailableActionException, YouDoNotHavePermissionException, StepNotFoundException {
         TaskAction currentTaskAction = getLastAction(taskId);
 
@@ -58,7 +59,7 @@ public class TaskActionService {
             boolean state = false;
             List<ActionSource> actionSources = actionSourceService.findAllByActionIdAndTargetTypeId(request.getActionId(), 3);
             for (ActionSource actionSource : actionSources) {
-                if (flowGroupUserService.existsById(actionSource.getFlowGroupId(), userId)) {
+                if (groupUserService.existsById(new GroupUser.Pk(actionSource.getGroupId(), userId, 3))) {
                     state = true;
                     break;
                 }
@@ -90,7 +91,7 @@ public class TaskActionService {
                         break;
                     }
                 } else if (actionSource.getTargetTypeId().equals(3)) {
-                    if (flowGroupUserService.existsById(actionSource.getFlowGroupId(), userId)) {
+                    if (groupUserService.existsById(new GroupUser.Pk(actionSource.getGroupId(), userId, 3))) {
                         state = true;
                         break;
                     }

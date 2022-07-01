@@ -31,7 +31,7 @@ public class ActionSourceService {
         dto.setId(actionSource.getId());
         dto.setTargetTypeId(actionSource.getTargetTypeId());
         dto.setActionId(actionSource.getActionId());
-        dto.setFlowGroupId(actionSource.getFlowGroupId());
+        dto.setGroupId(actionSource.getGroupId());
         return dto;
     }
 
@@ -46,8 +46,8 @@ public class ActionSourceService {
         return getActionSourceResponse(request, actionSource);
     }
 
-    public ActionSource findByActionIdAndFlowGroupIdAndTargetTypeId(Long actionId, Long flowGroupId, Integer targetTypeId) throws ActionSourceNotFoundException {
-        return actionSourceDao.findByActionIdAndFlowGroupIdAndTargetTypeId(actionId, flowGroupId, targetTypeId).orElseThrow(ActionSourceNotFoundException::new);
+    public ActionSource findByActionIdAndGroupIdAndTargetTypeId(Long actionId, Long groupId, Integer targetTypeId) throws ActionSourceNotFoundException {
+        return actionSourceDao.findByActionIdAndGroupIdAndTargetTypeId(actionId, groupId, targetTypeId).orElseThrow(ActionSourceNotFoundException::new);
     }
 
     private ActionSourceResponse getActionSourceResponse(ActionSourceRequest request, ActionSource actionSource) throws TargetNotFoundException {
@@ -55,12 +55,12 @@ public class ActionSourceService {
             throw new TargetNotFoundException();
         ActionSource data = null;
         try {
-            data = findByActionIdAndFlowGroupIdAndTargetTypeId(actionSource.getActionId(), request.getFlowGroupId(), request.getTargetTypeId());
+            data = findByActionIdAndGroupIdAndTargetTypeId(actionSource.getActionId(), request.getGroupId(), request.getTargetTypeId());
         } catch (Exception e) {
         }
         if (data == null) {
             actionSource.setTargetTypeId(request.getTargetTypeId());
-            actionSource.setFlowGroupId(request.getFlowGroupId());
+            actionSource.setGroupId(request.getGroupId());
             actionSource = actionSourceDao.save(actionSource);
         } else
             actionSource = data;

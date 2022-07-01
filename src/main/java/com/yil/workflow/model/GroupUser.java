@@ -13,11 +13,12 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Data
 @Entity
-@Table(schema ="WFS",name = "FLOW_GROUP_USER")
-public class FlowGroupUser implements IEntity {
+@Table(schema = "WFS", name = "GROUP_USER")
+public class GroupUser implements IEntity {
 
     @EmbeddedId
     private Pk id;
+
 
     @Data
     @Builder
@@ -25,9 +26,11 @@ public class FlowGroupUser implements IEntity {
     @AllArgsConstructor
     @Embeddable
     public static class Pk implements Serializable {
-        @Column(name = "FLOW_GROUP_ID")
-        private Long flowGroupId;
+        @Column(name = "GROUP_ID")
+        private Long groupId;
         @Column(name = "USER_ID")
         private Long userId;
+        @Column(name = "GROUP_USER_TYPE_ID")
+        private Integer groupUserTypeId;
     }
 }

@@ -30,6 +30,6 @@ public class ActionTarget implements IEntity {
     private Long actionId;
     @Column(name = "TARGET_TYPE_ID", nullable = false)
     private Integer targetTypeId;
-    @Column(name = "FLOW_GROUP_ID")
-    private Long flowGroupId;
+    @Column(name = "GROUP_ID")
+    private Long groupId;
 }

@@ -14,21 +14,22 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 /**
- * Admin : flow select,edit,update,delete
- * Stake : select edit,update
+ * 1-Admin
+ * 2-Manager
+ * 3-User
  */
 @Data
 @Entity
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(schema ="WFS",name = "FLOW_GROUP_TYPE")
-public class FlowGroupType implements IEntity {
+@Table(schema = "WFS", name = "GROUP_USER_TYPE")
+public class GroupUserType implements IEntity {
     @Id
-    @SequenceGenerator(name = "FLOW_GROUP_TYPE_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_FLOW_GROUP_TYPE_ID",schema = "WFS",
+    @SequenceGenerator(name = "GROUP_USER_TYPE_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_GROUP_USER_TYPE_ID", schema = "WFS",
             allocationSize = 1)
-    @GeneratedValue(generator = "FLOW_GROUP_TYPE_SEQUENCE_GENERATOR")
+    @GeneratedValue(generator = "GROUP_USER_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Integer id;
     @Column(name = "NAME", nullable = false, length = 100)

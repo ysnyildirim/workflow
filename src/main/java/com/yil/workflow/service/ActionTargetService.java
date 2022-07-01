@@ -29,7 +29,7 @@ public class ActionTargetService {
         dto.setId(actionTarget.getId());
         dto.setTargetTypeId(actionTarget.getTargetTypeId());
         dto.setActionId(actionTarget.getActionId());
-        dto.setFlowGroupId(actionTarget.getFlowGroupId());
+        dto.setGroupId(actionTarget.getGroupId());
         return dto;
     }
 
@@ -48,7 +48,7 @@ public class ActionTargetService {
         if (!targetTypeService.existsById(request.getTargetTypeId()))
             throw new TargetNotFoundException();
         actionTarget.setTargetTypeId(request.getTargetTypeId());
-        actionTarget.setFlowGroupId(request.getFlowGroupId());
+        actionTarget.setGroupId(request.getGroupId());
         actionTarget = actionTargetDao.save(actionTarget);
         return ActionTargetResponse.builder().id(actionTarget.getId()).build();
     }

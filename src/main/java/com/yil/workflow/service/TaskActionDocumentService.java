@@ -47,7 +47,7 @@ public class TaskActionDocumentService {
         return taskActionDocumentDao.findById(id).orElseThrow(() -> new TaskActionDocumentNotFoundException());
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public TaskActionDocumentResponse save(TaskActionDocumentRequest doc, long taskActionId, long userId) {
         Document document = new Document();
         document.setContent(doc.getContent());
