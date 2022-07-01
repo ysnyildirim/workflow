@@ -15,11 +15,11 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
-@Table(schema ="WFS",name = "STEP")
+@Table(schema = "WFS", name = "STEP")
 public class Step extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "STEP_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_STEP_ID",schema = "WFS",
+            sequenceName = "SEQ_STEP_ID", schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "STEP_SEQUENCE_GENERATOR")
     @Column(name = "ID")
@@ -30,7 +30,7 @@ public class Step extends AbstractEntity {
     private String description;
     @Type(type = "org.hibernate.type.NumericBooleanType")
     @ColumnDefault(value = "1")
-    @Column(name = "ENABLED",nullable = false)
+    @Column(name = "ENABLED", nullable = false)
     private Boolean enabled;
     @Column(name = "FLOW_ID", nullable = false)
     private Long flowId;

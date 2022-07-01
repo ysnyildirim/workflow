@@ -4,10 +4,10 @@
 
 package com.yil.workflow.service;
 
-import com.yil.workflow.dto.GroupDto;
-import com.yil.workflow.dto.GroupRequest;
-import com.yil.workflow.dto.GroupResponse;
+import com.yil.workflow.dto.*;
 import com.yil.workflow.exception.FlowGroupNotFoundException;
+import com.yil.workflow.exception.GroupUserNotFoundException;
+import com.yil.workflow.exception.YouDoNotHavePermissionException;
 import com.yil.workflow.model.Group;
 import com.yil.workflow.repository.GroupDao;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +21,7 @@ import java.util.Date;
 public class GroupService {
 
     private final GroupDao groupDao;
+    private final GroupUserService groupUserService;
 
     public static GroupDto toDto(Group group) {
         if (group == null)
@@ -32,14 +33,16 @@ public class GroupService {
         return dto;
     }
 
-    public Group findByIdAndDeletedTimeIsNull(Long id) throws FlowGroupNotFoundException {
-        return groupDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(FlowGroupNotFoundException::new);
-    }
-
-    @Transactional
-    public GroupResponse save(GroupRequest request, long userId) {
+    @Transactional(rollbackFor = {Throwable.class})
+    public GroupResponse save(GroupRequest request, long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
         Group group = new Group();
-        return getFlowGroupResponse(request, userId, group);
+        GroupResponse groupResponse = getFlowGroupResponse(request, userId, group);
+        //grubu oluşturan aynı zamanda grubun adminidir ekle
+        GroupUserResponse groupUserResponse = groupUserService.save(GroupUserRequest.builder()
+                .userId(userId)
+                .groupUserTypeId(GroupUserTypeService.Admin)
+                .build(), groupResponse.getId(), userId);
+        return groupResponse;
     }
 
     private GroupResponse getFlowGroupResponse(GroupRequest request, long userId, Group group) {
@@ -51,10 +54,42 @@ public class GroupService {
         return GroupResponse.builder().id(group.getId()).build();
     }
 
-    @Transactional
-    public GroupResponse replace(GroupRequest request, long groupId, long userId) throws FlowGroupNotFoundException {
+    /**
+     * Sadece grup admini değiştirebilir.
+     *
+     * @param request
+     * @param groupId
+     * @param userId
+     * @return
+     * @throws FlowGroupNotFoundException
+     * @throws YouDoNotHavePermissionException
+     */
+    @Transactional(rollbackFor = {Throwable.class})
+    public GroupResponse replace(GroupRequest request, long groupId, long userId) throws FlowGroupNotFoundException, YouDoNotHavePermissionException {
         Group group = findByIdAndDeletedTimeIsNull(groupId);
+        if (!groupUserService.isGroupAdmin(groupId, userId))
+            throw new YouDoNotHavePermissionException();
         return getFlowGroupResponse(request, userId, group);
+    }
+
+    @Transactional(readOnly = true)
+    public Group findByIdAndDeletedTimeIsNull(Long id) throws FlowGroupNotFoundException {
+        return groupDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(FlowGroupNotFoundException::new);
+    }
+
+    /**
+     * Grubu sadece adminleri silebilir.
+     *
+     * @param groupId
+     * @param userId
+     * @throws YouDoNotHavePermissionException
+     */
+    @Transactional(rollbackFor = {Throwable.class})
+    public void delete(long groupId, long userId) throws YouDoNotHavePermissionException {
+        if (!groupUserService.isGroupAdmin(groupId, userId))
+            throw new YouDoNotHavePermissionException();
+        groupDao.deleteById(groupId);
+        groupUserService.deleteByGroupId(groupId, userId);
     }
 
 }

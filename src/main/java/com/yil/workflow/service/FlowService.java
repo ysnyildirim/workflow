@@ -30,35 +30,29 @@ public class FlowService {
         return dto;
     }
 
+    @Transactional(readOnly = true)
     public boolean existsById(long id) {
         return flowDao.existsById(id);
     }
 
-    public Flow findByIdAndDeletedTimeIsNull(Long id) throws FlowNotFoundException {
-        return flowDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
-    }
-
+    @Transactional(readOnly = true)
     public Flow findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) throws FlowNotFoundException {
         return flowDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
     }
 
+    @Transactional(readOnly = true)
     public boolean existsByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) {
         return flowDao.existsByIdAndEnabledTrueAndDeletedTimeIsNull(id);
     }
 
+    @Transactional(readOnly = true)
     public List<Flow> getStartUpFlows(long userId) {
         return flowDao.getStartUpFlows(userId);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public FlowResponse save(FlowRequest request, Long userId) {
         Flow flow = new Flow();
-        return getFlowResponce(request, userId, flow);
-    }
-
-    @Transactional
-    public FlowResponse replace(FlowRequest request, Long flowId, Long userId) throws FlowNotFoundException {
-        Flow flow = findByIdAndDeletedTimeIsNull(flowId);
         return getFlowResponce(request, userId, flow);
     }
 
@@ -72,7 +66,18 @@ public class FlowService {
         return FlowResponse.builder().id(flow.getId()).build();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
+    public FlowResponse replace(FlowRequest request, Long flowId, Long userId) throws FlowNotFoundException {
+        Flow flow = findByIdAndDeletedTimeIsNull(flowId);
+        return getFlowResponce(request, userId, flow);
+    }
+
+    @Transactional(readOnly = true)
+    public Flow findByIdAndDeletedTimeIsNull(Long id) throws FlowNotFoundException {
+        return flowDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
+    }
+
+    @Transactional(rollbackFor = {Throwable.class})
     public void delete(Long id, Long userId) throws FlowNotFoundException {
         Flow flow = findByIdAndDeletedTimeIsNull(id);
         flow.setDeletedUserId(userId);
@@ -80,6 +85,7 @@ public class FlowService {
         flowDao.save(flow);
     }
 
+    @Transactional(readOnly = true)
     public List<Flow> findAllByDeletedTimeIsNull() {
         return flowDao.findAllByDeletedTimeIsNull();
     }

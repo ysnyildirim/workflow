@@ -9,6 +9,7 @@ import com.yil.workflow.model.TargetType;
 import com.yil.workflow.repository.TargetTypeDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -26,6 +27,7 @@ public class TargetTypeService {
         return dto;
     }
 
+    @Transactional(readOnly = true)
     public boolean existsById(int targetTypeId) {
         return targetTypeDao.existsById(targetTypeId);
     }

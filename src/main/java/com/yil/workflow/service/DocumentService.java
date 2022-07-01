@@ -13,11 +13,12 @@ public class DocumentService {
 
     private final DocumentDao documentDao;
 
+    @Transactional(readOnly = true)
     public Document findById(Long id) throws DocumentNotFoundException {
         return documentDao.findById(id).orElseThrow(() -> new DocumentNotFoundException());
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public Document save(Document document) {
         return documentDao.save(document);
     }

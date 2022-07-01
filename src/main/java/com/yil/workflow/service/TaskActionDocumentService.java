@@ -34,15 +34,18 @@ public class TaskActionDocumentService {
         return dto;
     }
 
+    @Transactional(readOnly = true)
     public Page<TaskActionDocument> findAllByTaskActionIdAndDeletedTimeIsNull(Pageable pageable, Long taskActionId) {
         return taskActionDocumentDao.findAllByTaskActionId(pageable, taskActionId);
     }
 
+    @Transactional(readOnly = true)
     public TaskActionDocument findByIdAndTaskActionIdAndDeletedTimeIsNull(Long id, Long taskActionId) throws TaskActionDocumentNotFoundException {
         return taskActionDocumentDao.findByIdAndTaskActionId(id, taskActionId).orElseThrow(() -> new TaskActionDocumentNotFoundException());
 
     }
 
+    @Transactional(readOnly = true)
     public TaskActionDocument findById(long id) throws TaskActionDocumentNotFoundException {
         return taskActionDocumentDao.findById(id).orElseThrow(() -> new TaskActionDocumentNotFoundException());
     }
@@ -69,14 +72,14 @@ public class TaskActionDocumentService {
                 .build();
     }
 
-    public boolean isDeletabled(long id, long userId) {
-        return true;
-    }
-
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public void delete(long id, long userId) throws YouDoNotHavePermissionException {
         if (!isDeletabled(id, userId))
             throw new YouDoNotHavePermissionException();
         taskActionDocumentDao.deleteById(id);
+    }
+
+    public boolean isDeletabled(long id, long userId) {
+        return true;
     }
 }

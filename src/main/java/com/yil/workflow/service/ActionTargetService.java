@@ -33,11 +33,7 @@ public class ActionTargetService {
         return dto;
     }
 
-    public ActionTarget findById(Long id) throws ActionTargetNotFoundException {
-        return actionTargetDao.findById(id).orElseThrow(ActionTargetNotFoundException::new);
-    }
-
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public ActionTargetResponse save(ActionTargetRequest request, long actionId) throws TargetNotFoundException {
         ActionTarget actionTarget = new ActionTarget();
         actionTarget.setActionId(actionId);
@@ -53,10 +49,15 @@ public class ActionTargetService {
         return ActionTargetResponse.builder().id(actionTarget.getId()).build();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public ActionTargetResponse replace(ActionTargetRequest request, long actionTargetId) throws ActionTargetNotFoundException, TargetNotFoundException {
         ActionTarget actionTarget = findById(actionTargetId);
         return getActionTargetResponse(request, actionTarget);
+    }
+
+    @Transactional(readOnly = true)
+    public ActionTarget findById(Long id) throws ActionTargetNotFoundException {
+        return actionTargetDao.findById(id).orElseThrow(ActionTargetNotFoundException::new);
     }
 
 }

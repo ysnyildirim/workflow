@@ -35,19 +35,11 @@ public class ActionSourceService {
         return dto;
     }
 
-    public ActionSource findById(Long id) throws ActionSourceNotFoundException {
-        return actionSourceDao.findById(id).orElseThrow(ActionSourceNotFoundException::new);
-    }
-
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public ActionSourceResponse save(ActionSourceRequest request, long actionId) throws TargetNotFoundException {
         ActionSource actionSource = new ActionSource();
         actionSource.setActionId(actionId);
         return getActionSourceResponse(request, actionSource);
-    }
-
-    public ActionSource findByActionIdAndGroupIdAndTargetTypeId(Long actionId, Long groupId, Integer targetTypeId) throws ActionSourceNotFoundException {
-        return actionSourceDao.findByActionIdAndGroupIdAndTargetTypeId(actionId, groupId, targetTypeId).orElseThrow(ActionSourceNotFoundException::new);
     }
 
     private ActionSourceResponse getActionSourceResponse(ActionSourceRequest request, ActionSource actionSource) throws TargetNotFoundException {
@@ -67,16 +59,28 @@ public class ActionSourceService {
         return ActionSourceResponse.builder().id(actionSource.getId()).build();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    public ActionSource findByActionIdAndGroupIdAndTargetTypeId(Long actionId, Long groupId, Integer targetTypeId) throws ActionSourceNotFoundException {
+        return actionSourceDao.findByActionIdAndGroupIdAndTargetTypeId(actionId, groupId, targetTypeId).orElseThrow(ActionSourceNotFoundException::new);
+    }
+
+    @Transactional(rollbackFor = {Throwable.class})
     public ActionSourceResponse replace(ActionSourceRequest request, long actionSourceId) throws ActionSourceNotFoundException, TargetNotFoundException {
         ActionSource actionSource = findById(actionSourceId);
         return getActionSourceResponse(request, actionSource);
     }
 
+    @Transactional(readOnly = true)
+    public ActionSource findById(Long id) throws ActionSourceNotFoundException {
+        return actionSourceDao.findById(id).orElseThrow(ActionSourceNotFoundException::new);
+    }
+
+    @Transactional(readOnly = true)
     public List<ActionSource> findAllByActionIdAndTargetTypeId(long actionId, int targetTypeId) {
         return actionSourceDao.findAllByActionIdAndTargetTypeId(actionId, targetTypeId);
     }
 
+    @Transactional(readOnly = true)
     public List<ActionSource> findAllByActionId(long actionId) {
         return actionSourceDao.findAllByActionId(actionId);
     }

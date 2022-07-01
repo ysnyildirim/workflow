@@ -35,30 +35,23 @@ public class TaskService {
         return dto;
     }
 
-    public Task findById(Long id) throws TaskNotFoundException {
-        return taskDao.findById(id).orElseThrow(() -> new TaskNotFoundException());
-    }
-
+    @Transactional(readOnly = true)
     public Page<Task> findAll(Pageable pageable) {
         return taskDao.findAll(pageable);
     }
 
-    public boolean isEditable(long id, long userId) {
-        return true;
-    }
-
-    public boolean isDeletable(long id, long userId) {
-        return true;
-    }
-
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public void delete(long id, long userId) throws YouDoNotHavePermissionException, TaskNotFoundException {
         if (!isDeletable(id, userId))
             throw new YouDoNotHavePermissionException();
         taskDao.deleteById(id);
     }
 
-    @Transactional
+    public boolean isDeletable(long id, long userId) {
+        return true;
+    }
+
+    @Transactional(rollbackFor = {Throwable.class})
     public TaskResponse replace(TaskBaseRequest request, long taskId, long userId) throws YouDoNotHavePermissionException, TaskNotFoundException {
         if (!isEditable(taskId, userId))
             throw new YouDoNotHavePermissionException();
@@ -72,6 +65,15 @@ public class TaskService {
                 .builder()
                 .taskId(task.getId())
                 .build();
+    }
+
+    public boolean isEditable(long id, long userId) {
+        return true;
+    }
+
+    @Transactional(readOnly = true)
+    public Task findById(Long id) throws TaskNotFoundException {
+        return taskDao.findById(id).orElseThrow(() -> new TaskNotFoundException());
     }
 
     @Transactional(rollbackFor = {Throwable.class})
@@ -94,6 +96,7 @@ public class TaskService {
         return responce;
     }
 
+    @Transactional(readOnly = true)
     public boolean existsById(Long taskId) {
         return taskDao.existsById(taskId);
     }

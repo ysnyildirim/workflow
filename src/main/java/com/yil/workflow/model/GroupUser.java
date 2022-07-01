@@ -12,6 +12,9 @@ import java.io.Serializable;
 
 @EqualsAndHashCode
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(schema = "WFS", name = "GROUP_USER")
 public class GroupUser implements IEntity {

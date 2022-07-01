@@ -6,6 +6,7 @@ import com.yil.workflow.model.PriorityType;
 import com.yil.workflow.repository.PriorityTypeDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,16 +26,19 @@ public class PriorityTypeService {
         return dto;
     }
 
+    @Transactional(readOnly = true)
     public PriorityType findById(Integer id) throws PriorityNotFoundException {
         return priorityTypeDao.findById(id).orElseThrow(() -> {
             return new PriorityNotFoundException();
         });
     }
 
+    @Transactional(readOnly = true)
     public boolean existsByIdAndDeletedTimeIsNull(Integer id) {
         return priorityTypeDao.existsById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<PriorityType> findAll() {
         return priorityTypeDao.findAll();
     }

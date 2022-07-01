@@ -35,38 +35,27 @@ public class ActionService {
         return dto;
     }
 
+    @Transactional(readOnly = true)
     public Action findById(Long id) throws ActionNotFoundException {
         return actionDao.findById(id).orElseThrow(() -> new ActionNotFoundException());
     }
 
+    @Transactional(readOnly = true)
     public Action findByIdAndStepId(Long id, Long stepId) throws ActionNotFoundException {
         return actionDao.findByIdAndStepId(id, stepId).orElseThrow(() -> new ActionNotFoundException());
     }
 
-    public Action findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) throws ActionNotFoundException {
-        return actionDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
-    }
-
+    @Transactional(readOnly = true)
     public Action findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id, Long stepId) throws ActionNotFoundException {
         return actionDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
     }
 
-    public Action findByIdAndDeletedTimeIsNull(Long id) throws ActionNotFoundException {
-        return actionDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
-    }
-
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public ActionResponse save(ActionRequest request, Long stepId, Long userId) throws StepNotFoundException {
         if (!stepService.existsById(stepId))
             throw new StepNotFoundException();
         Action action = new Action();
         action.setStepId(stepId);
-        return getActionResponce(request, userId, action);
-    }
-
-    @Transactional
-    public ActionResponse replace(ActionRequest request, Long actionId, Long userId) throws ActionNotFoundException, StepNotFoundException {
-        Action action = findByIdAndEnabledTrueAndDeletedTimeIsNull(actionId);
         return getActionResponce(request, userId, action);
     }
 
@@ -83,7 +72,18 @@ public class ActionService {
         return ActionResponse.builder().id(action.getId()).build();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
+    public ActionResponse replace(ActionRequest request, Long actionId, Long userId) throws ActionNotFoundException, StepNotFoundException {
+        Action action = findByIdAndEnabledTrueAndDeletedTimeIsNull(actionId);
+        return getActionResponce(request, userId, action);
+    }
+
+    @Transactional(readOnly = true)
+    public Action findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) throws ActionNotFoundException {
+        return actionDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
+    }
+
+    @Transactional(rollbackFor = {Throwable.class})
     public void delete(Long actionId, Long userId) throws ActionNotFoundException {
         Action action = findByIdAndDeletedTimeIsNull(actionId);
         action.setDeletedUserId(userId);
@@ -91,6 +91,12 @@ public class ActionService {
         actionDao.save(action);
     }
 
+    @Transactional(readOnly = true)
+    public Action findByIdAndDeletedTimeIsNull(Long id) throws ActionNotFoundException {
+        return actionDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
+    }
+
+    @Transactional(readOnly = true)
     public List<Action> findAllByStepIdAndDeletedTimeIsNull(Long stepId) {
         return actionDao.findAllByStepIdAndDeletedTimeIsNull(stepId);
     }

@@ -30,15 +30,12 @@ public class TaskActionMessageService {
         return dto;
     }
 
+    @Transactional(readOnly = true)
     public TaskActionMessage findByIdAndTaskActionId(Long id, Long taskActionId) throws TaskActionMessageNotFoundException {
         return taskActionMessageDao.findByIdAndTaskActionId(id, taskActionId).orElseThrow(() -> new TaskActionMessageNotFoundException());
     }
 
-    @Transactional
-    public TaskActionMessage save(TaskActionMessage taskActionMessage) {
-        return taskActionMessageDao.save(taskActionMessage);
-    }
-
+    @Transactional(readOnly = true)
     public Page<TaskActionMessage> findAllByTaskActionId(Pageable pageable, Long taskActionId) {
         return taskActionMessageDao.findAllByTaskActionId(pageable, taskActionId);
     }
@@ -57,14 +54,14 @@ public class TaskActionMessageService {
                 .build();
     }
 
-    public boolean isDeletabled(long id, long userId) {
-        return true;
-    }
-
-    @Transactional
+    @Transactional(rollbackFor = {Throwable.class})
     public void delete(long id, long userId) throws YouDoNotHavePermissionException {
         if (!isDeletabled(id, userId))
             throw new YouDoNotHavePermissionException();
         taskActionMessageDao.deleteById(id);
+    }
+
+    public boolean isDeletabled(long id, long userId) {
+        return true;
     }
 }

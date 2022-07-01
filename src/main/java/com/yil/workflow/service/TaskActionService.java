@@ -28,6 +28,8 @@ public class TaskActionService {
     private final TaskActionDocumentService taskActionDocumentService;
     private final TaskActionMessageService taskActionMessageService;
     private final StepService stepService;
+    private final ActionSourceService actionSourceService;
+    private final GroupUserService groupUserService;
 
     public static TaskActionResponse toDto(TaskAction taskAction) throws NullPointerException {
         if (taskAction == null)
@@ -37,17 +39,6 @@ public class TaskActionService {
         dto.setActionId(taskAction.getActionId());
         dto.setTaskId(taskAction.getTaskId());
         return dto;
-    }
-
-    public TaskAction getLastAction(long taskId) {
-        return taskActionDao.getLastAction(taskId);
-    }
-
-    private final ActionSourceService actionSourceService;
-    private final GroupUserService groupUserService;
-
-    public TaskAction findByTaskIdOrderByIdAsc(long taskId) throws TaskActionNotFoundException {
-        return taskActionDao.findByTaskIdOrderByIdAsc(taskId).orElseThrow(() -> new TaskActionNotFoundException());
     }
 
     @Transactional(rollbackFor = {Throwable.class})
@@ -139,19 +130,32 @@ public class TaskActionService {
                 .build();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    public TaskAction getLastAction(long taskId) {
+        return taskActionDao.getLastAction(taskId);
+    }
+
+    @Transactional(readOnly = true)
+    public TaskAction findByTaskIdOrderByIdAsc(long taskId) throws TaskActionNotFoundException {
+        return taskActionDao.findByTaskIdOrderByIdAsc(taskId).orElseThrow(() -> new TaskActionNotFoundException());
+    }
+
+    @Transactional(rollbackFor = {Throwable.class})
     public void delete(long taskActionId, long userId) throws YouDoNotHavePermissionException {
         taskActionDao.deleteById(taskActionId);
     }
 
+    @Transactional(readOnly = true)
     public TaskAction findById(Long id) throws TaskActionNotFoundException {
         return taskActionDao.findById(id).orElseThrow(() -> new TaskActionNotFoundException());
     }
 
+    @Transactional(readOnly = true)
     public Page<TaskAction> findAllByTaskId(Pageable pageable, Long taskId) {
         return taskActionDao.findAllByTaskId(pageable, taskId);
     }
 
+    @Transactional(readOnly = true)
     public TaskAction findByIdAndTaskId(Long id, Long taskId) throws TaskActionNotFoundException {
         return taskActionDao.findByIdAndTaskId(id, taskId).orElseThrow(() -> new TaskActionNotFoundException());
     }

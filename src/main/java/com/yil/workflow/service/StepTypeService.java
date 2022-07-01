@@ -10,6 +10,7 @@ import com.yil.workflow.model.StepType;
 import com.yil.workflow.repository.StepTypeDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,14 +29,17 @@ public class StepTypeService {
         return dto;
     }
 
+    @Transactional(readOnly = true)
     public StepType findById(Integer id) throws StepTypeNotFoundException {
         return stepTypeDao.findById(id).orElseThrow(() -> new StepTypeNotFoundException());
     }
 
+    @Transactional(readOnly = true)
     public boolean existsById(Integer stepTypeId) {
         return stepTypeDao.existsById(stepTypeId);
     }
 
+    @Transactional(readOnly = true)
     public List<StepType> findAll() {
         return stepTypeDao.findAll();
     }
