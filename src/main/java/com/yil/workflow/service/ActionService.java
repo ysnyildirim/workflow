@@ -100,4 +100,14 @@ public class ActionService {
     public List<Action> findAllByStepIdAndDeletedTimeIsNull(Long stepId) {
         return actionDao.findAllByStepIdAndDeletedTimeIsNull(stepId);
     }
+
+    @Transactional(readOnly = true)
+    public boolean isStartUpAction(long id) {
+        return actionDao.isStartUpAction(id);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isNextAction(long currentActionId, long nextActionId) {
+        return actionDao.isNextAction(currentActionId, nextActionId);
+    }
 }

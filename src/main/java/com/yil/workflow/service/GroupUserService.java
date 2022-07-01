@@ -15,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Service
 public class GroupUserService {
@@ -70,11 +68,6 @@ public class GroupUserService {
         if (isGroupAdmin(groupId, userId) || isGroupManager(groupId, userId))
             return true;
         return (countByGroupId(groupId) == 0); // grupta kimse yoksa ekleyebilir
-    }
-
-    @Transactional(readOnly = true)
-    public boolean existsByIdIn(List<GroupUser.Pk> id) {
-        return groupUserDao.existsByIdIn(id);
     }
 
     @Transactional(readOnly = true)

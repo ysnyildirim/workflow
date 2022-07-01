@@ -25,4 +25,6 @@ public interface TaskActionDao extends JpaRepository<TaskAction, Long> {
     TaskAction getLastAction(@Param(value = "p_task_id") long taskId);
 
     Optional<TaskAction> findByTaskIdOrderByIdAsc(long taskId);
+
+    boolean existsByIdAndCreatedUserId(long id, long createdUserId);
 }

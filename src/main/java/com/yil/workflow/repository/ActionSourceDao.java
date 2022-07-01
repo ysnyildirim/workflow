@@ -6,6 +6,8 @@ package com.yil.workflow.repository;
 
 import com.yil.workflow.model.ActionSource;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,5 +22,14 @@ public interface ActionSourceDao extends JpaRepository<ActionSource, Long> {
     List<ActionSource> findAllByActionId(long actionId);
 
     Optional<ActionSource> findByActionIdAndGroupIdAndTargetTypeId(Long actionId, Long groupId, Integer targetTypeId);
+
+    boolean existsByActionIdAndTargetTypeId(long actionId, int targetTypeId);
+
+    @Query(nativeQuery = true,
+            value = " select count(1) from WFS.ACTION_SOURCE s " +
+                    "   where s.TARGET_TYPE_ID=3" +
+                    "   and s.ACTION_ID=:actionId" +
+                    "   and exists (select 1 from WFS.GROUP_USER gu where s.GROUP_ID= gu.GROUP_ID and gu.USER_ID=:userId)")
+    long countByActionIdAndUserId(@Param(value = "actionId") long actionId, @Param(value = "userId") long userId);
 
 }

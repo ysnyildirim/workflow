@@ -15,6 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class TargetTypeService {
 
+    public static final int TaskCreator = 1;
+    public static final int LastActionUser = 2;
+    public static final int GroupMembers = 3;
+
     private final TargetTypeDao targetTypeDao;
 
     public static TargetDto toDto(TargetType targetType) {

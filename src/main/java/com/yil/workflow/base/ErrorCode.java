@@ -8,6 +8,8 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+    NotNextAction(7000020, "Not next action"),
+    StartUpAction(7000019, "Not in action initialization step"),
     ActionSourceNotFound(7000018, "Action source not found"),
     GroupUserNotFound(7000017, "Group user not found"),
     TargetNotFound(7000016, "Target not found"),

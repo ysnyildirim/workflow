@@ -85,4 +85,19 @@ public class ActionSourceService {
         return actionSourceDao.findAllByActionId(actionId);
     }
 
+    public boolean existsByActionIdAndTargetTypeId(long actionId, int targetTypeId) {
+        return actionSourceDao.existsByActionIdAndTargetTypeId(actionId, targetTypeId);
+    }
+
+    /**
+     * User bu aksiyonu gerçekleştirebilir mi ?
+     *
+     * @param actionId
+     * @param userId
+     * @return
+     */
+    public boolean userInActionGroup(long actionId, long userId) {
+        return actionSourceDao.countByActionIdAndUserId(actionId, userId) > 0;
+    }
+
 }

@@ -134,7 +134,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         }
     }
 
-    public void taskStart(Flow flow, Action action) throws ActionNotFoundException, NotAvailableActionException, StepNotFoundException, TaskActionNotFoundException, YouDoNotHavePermissionException, FlowNotFoundException, PriorityNotFoundException {
+    public void taskStart(Flow flow, Action action) throws ActionNotFoundException, NotAvailableActionException, StepNotFoundException, TaskActionNotFoundException, YouDoNotHavePermissionException, FlowNotFoundException, PriorityNotFoundException, StartUpActionException, NotNextActionException {
         int u = new Random().nextInt(1, 500000);
         TaskRequest request = generateTaskRequest(flow, action);
         TaskResponse taskResponse = taskService.save(request, u);
@@ -142,7 +142,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         System.out.println(taskResponse.getTaskId());
     }
 
-    private void finishTask(Long taskId, Long userId) throws ActionNotFoundException, NotAvailableActionException, StepNotFoundException, YouDoNotHavePermissionException, TaskActionNotFoundException {
+    private void finishTask(Long taskId, Long userId) throws ActionNotFoundException, NotAvailableActionException, StepNotFoundException, YouDoNotHavePermissionException, TaskActionNotFoundException, StartUpActionException, NotNextActionException {
         TaskAction taskAction = taskActionService.getLastAction(taskId);
         Action currentAction = actionService.findById(taskAction.getActionId());
         Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(currentAction.getNextStepId()).get(0);
