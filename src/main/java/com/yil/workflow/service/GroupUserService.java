@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class GroupUserService {
@@ -26,9 +28,10 @@ public class GroupUserService {
         if (groupUser == null)
             throw new NullPointerException("Group user is null");
         GroupUserDto dto = new GroupUserDto();
-        dto.setUserId(groupUser.getId().getUserId());
-        dto.setGroupId(groupUser.getId().getGroupId());
-        dto.setGroupUserTypeId(groupUser.getId().getGroupUserTypeId());
+        dto.setId(groupUser.getId());
+        dto.setUserId(groupUser.getUserId());
+        dto.setGroupId(groupUser.getGroupId());
+        dto.setGroupUserTypeId(groupUser.getGroupUserTypeId());
         return dto;
     }
 
@@ -47,13 +50,16 @@ public class GroupUserService {
             throw new YouDoNotHavePermissionException();
         if (!groupUserTypeService.existsById(request.getGroupUserTypeId()))
             throw new GroupUserNotFoundException();
-        GroupUser groupUser = groupUserDao.findById(new GroupUser.Pk(groupId, request.getUserId(), request.getGroupUserTypeId())).orElse(null);
+        List<GroupUser> groupUsers = groupUserDao.findAllByGroupIdAndUserIdAndGroupUserTypeId(groupId, request.getUserId(), request.getGroupUserTypeId());
+        GroupUser groupUser = groupUsers.stream().findFirst().orElse(null);
         if (groupUser == null) {
             groupUser = new GroupUser();
-            groupUser.setId(new GroupUser.Pk(groupId, request.getUserId(), request.getGroupUserTypeId()));
+            groupUser.setGroupId(groupId);
+            groupUser.setUserId(request.getUserId());
+            groupUser.setGroupUserTypeId(request.getGroupUserTypeId());
             groupUser = groupUserDao.save(groupUser);
         }
-        return GroupUserResponse.builder().userId(groupUser.getId().getUserId()).build();
+        return GroupUserResponse.builder().id(groupUser.getId()).build();
     }
 
     /**
@@ -72,26 +78,20 @@ public class GroupUserService {
 
     @Transactional(readOnly = true)
     public long countByGroupId(long groupId) {
-        return groupUserDao.countById_GroupId(groupId);
-    }
-
-    @Transactional(readOnly = true)
-    public boolean existsById(GroupUser.Pk id) {
-        return groupUserDao.existsById(id);
+        return groupUserDao.countByGroupId(groupId);
     }
 
     public boolean isGroupAdmin(long groupId, long userId) {
-        return existsById(GroupUser.Pk.builder().userId(userId).groupId(groupId).groupUserTypeId(1).build());
+        return groupUserDao.existsByGroupIdAndUserIdAndGroupUserTypeId(groupId, userId, 1);
     }
 
     public boolean isGroupManager(long groupId, long userId) {
-        return existsById(GroupUser.Pk.builder().userId(userId).groupId(groupId).groupUserTypeId(2).build());
+        return groupUserDao.existsByGroupIdAndUserIdAndGroupUserTypeId(groupId, userId, 2);
     }
 
     public boolean isGroupUser(long groupId, long userId) {
-        return existsById(GroupUser.Pk.builder().userId(userId).groupId(groupId).groupUserTypeId(3).build());
+        return groupUserDao.existsByGroupIdAndUserIdAndGroupUserTypeId(groupId, userId, 3);
     }
-
 
     /**
      * Grouptan sadece admin veya manager silme yapabilir
@@ -100,9 +100,9 @@ public class GroupUserService {
      */
     @Transactional(rollbackFor = {Throwable.class})
     public void deleteByGroupId(long groupId, long userId) throws YouDoNotHavePermissionException {
-        if (!canDeleta(groupId, userId))
+        if (!canDelete(groupId, userId))
             throw new YouDoNotHavePermissionException();
-        groupUserDao.deleteById_GroupId(groupId);
+        groupUserDao.deleteByGroupId(groupId);
     }
 
     /**
@@ -112,7 +112,7 @@ public class GroupUserService {
      * @param userId
      * @return
      */
-    public boolean canDeleta(long groupId, long userId) {
+    public boolean canDelete(long groupId, long userId) {
         return isGroupAdmin(groupId, userId);
     }
 

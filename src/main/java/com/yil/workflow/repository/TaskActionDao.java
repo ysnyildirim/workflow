@@ -20,11 +20,15 @@ public interface TaskActionDao extends JpaRepository<TaskAction, Long> {
 
     @Query(nativeQuery = true,
             value = " select * from WFS.TASK_ACTION ta " +
-                    " where ta.TASK_ID=:p_task_id" +
+                    " where ta.TASK_ID=:taskId" +
                     " and ta.Id = (select max(ta2.Id) from WFS.TASK_ACTION ta2 where ta2.TASK_ID=ta.TASK_ID)")
-    TaskAction getLastAction(@Param(value = "p_task_id") long taskId);
-
-    Optional<TaskAction> findByTaskIdOrderByIdAsc(long taskId);
+    Optional<TaskAction> getLastAction(@Param(value = "taskId") long taskId);
 
     boolean existsByIdAndCreatedUserId(long id, long createdUserId);
+
+    @Query(nativeQuery = true,
+            value = " select * from WFS.TASK_ACTION ta " +
+                    " where ta.TASK_ID=:taskId" +
+                    " and ta.Id = (select min(ta2.Id) from WFS.TASK_ACTION ta2 where ta2.TASK_ID=ta.TASK_ID)")
+    Optional<TaskAction> getFirstAction(@Param(value = "taskId") long taskId);
 }

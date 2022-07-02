@@ -11,12 +11,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface GroupUserDao extends JpaRepository<GroupUser, GroupUser.Pk> {
+public interface GroupUserDao extends JpaRepository<GroupUser, Long> {
 
-    void deleteById_GroupId(long groupId);
+    long countByGroupId(long groupId);
 
-    boolean existsByIdIn(List<GroupUser.Pk> id);
+    void deleteByGroupId(long groupId);
 
-    long countById_GroupId(long groupId);
+    boolean existsByGroupIdAndUserIdAndGroupUserTypeId(long groupId, long userId, long groupUserTypeId);
+
+    List<GroupUser> findAllByGroupIdAndUserIdAndGroupUserTypeId(long groupId, long userId, long groupUserTypeId);
 
 }

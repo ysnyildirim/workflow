@@ -117,4 +117,9 @@ public class StepService {
     public boolean existsById(Long id) {
         return stepRepository.existsById(id);
     }
+
+    @Transactional(readOnly = true)
+    public Step findByIdAndEnabledTrueAndDeletedTimeIsNull(long id) throws StepNotFoundException {
+        return stepRepository.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new StepNotFoundException());
+    }
 }

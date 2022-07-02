@@ -1,9 +1,6 @@
 package com.yil.workflow.service;
 
-import com.yil.workflow.dto.TaskBaseRequest;
-import com.yil.workflow.dto.TaskDto;
-import com.yil.workflow.dto.TaskRequest;
-import com.yil.workflow.dto.TaskResponse;
+import com.yil.workflow.dto.*;
 import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Task;
 import com.yil.workflow.repository.TaskDao;
@@ -77,7 +74,7 @@ public class TaskService {
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, NotAvailableActionException, StepNotFoundException {
+    public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, NotAvailableActionException, StepNotFoundException, StartUpActionException, NotNextActionException {
         if (!flowService.existsByIdAndEnabledTrueAndDeletedTimeIsNull(request.getFlowId()))
             throw new FlowNotFoundException();
         if (!priorityTypeService.existsByIdAndDeletedTimeIsNull(request.getPriorityTypeId()))

@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -26,11 +25,7 @@ public class ActionController {
 
     @GetMapping
     public ResponseEntity<List<ActionDto>> findAll(@PathVariable Long stepId) {
-        List<Action> actionList = actionService.findAllByStepIdAndDeletedTimeIsNull(stepId);
-        List<ActionDto> actions = new ArrayList<>();
-        actionList.forEach(f -> {
-            actions.add(ActionService.toDto(f));
-        });
+        List<ActionDto> actions = actionService.findAll(stepId);
         return ResponseEntity.ok(actions);
     }
 
@@ -72,6 +67,5 @@ public class ActionController {
         actionService.delete(id, authenticatedUserId);
         return ResponseEntity.ok("Action deleted.");
     }
-
 
 }

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -101,6 +102,15 @@ public class ActionService {
         return actionDao.findAllByStepIdAndDeletedTimeIsNull(stepId);
     }
 
+    public List<ActionDto> findAll(long stepId) {
+        List<Action> actionList = actionDao.findAllByStepIdAndDeletedTimeIsNull(stepId);
+        List<ActionDto> actions = new ArrayList<>();
+        actionList.forEach(f -> {
+            actions.add(ActionService.toDto(f));
+        });
+        return actions;
+    }
+
     @Transactional(readOnly = true)
     public boolean isStartUpAction(long id) {
         return actionDao.isStartUpAction(id);
@@ -109,5 +119,35 @@ public class ActionService {
     @Transactional(readOnly = true)
     public boolean isNextAction(long currentActionId, long nextActionId) {
         return actionDao.isNextAction(currentActionId, nextActionId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ActionDto> getActionByStepIdAndUserId(Long stepId, Long userId) {
+        List<Action> actionList = actionDao.getActionByStepIdAndUserId(stepId, userId);
+        List<ActionDto> actions = new ArrayList<>();
+        actionList.forEach(f -> {
+            actions.add(ActionService.toDto(f));
+        });
+        return actions;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ActionDto> getActionByStepIdAndTargetTypeId(long stepId, int targetTypeId) {
+        List<Action> actionList = actionDao.getActionByStepIdAndTargetTypeId(stepId, targetTypeId);
+        List<ActionDto> actions = new ArrayList<>();
+        actionList.forEach(f -> {
+            actions.add(ActionService.toDto(f));
+        });
+        return actions;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ActionDto> getStartUpActions(long flowId, long userId) {
+        List<Action> actionList = actionDao.getStartUpActions(flowId, userId);
+        List<ActionDto> actions = new ArrayList<>();
+        actionList.forEach(f -> {
+            actions.add(ActionService.toDto(f));
+        });
+        return actions;
     }
 }

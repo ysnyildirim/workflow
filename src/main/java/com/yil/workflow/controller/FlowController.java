@@ -70,16 +70,5 @@ public class FlowController {
         return ResponseEntity.ok("Flow deleted.");
     }
 
-    @GetMapping(value = "/start-up")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<FlowDto>> getStartUpFlows(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId) {
-        List<Flow> data = flowService.getStartUpFlows(authenticatedUserId);
-        List<FlowDto> dto = new ArrayList<>();
-        data.forEach(f -> {
-            dto.add(FlowService.toDto(f));
-        });
-        return ResponseEntity.ok(dto);
-    }
-
 
 }

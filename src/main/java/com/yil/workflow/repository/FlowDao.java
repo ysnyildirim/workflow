@@ -21,30 +21,28 @@ public interface FlowDao extends JpaRepository<Flow, Long> {
     boolean existsByIdAndEnabledTrueAndDeletedTimeIsNull(Long id);
 
     @Query(nativeQuery = true,
-            value = "SELECT *\n" +
-                    "FROM wfs.flow f\n" +
-                    "WHERE f.enabled = 1\n" +
-                    "    AND EXISTS (\n" +
-                    "        SELECT 1 FROM wfs.step s\n" +
-                    "        WHERE s.flow_id = f.id\n" +
-                    "            AND s.enabled = 1\n" +
-                    "            AND s.step_type_id = 1\n" +
-                    "            AND EXISTS (\n" +
-                    "                SELECT 1 FROM wfs.action a\n" +
-                    "                WHERE a.step_id = s.id\n" +
-                    "                    AND a.enabled = 1\n" +
-                    "                    AND EXISTS (\n" +
-                    "                        SELECT 1 FROM wfs.action_source ats\n" +
-                    "                        WHERE ats.action_id = a.id\n" +
-                    "                            AND ats.target_type_id = 3\n" +
-                    "                            AND EXISTS (\n" +
-                    "                                SELECT 1 FROM wfs.flow_group_user fg\n" +
-                    "                                WHERE fg.flow_group_id = ats.flow_group_id\n" +
-                    "                                    AND fg.user_id =:P_USER_ID\n" +
-                    "                            )\n" +
-                    "                    )\n" +
-                    "            )\n" +
-                    "    )")
-    List<Flow> getStartUpFlows(@Param(value = "P_USER_ID") long userId);
+            value = " select * from wfs.flow f" +
+                    "   where f.ENABLED = 1" +
+                    "   and f.DELETED_TIME IS NULL" +
+                    "   and exists(" +
+                    "       select 1 from WFS.STEP s" +
+                    "       where s.FLOW_ID=f.ID" +
+                    "       and s.ENABLED=1" +
+                    "       and s.DELETED_TIME IS null" +
+                    "       and s.STEP_TYPE_ID=1" +
+                    "       and exists(" +
+                    "           select 1 from WFS.ACTION a" +
+                    "           where a.STEP_ID=s.ID" +
+                    "           and a.ENABLED=1" +
+                    "           and a.DELETED_TIME IS NULL" +
+                    "           and exists(" +
+                    "               select 1 from WFS.ACTION_SOURCE ats" +
+                    "               where ats.ACTION_ID=a.ID" +
+                    "               and ats.TARGET_TYPE_ID=3" +
+                    "               and exists(" +
+                    "                   select 1 from WFS.GROUP_USER gu" +
+                    "                   where gu.GROUP_ID=ats.GROUP_ID" +
+                    "                   and gu.USER_ID=:userId))))")
+    List<Flow> getStartUpFlows(@Param(value = "userId") long userId);
 
 }

@@ -97,7 +97,7 @@ public class ActionSourceService {
      * @return
      */
     public boolean userInActionGroup(long actionId, long userId) {
-        return actionSourceDao.countByActionIdAndUserId(actionId, userId) > 0;
+        return actionSourceDao.userInActionGroup(actionId, userId);
     }
 
 }

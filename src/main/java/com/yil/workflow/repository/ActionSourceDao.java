@@ -26,10 +26,11 @@ public interface ActionSourceDao extends JpaRepository<ActionSource, Long> {
     boolean existsByActionIdAndTargetTypeId(long actionId, int targetTypeId);
 
     @Query(nativeQuery = true,
-            value = " select count(1) from WFS.ACTION_SOURCE s " +
+            value = " select case when count(1) > 0  then true else false end " +
+                    " from WFS.ACTION_SOURCE s " +
                     "   where s.TARGET_TYPE_ID=3" +
                     "   and s.ACTION_ID=:actionId" +
                     "   and exists (select 1 from WFS.GROUP_USER gu where s.GROUP_ID= gu.GROUP_ID and gu.USER_ID=:userId)")
-    long countByActionIdAndUserId(@Param(value = "actionId") long actionId, @Param(value = "userId") long userId);
+    boolean userInActionGroup(@Param(value = "actionId") long actionId, @Param(value = "userId") long userId);
 
 }

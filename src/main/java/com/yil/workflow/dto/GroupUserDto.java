@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GroupUserDto {
+    private Long id;
     private Long groupId;
     private Long userId;
     private Integer groupUserTypeId;
