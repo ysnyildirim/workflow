@@ -103,11 +103,6 @@ public class TaskActionService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    public TaskAction getLastAction(long taskId) throws TaskActionNotFoundException {
-        return taskActionDao.getLastAction(taskId).orElseThrow(() -> new TaskActionNotFoundException());
-    }
-
     /**
      * Sadece aksiyonu icra eden silebilir
      *
@@ -178,6 +173,11 @@ public class TaskActionService {
                 if (!actions.stream().anyMatch(p -> p.getId().equals(a.getId())))
                     actions.add(a);
         return actions;
+    }
+
+    @Transactional(readOnly = true)
+    public TaskAction getLastAction(long taskId) throws TaskActionNotFoundException {
+        return taskActionDao.getLastAction(taskId).orElseThrow(() -> new TaskActionNotFoundException());
     }
 
     @Transactional(readOnly = true)

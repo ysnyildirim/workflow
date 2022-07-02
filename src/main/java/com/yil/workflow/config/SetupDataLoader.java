@@ -14,10 +14,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Component
 @EnableAsync
@@ -74,18 +71,21 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         initGroupUserTypes();
 
 
+        List<Group> groups = groupDao.findAll();
+        for (int i = 1; i < groups.size(); i++) {
+            try {
+                generateGroupUsers(groups.get(i).getId(), 1L);
+            } catch (GroupUserNotFoundException e) {
+                e.printStackTrace();
+            } catch (YouDoNotHavePermissionException e) {
+                e.printStackTrace();
+            }
+        }
 //        try {
 //            generateGroups(1L);
 //        } catch (Exception e) {
-//
+//            e.printStackTrace();
 //        }
-
-
-//        for (Action action : actionDao.findAll())
-//            generateActionSource(action.getId(), 1);
-//
-//        for (Action action : actionDao.findAll())
-//            generateActionTarget(action.getId(), 1);
 
         //generateTask();
 
@@ -98,10 +98,67 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
 
     }
 
+    @Autowired
+    private GroupUserDao groupUserDao;
+
+    private void initStatus() {
+        addStatus(Status.builder().id(1).name("Start").description("Started").build());
+        addStatus(Status.builder().id(2).name("Continue").description("Continue").build());
+        addStatus(Status.builder().id(3).name("Finished").description("Finished").build());
+    }
+
+    private void initTargetTypes() {
+        addTarget(TargetType.builder().id(1).name("Task Creator").description("Task creator").build());
+        addTarget(TargetType.builder().id(2).name("Last Action User").description("Last action user").build());
+        addTarget(TargetType.builder().id(3).name("Group Members").description("Group Members").build());
+        addTarget(TargetType.builder().id(4).name("User").description("User").build());
+    }
+
+    private void initPriorityTypes() {
+        addPriority(PriorityType.builder().id(1).name("Highest").description("This problem will block progress").build());
+        addPriority(PriorityType.builder().id(2).name("High").description("Serious problem that could block progress").build());
+        addPriority(PriorityType.builder().id(3).name("Medium").description("Has the potential to effect progress").build());
+        addPriority(PriorityType.builder().id(4).name("Low").description("Minor problem or easily worked around").build());
+        addPriority(PriorityType.builder().id(5).name("Lowest").description("Trivial problem with little or no impact on progress").build());
+
+    }
+
+    private void initStepType() {
+        addStepType(StepType.builder().id(1).name("Start").description("Should only be one per process. This state is the state into which a new Request is placed when it is created.").build());
+        addStepType(StepType.builder().id(2).name("Normal").description("A regular state with no special designation.").build());
+        addStepType(StepType.builder().id(3).name("Complete").description("A state signifying that any Request in this state have completed normally.").build());
+        addStepType(StepType.builder().id(4).name("Denied").description("A state signifying that any Request in this state has been denied (e.g. never got started and will not be worked on).").build());
+        addStepType(StepType.builder().id(5).name("Cancelled").description("A state signifying that any Request in this state has been cancelled (e.g. work was started but never completed).").build());
+    }
+
     private void initGroupUserTypes() {
         addGroupUserType(GroupUserType.builder().id(1).name("ADMIN").description("ADMINs").build());
         addGroupUserType(GroupUserType.builder().id(2).name("MANAGER").description("MANAgers").build());
         addGroupUserType(GroupUserType.builder().id(3).name("USER").description("USers").build());
+    }
+
+    private void addStatus(Status status) {
+        if (statusRepository.existsById(status.getId()))
+            return;
+        statusRepository.save(status);
+    }
+
+    private void addTarget(TargetType target) {
+        if (targetTypeDao.existsById(target.getId()))
+            return;
+        targetTypeDao.save(target);
+    }
+
+    private void addPriority(PriorityType priority) {
+        if (priorityTypeDao.existsById(priority.getId()))
+            return;
+        priorityTypeDao.save(priority);
+    }
+
+    private void addStepType(StepType stepType) {
+        if (stepTypeDao.existsById(stepType.getId()))
+            return;
+        stepTypeDao.save(stepType);
     }
 
     private void addGroupUserType(GroupUserType type) {
@@ -165,8 +222,27 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         request.setEnabled(true);
         FlowResponse responce = flowService.save(request, userId);
         int k = new Random().nextInt(5, 15);
-        for (int i = 0; i < k; i++)
-            generateStep(responce.getId(), userId);
+        for (int i = 0; i < k; i++) {
+            int stepTypeId = 2;
+            if (i == 0) stepTypeId = 1;
+            else if (i == k - 1) stepTypeId = 3;
+            else if (i % 4 == 0) stepTypeId = 4;
+            else if (i % 5 == 0) stepTypeId = 5;
+            generateStep(responce.getId(), userId, stepTypeId);
+        }
+        List<Step> stepList = stepService.findAllByFlowIdAndDeletedTimeIsNull(responce.getId());
+        for (int i = 0; i < stepList.size(); i++) {
+            Step step = stepList.get(i);
+            if (Arrays.asList(3, 4, 5).contains(step.getStepTypeId()))
+                continue;
+            int l = new Random().nextInt(10, 15);
+            for (int j = 0; j < l; j++) {
+                Long nextStepId = null;
+                if (stepList.size() > j)
+                    nextStepId = stepList.get(j + 1).getId();
+                generateAction(stepList.get(j).getId(), userId, nextStepId);
+            }
+        }
     }
 
     private String randomString(int i) {
@@ -176,29 +252,18 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         return s;
     }
 
-    public void generateStep(long flowId, long userId) throws Exception {
+    public void generateStep(long flowId, long userId, int stepTypeId) throws Exception {
         StepRequest request = new StepRequest();
         request.setName(randomString(20));
         request.setDescription(randomString(100));
         request.setEnabled(true);
         request.setStatusId(1);
-        Step step = null;
-        List<Step> stepList = stepService.findAllByFlowIdAndDeletedTimeIsNull(flowId);
-        if (stepList.size() == 0)
-            request.setStepTypeId(1);
-        else {
-            request.setStepTypeId(2);
-            step = stepList.get(stepList.size() - 1);
-        }
+        request.setStepTypeId(stepTypeId);
         StepResponse responce = stepService.save(request, flowId, userId);
-        if (step != null) {
-            int k = new Random().nextInt(10, 15);
-            for (int i = 0; i < k; i++)
-                generateAction(step.getId(), userId, responce.getId());
-        }
+
     }
 
-    public ActionResponse generateAction(long stepId, long userId, long nextStepId) throws Exception {
+    public ActionResponse generateAction(long stepId, long userId, Long nextStepId) throws Exception {
         ActionRequest request = new ActionRequest();
         request.setName(randomString(20));
         request.setDescription(randomString(100));
@@ -320,66 +385,15 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 .build();
     }
 
-    private void initStepType() {
-        addStepType(StepType.builder().id(1).name("Start").description("Should only be one per process. This state is the state into which a new Request is placed when it is created.").build());
-        addStepType(StepType.builder().id(2).name("Normal").description("A regular state with no special designation.").build());
-        addStepType(StepType.builder().id(3).name("Complete").description("A state signifying that any Request in this state have completed normally.").build());
-        addStepType(StepType.builder().id(4).name("Denied").description("A state signifying that any Request in this state has been denied (e.g. never got started and will not be worked on).").build());
-        addStepType(StepType.builder().id(5).name("Cancelled").description("A state signifying that any Request in this state has been cancelled (e.g. work was started but never completed).").build());
-    }
-
-    private void addStepType(StepType stepType) {
-        if (stepTypeDao.existsById(stepType.getId()))
-            return;
-        stepTypeDao.save(stepType);
-    }
-
-    private void initPriorityTypes() {
-        addPriority(PriorityType.builder().id(1).name("Highest").description("This problem will block progress").build());
-        addPriority(PriorityType.builder().id(2).name("High").description("Serious problem that could block progress").build());
-        addPriority(PriorityType.builder().id(3).name("Medium").description("Has the potential to effect progress").build());
-        addPriority(PriorityType.builder().id(4).name("Low").description("Minor problem or easily worked around").build());
-        addPriority(PriorityType.builder().id(5).name("Lowest").description("Trivial problem with little or no impact on progress").build());
-
-    }
-
-    private void addPriority(PriorityType priority) {
-        if (priorityTypeDao.existsById(priority.getId()))
-            return;
-        priorityTypeDao.save(priority);
-    }
-
-    private void initStatus() {
-        addStatus(Status.builder().id(1).name("Start").description("Started").build());
-        addStatus(Status.builder().id(2).name("Continue").description("Continue").build());
-        addStatus(Status.builder().id(3).name("Finished").description("Finished").build());
-    }
-
-    private void addStatus(Status status) {
-        if (statusRepository.existsById(status.getId()))
-            return;
-        statusRepository.save(status);
-    }
-
-    private void initTargetTypes() {
-        addTarget(TargetType.builder().id(1).name("Task Creator").description("Task creator").build());
-        addTarget(TargetType.builder().id(2).name("Action User").description("Action execute user").build());
-        addTarget(TargetType.builder().id(3).name("Group Members").description("Group Members").build());
-    }
-
-    private void addTarget(TargetType target) {
-        if (targetTypeDao.existsById(target.getId()))
-            return;
-        targetTypeDao.save(target);
-    }
-
     public void generateGroups(long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
         {
             GroupRequest everyone = GroupRequest.builder().name("Everyone").description("All users").build();
             GroupResponse groupResponse = groupService.save(everyone, userId);
             for (int j = 1; j < 500000; j++) {
+
+                groupUserDao.save(GroupUser.builder().groupId(groupResponse.getId()).groupUserTypeId(GroupUserTypeService.User).userId(Long.valueOf(j)).build());
                 GroupUserRequest groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.User).userId(Long.valueOf(j)).build();
-                groupUserService.save(groupRequest, groupResponse.getId(), userId);
+                //groupUserService.save(groupRequest, groupResponse.getId(), userId);
                 if (j == 1) {
                     groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.Admin).userId(Long.valueOf(j)).build();
                     groupUserService.save(groupRequest, groupResponse.getId(), userId);
@@ -396,7 +410,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     }
 
     private void generateGroupUsers(Long groupId, long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
-        for (int j = 0; j < 100; j++) {
+        for (int j = 0; j < 10000; j++) {
             GroupUserRequest groupRequest = GroupUserRequest.builder().groupUserTypeId(new Random().nextInt(1, 4)).userId(new Random().nextLong(1, 500000)).build();
             GroupUserResponse response = groupUserService.save(groupRequest, groupId, userId);
         }

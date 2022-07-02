@@ -23,19 +23,6 @@ public class ActionService {
     private final ActionDao actionDao;
     private final StepService stepService;
 
-    public static ActionDto toDto(Action action) throws NullPointerException {
-        if (action == null)
-            throw new NullPointerException("Action is null");
-        ActionDto dto = new ActionDto();
-        dto.setId(action.getId());
-        dto.setDescription(action.getDescription());
-        dto.setEnabled(action.getEnabled());
-        dto.setName(action.getName());
-        dto.setStepId(action.getStepId());
-        dto.setNextStepId(action.getNextStepId());
-        return dto;
-    }
-
     @Transactional(readOnly = true)
     public Action findById(Long id) throws ActionNotFoundException {
         return actionDao.findById(id).orElseThrow(() -> new ActionNotFoundException());
@@ -109,6 +96,19 @@ public class ActionService {
             actions.add(ActionService.toDto(f));
         });
         return actions;
+    }
+
+    public static ActionDto toDto(Action action) throws NullPointerException {
+        if (action == null)
+            throw new NullPointerException("Action is null");
+        ActionDto dto = new ActionDto();
+        dto.setId(action.getId());
+        dto.setDescription(action.getDescription());
+        dto.setEnabled(action.getEnabled());
+        dto.setName(action.getName());
+        dto.setStepId(action.getStepId());
+        dto.setNextStepId(action.getNextStepId());
+        return dto;
     }
 
     @Transactional(readOnly = true)

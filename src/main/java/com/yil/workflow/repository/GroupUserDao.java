@@ -17,8 +17,8 @@ public interface GroupUserDao extends JpaRepository<GroupUser, Long> {
 
     void deleteByGroupId(long groupId);
 
-    boolean existsByGroupIdAndUserIdAndGroupUserTypeId(long groupId, long userId, long groupUserTypeId);
+    boolean existsByGroupIdAndUserIdAndGroupUserTypeId(long groupId, long userId, int groupUserTypeId);
 
-    List<GroupUser> findAllByGroupIdAndUserIdAndGroupUserTypeId(long groupId, long userId, long groupUserTypeId);
+    List<GroupUser> findAllByGroupIdAndUserIdAndGroupUserTypeId(long groupId, long userId, int groupUserTypeId);
 
 }

@@ -2,13 +2,20 @@ package com.yil.workflow.model;
 
 import com.yil.workflow.base.IEntity;
 import lombok.Data;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Data
-@Table(schema = "WFS", name = "TASK", indexes = {@Index(name = "IDX_TASK_FLOW_ID", columnList = "FLOW_ID")})
+@Table(schema = "WFS",
+        name = "TASK",
+        indexes = {
+                @Index(name = "IDX_TASK_ID", columnList = "FLOW_ID"),
+                @Index(name = "IDX_TASK_IS_CLOSED", columnList = "IS_CLOSED")
+        })
 public class Task implements IEntity {
     @Id
     @SequenceGenerator(name = "TASK_SEQUENCE_GENERATOR",
@@ -30,4 +37,8 @@ public class Task implements IEntity {
     private Date estimatedFinishDate;
     @Column(name = "PRIORITY_TYPE_ID", nullable = false)
     private Integer priorityTypeId;
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    @ColumnDefault(value = "0")
+    @Column(name = "IS_CLOSED", nullable = false)
+    private Boolean isClosed;
 }

@@ -76,17 +76,17 @@ public class GroupUserService {
         return (countByGroupId(groupId) == 0); // grupta kimse yoksa ekleyebilir
     }
 
-    @Transactional(readOnly = true)
-    public long countByGroupId(long groupId) {
-        return groupUserDao.countByGroupId(groupId);
-    }
-
     public boolean isGroupAdmin(long groupId, long userId) {
         return groupUserDao.existsByGroupIdAndUserIdAndGroupUserTypeId(groupId, userId, 1);
     }
 
     public boolean isGroupManager(long groupId, long userId) {
         return groupUserDao.existsByGroupIdAndUserIdAndGroupUserTypeId(groupId, userId, 2);
+    }
+
+    @Transactional(readOnly = true)
+    public long countByGroupId(long groupId) {
+        return groupUserDao.countByGroupId(groupId);
     }
 
     public boolean isGroupUser(long groupId, long userId) {

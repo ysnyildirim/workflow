@@ -1,6 +1,9 @@
 package com.yil.workflow.service;
 
-import com.yil.workflow.dto.*;
+import com.yil.workflow.dto.TaskBaseRequest;
+import com.yil.workflow.dto.TaskDto;
+import com.yil.workflow.dto.TaskRequest;
+import com.yil.workflow.dto.TaskResponse;
 import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Task;
 import com.yil.workflow.repository.TaskDao;
@@ -30,6 +33,11 @@ public class TaskService {
         dto.setStartDate(task.getStartDate());
         dto.setFlowId(task.getFlowId());
         return dto;
+    }
+
+    @Transactional(rollbackFor = {Throwable.class})
+    public void closedTask() {
+        taskDao.closedTask();
     }
 
     @Transactional(readOnly = true)

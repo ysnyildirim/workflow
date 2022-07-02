@@ -11,7 +11,8 @@ import java.util.Date;
 @Table(schema = "WFS", name = "TASK_ACTION",
         indexes = {
                 @Index(name = "IDX_TASK_ACTION_TASK_ID", columnList = "TASK_ID"),
-                @Index(name = "IDX_TASK_ACTION_PARENT_ID", columnList = "PARENT_ID", unique = true)
+                @Index(name = "IDX_TASK_ACTION_PARENT_ID", columnList = "PARENT_ID", unique = true),
+                @Index(name = "IDX_TASK_ACTION_CREATED_USER_ID", columnList = "CREATED_USER_ID", unique = true)
         })
 public class TaskAction implements IEntity {
     @Id
@@ -28,8 +29,8 @@ public class TaskAction implements IEntity {
     @Column(name = "PARENT_ID")
     private Long parentId;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "CREATED_TIME")
+    @Column(name = "CREATED_TIME", nullable = false)
     private Date createdTime;
-    @Column(name = "CREATED_USER_ID")
+    @Column(name = "CREATED_USER_ID", nullable = false)
     private Long createdUserId;
 }
