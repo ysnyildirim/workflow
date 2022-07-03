@@ -116,4 +116,8 @@ public class GroupUserService {
         return isGroupAdmin(groupId, userId);
     }
 
+    @Transactional(readOnly = true)
+    public List<GroupUser> getManagers(Long groupId) {
+        return groupUserDao.findAllByGroupIdAndGroupUserTypeId(groupId, GroupUserTypeService.Manager);
+    }
 }

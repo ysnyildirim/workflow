@@ -55,9 +55,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     @Autowired
     private GroupUserService groupUserService;
     @Autowired
-    private ActionTargetService actionTargetService;
-    @Autowired
-    private ActionSourceService actionSourceService;
+    private GroupUserDao groupUserDao;
 
     @Override
     public void onApplicationEvent(ContextStartedEvent event) {
@@ -71,7 +69,8 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         initGroupUserTypes();
 
 
-        List<Group> groups = groupDao.findAll();
+
+       /* List<Group> groups = groupDao.findAll();
         for (int i = 1; i < groups.size(); i++) {
             try {
                 generateGroupUsers(groups.get(i).getId(), 1L);
@@ -80,26 +79,22 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
             } catch (YouDoNotHavePermissionException e) {
                 e.printStackTrace();
             }
+        }*/
+         try {
+            generateGroups(1L);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-//        try {
-//            generateGroups(1L);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
         //generateTask();
 
-//        try {
-//            for (int i = 0; i < 100; i++)
-//                generateFlow(new Random().nextLong(1, 50));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
+        try {
+            for (int i = 0; i < 100; i++)
+                generateFlow(new Random().nextLong(1, 50));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
-    @Autowired
-    private GroupUserDao groupUserDao;
 
     private void initStatus() {
         addStatus(Status.builder().id(1).name("Start").description("Started").build());
@@ -231,16 +226,14 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
             generateStep(responce.getId(), userId, stepTypeId);
         }
         List<Step> stepList = stepService.findAllByFlowIdAndDeletedTimeIsNull(responce.getId());
-        for (int i = 0; i < stepList.size(); i++) {
+        for (int i = 0; i < stepList.size() - 1; i++) {
             Step step = stepList.get(i);
             if (Arrays.asList(3, 4, 5).contains(step.getStepTypeId()))
                 continue;
             int l = new Random().nextInt(10, 15);
             for (int j = 0; j < l; j++) {
-                Long nextStepId = null;
-                if (stepList.size() > j)
-                    nextStepId = stepList.get(j + 1).getId();
-                generateAction(stepList.get(j).getId(), userId, nextStepId);
+                Long nextStepId = stepList.get(i + 1).getId();
+                generateAction(stepList.get(i).getId(), userId, nextStepId, (i == 0));
             }
         }
     }
@@ -263,71 +256,29 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
 
     }
 
-    public ActionResponse generateAction(long stepId, long userId, Long nextStepId) throws Exception {
+    public ActionResponse generateAction(long stepId, long userId, Long nextStepId, boolean firstStep) throws Exception {
         ActionRequest request = new ActionRequest();
         request.setName(randomString(20));
         request.setDescription(randomString(100));
         request.setEnabled(true);
         request.setNextStepId(nextStepId);
+        request.setAssignable(false);
+        if (firstStep)
+            request.setTargetTypeId(new Random().nextInt(3, 5));
+        else
+            request.setTargetTypeId(new Random().nextInt(1, 5));
+        switch (request.getTargetTypeId()) {
+            case 3:
+                request.setGroupId(1L);
+                request.setAssignable(true);
+                break;
+            case 4:
+                request.setUserId(1L);
+                request.setAssignable(true);
+                break;
+        }
         ActionResponse response = actionService.save(request, stepId, userId);
-        generateActionSource(response.getId(), userId);
-        generateActionTarget(response.getId(), userId);
         return response;
-    }
-
-    private void generateActionSource(long actionId, long userId) {
-        try {
-            Action action = actionService.findByIdAndDeletedTimeIsNull(actionId);
-            Step step = stepService.findByIdAndDeletedTimeIsNull(action.getStepId());
-            Flow flow = flowService.findByIdAndDeletedTimeIsNull(step.getFlowId());
-
-            List<Group> groups = groupDao.findAll();
-            if (groups.isEmpty())
-                return;
-            int k = new Random().nextInt(1, 5);
-            for (int i = 0; i < k; i++) {
-                int targetTypeId;
-                Long groupId = null;
-                if (step.getStepTypeId().equals(1)) //başlangıç adımı sadece gruplara gitsin
-                {
-                    targetTypeId = 3;
-                    Group group = groups.get(new Random().nextInt(1, groups.size()));
-                    groupId = group.getId();
-                } else
-                    targetTypeId = new Random().nextInt(1, 3);
-                actionSourceService.save(ActionSourceRequest.builder().targetTypeId(targetTypeId).groupId(groupId).build(), actionId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void generateActionTarget(long actionId, long userId) {
-        try {
-            Action action = actionService.findByIdAndDeletedTimeIsNull(actionId);
-            Step step = stepService.findByIdAndDeletedTimeIsNull(action.getStepId());
-            Flow flow = flowService.findByIdAndDeletedTimeIsNull(step.getFlowId());
-
-            List<Group> groups = groupDao.findAll();
-            int k = new Random().nextInt(1, 3);
-            for (int i = 0; i < k; i++) {
-                Long groupId = null;
-                int t = new Random().nextInt(1, 4);
-                if (t == 3) //grup
-                {
-                    Group group = null;
-                    if (!groups.isEmpty())
-                        group = groups.get(new Random().nextInt(1, groups.size()));
-                    if (group != null)
-                        groupId = group.getId();
-                }
-                actionTargetService.save(ActionTargetRequest.builder().targetTypeId(t).groupId(groupId).build(), actionId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     private TaskRequest generateTaskRequest(Flow flow, Action action) {
@@ -410,7 +361,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     }
 
     private void generateGroupUsers(Long groupId, long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
-        for (int j = 0; j < 10000; j++) {
+        for (int j = 0; j < 1000; j++) {
             GroupUserRequest groupRequest = GroupUserRequest.builder().groupUserTypeId(new Random().nextInt(1, 4)).userId(new Random().nextLong(1, 500000)).build();
             GroupUserResponse response = groupUserService.save(groupRequest, groupId, userId);
         }

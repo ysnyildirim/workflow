@@ -19,4 +19,5 @@ public class ApiError {
     private String message;
     private Integer code;
     private ApiError[] errors;
+    private String objectName;
 }

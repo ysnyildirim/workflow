@@ -22,5 +22,12 @@ public class ActionRequest {
     private String description;
     @NotNull
     private Boolean enabled;
+    @NotNull
     private Long nextStepId;
+    @NotNull
+    private Integer targetTypeId;
+    private Long groupId;
+    private Long userId;
+    @NotNull
+    private Boolean assignable;
 }

@@ -22,7 +22,7 @@ public class TaskJob {
     /**
      * 1 saatte bir işleri kapat
      */
-    @Scheduled(fixedDelay = 60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 60 * 60 * 1000)
     public void closeTasks() {
         try {
             System.out.println("********************");

@@ -14,5 +14,7 @@ import javax.validation.constraints.NotNull;
 public class TaskRequest extends TaskBaseRequest {
     @NotNull
     private Long flowId;
+    @NotNull
     private TaskActionRequest actionRequest;
 }
+

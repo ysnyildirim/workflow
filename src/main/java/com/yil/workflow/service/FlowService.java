@@ -36,11 +36,6 @@ public class FlowService {
     }
 
     @Transactional(readOnly = true)
-    public Flow findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) throws FlowNotFoundException {
-        return flowDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
-    }
-
-    @Transactional(readOnly = true)
     public boolean existsByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) {
         return flowDao.existsByIdAndEnabledTrueAndDeletedTimeIsNull(id);
     }

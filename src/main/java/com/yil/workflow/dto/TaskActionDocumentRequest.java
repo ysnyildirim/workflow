@@ -1,8 +1,12 @@
 package com.yil.workflow.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Data
@@ -10,12 +14,12 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskActionDocumentRequest {
-    @NonNull
+    @NotNull
     private Byte[] content;
     @NotBlank
     private String name;
     @NotBlank
     private String extension;
-    @NonNull
+    @NotNull
     private Date uploadedDate;
 }

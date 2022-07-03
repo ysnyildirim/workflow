@@ -8,13 +8,12 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
-    NotNextAction(7000020, "Not next action"),
-    StartUpAction(7000019, "Not in action initialization step"),
-    ActionSourceNotFound(7000018, "Action source not found"),
-    GroupUserNotFound(7000017, "Group user not found"),
-    TargetNotFound(7000016, "Target not found"),
-    ActionTargetNotFound(7000015, "Action target not found"),
-    FlowGroupNotFound(7000014, "Flow group not found"),
+    UserNotFound(7000019, "User not found"),
+    NotNextAction(7000018, "Not next action"),
+    StartUpAction(7000017, "Not in action initialization step"),
+    GroupUserNotFound(7000016, "Group user not found"),
+    TargetNotFound(7000015, "Target not found"),
+    GroupNotFound(7000014, "Group not found"),
     StepTypeNotFound(7000013, "Step type not found"),
     YouDoNotHavePermission(7000011, "You do not have permission"),
     NotAvailableAction(7000010, "Action not available"),

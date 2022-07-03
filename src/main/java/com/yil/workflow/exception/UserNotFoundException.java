@@ -10,6 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-@ApiException(code = ErrorCode.ActionSourceNotFound)
-public class ActionSourceNotFoundException extends Exception {
+@ApiException(code = ErrorCode.UserNotFound)
+public class UserNotFoundException extends Exception {
 }

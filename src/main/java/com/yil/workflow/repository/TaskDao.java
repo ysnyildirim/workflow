@@ -1,8 +1,6 @@
 package com.yil.workflow.repository;
 
 import com.yil.workflow.model.Task;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,22 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface TaskDao extends JpaRepository<Task, Long> {
-
-    @Query(nativeQuery = true,
-            value = """
-                    select * from WFS.TASK t
-                    where exists(
-                        select 1 from WFS.TASK_ACTION ta
-                        where t.ID=ta.TASK_ID
-                        and ta.ID= (
-                            select max(ta2.ID) from WFS.TASK_ACTION ta2
-                            where ta2.TASK_ID=ta.TASK_ID)
-                        and exists(
-                            select 1 from ACTION_USER au
-                            where ta.ACTION_ID=au.ACTION_ID
-                            and au.USER_ID=1)
-                    )""")
-    Page<Task> getAllByUserId(Pageable pageable);
 
     @Transactional
     @Modifying
@@ -50,6 +32,5 @@ public interface TaskDao extends JpaRepository<Task, Long> {
                                 ))
                     """)
     void closedTask();
-
 
 }

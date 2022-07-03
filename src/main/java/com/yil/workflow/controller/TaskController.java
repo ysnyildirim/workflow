@@ -9,6 +9,11 @@ import com.yil.workflow.dto.TaskResponse;
 import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Task;
 import com.yil.workflow.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,11 +62,25 @@ public class TaskController {
         return ResponseEntity.created(null).body(responce);
     }
 
+    @Operation(summary = "Task bilgilerini değiştirmek için kullanılır. " +
+            "Bilgileri sadece son aksiyondaki grup yöneticisi veya grup admini değiştirebilir.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Task bilgilerini güncelendi",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponse.class))}),
+            @ApiResponse(responseCode = "403",
+                    description = "Yetkiniz yok.",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Task bulunamadı,",
+                    content = @Content)
+    })
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<TaskResponse> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                 @PathVariable Long id,
-                                                @Valid @RequestBody TaskBaseRequest request) throws TaskNotFoundException, YouDoNotHavePermissionException {
+                                                @Valid @RequestBody TaskBaseRequest request) throws TaskNotFoundException, YouDoNotHavePermissionException, TaskActionNotFoundException {
         TaskResponse responce = taskService.replace(request, id, authenticatedUserId);
         return ResponseEntity.ok(responce);
     }

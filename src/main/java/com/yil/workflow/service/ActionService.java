@@ -3,8 +3,7 @@ package com.yil.workflow.service;
 import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.ActionRequest;
 import com.yil.workflow.dto.ActionResponse;
-import com.yil.workflow.exception.ActionNotFoundException;
-import com.yil.workflow.exception.StepNotFoundException;
+import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Action;
 import com.yil.workflow.repository.ActionDao;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +21,36 @@ public class ActionService {
 
     private final ActionDao actionDao;
     private final StepService stepService;
+    private final GroupService groupService;
+    private final TargetTypeService targetTypeService;
+
+    @Transactional(readOnly = true)
+    public boolean taskCanChangedByActionIdAndUserId(long id, long userId) {
+        return actionDao.taskCanChangedByActionIdAndUserId(id, userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ActionDto> findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(Long stepId, int targetTypeId) {
+        List<Action> actionList = actionDao.findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(stepId, targetTypeId);
+        List<ActionDto> actions = new ArrayList<>();
+        actionList.forEach(f -> {
+            actions.add(ActionService.toDto(f));
+        });
+        return actions;
+    }
+
+    public static ActionDto toDto(Action action) throws NullPointerException {
+        if (action == null)
+            throw new NullPointerException("Action is null");
+        ActionDto dto = new ActionDto();
+        dto.setId(action.getId());
+        dto.setDescription(action.getDescription());
+        dto.setEnabled(action.getEnabled());
+        dto.setName(action.getName());
+        dto.setStepId(action.getStepId());
+        dto.setNextStepId(action.getNextStepId());
+        return dto;
+    }
 
     @Transactional(readOnly = true)
     public Action findById(Long id) throws ActionNotFoundException {
@@ -33,13 +62,8 @@ public class ActionService {
         return actionDao.findByIdAndStepId(id, stepId).orElseThrow(() -> new ActionNotFoundException());
     }
 
-    @Transactional(readOnly = true)
-    public Action findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id, Long stepId) throws ActionNotFoundException {
-        return actionDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
-    }
-
     @Transactional(rollbackFor = {Throwable.class})
-    public ActionResponse save(ActionRequest request, Long stepId, Long userId) throws StepNotFoundException {
+    public ActionResponse save(ActionRequest request, Long stepId, Long userId) throws StepNotFoundException, TargetNotFoundException, GroupNotFoundException, UserNotFoundException {
         if (!stepService.existsById(stepId))
             throw new StepNotFoundException();
         Action action = new Action();
@@ -47,13 +71,25 @@ public class ActionService {
         return getActionResponce(request, userId, action);
     }
 
-    public ActionResponse getActionResponce(ActionRequest request, Long userId, Action action) throws StepNotFoundException {
+    public ActionResponse getActionResponce(ActionRequest request, Long userId, Action action) throws StepNotFoundException, TargetNotFoundException, GroupNotFoundException, UserNotFoundException {
         if (!stepService.existsById(request.getNextStepId()))
             throw new StepNotFoundException();
+        if (!targetTypeService.existsById(request.getTargetTypeId()))
+            throw new TargetNotFoundException();
+        if (request.getTargetTypeId().equals(TargetTypeService.User))
+            if (request.getUserId() == null)
+                throw new UserNotFoundException();
+        if (request.getTargetTypeId().equals(TargetTypeService.GroupMembers))
+            if (!groupService.existsById(request.getGroupId()))
+                throw new GroupNotFoundException();
         action.setName(request.getName());
         action.setDescription(request.getDescription());
         action.setEnabled(request.getEnabled());
         action.setNextStepId(request.getNextStepId());
+        action.setAssignable(request.getAssignable());
+        action.setGroupId(request.getGroupId());
+        action.setUserId(request.getUserId());
+        action.setTargetTypeId(request.getTargetTypeId());
         action.setCreatedUserId(userId);
         action.setCreatedTime(new Date());
         action = actionDao.save(action);
@@ -61,7 +97,7 @@ public class ActionService {
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public ActionResponse replace(ActionRequest request, Long actionId, Long userId) throws ActionNotFoundException, StepNotFoundException {
+    public ActionResponse replace(ActionRequest request, Long actionId, Long userId) throws ActionNotFoundException, StepNotFoundException, TargetNotFoundException, GroupNotFoundException, UserNotFoundException {
         Action action = findByIdAndEnabledTrueAndDeletedTimeIsNull(actionId);
         return getActionResponce(request, userId, action);
     }
@@ -98,19 +134,6 @@ public class ActionService {
         return actions;
     }
 
-    public static ActionDto toDto(Action action) throws NullPointerException {
-        if (action == null)
-            throw new NullPointerException("Action is null");
-        ActionDto dto = new ActionDto();
-        dto.setId(action.getId());
-        dto.setDescription(action.getDescription());
-        dto.setEnabled(action.getEnabled());
-        dto.setName(action.getName());
-        dto.setStepId(action.getStepId());
-        dto.setNextStepId(action.getNextStepId());
-        return dto;
-    }
-
     @Transactional(readOnly = true)
     public boolean isStartUpAction(long id) {
         return actionDao.isStartUpAction(id);
@@ -122,26 +145,6 @@ public class ActionService {
     }
 
     @Transactional(readOnly = true)
-    public List<ActionDto> getActionByStepIdAndUserId(Long stepId, Long userId) {
-        List<Action> actionList = actionDao.getActionByStepIdAndUserId(stepId, userId);
-        List<ActionDto> actions = new ArrayList<>();
-        actionList.forEach(f -> {
-            actions.add(ActionService.toDto(f));
-        });
-        return actions;
-    }
-
-    @Transactional(readOnly = true)
-    public List<ActionDto> getActionByStepIdAndTargetTypeId(long stepId, int targetTypeId) {
-        List<Action> actionList = actionDao.getActionByStepIdAndTargetTypeId(stepId, targetTypeId);
-        List<ActionDto> actions = new ArrayList<>();
-        actionList.forEach(f -> {
-            actions.add(ActionService.toDto(f));
-        });
-        return actions;
-    }
-
-    @Transactional(readOnly = true)
     public List<ActionDto> getStartUpActions(long flowId, long userId) {
         List<Action> actionList = actionDao.getStartUpActions(flowId, userId);
         List<ActionDto> actions = new ArrayList<>();
@@ -149,5 +152,17 @@ public class ActionService {
             actions.add(ActionService.toDto(f));
         });
         return actions;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ActionDto> getGroupActionsByStepIdAndUserId(long stepId, long userId) {
+        return toDto(actionDao.getGroupActionsByStepIdAndUserId(stepId, userId));
+    }
+
+    public static List<ActionDto> toDto(List<Action> actions) {
+        List<ActionDto> dtos = new ArrayList<>();
+        for (Action action : actions)
+            dtos.add(ActionService.toDto(action));
+        return dtos;
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -29,11 +30,16 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                                                                   HttpStatus status, WebRequest request) {
         List<ApiError> errors = new ArrayList<>();
         BindingResult bindingResult = ex.getBindingResult();
-        for (FieldError fieldError : bindingResult.getFieldErrors()) {
-            ApiFieldError responce = new ApiFieldError();
-            responce.setField(fieldError.getField());
-            responce.setMessage(ObjectUtils.nullSafeToString(fieldError.getDefaultMessage()));
-            errors.add(responce);
+        for (ObjectError error : bindingResult.getAllErrors()) {
+            ApiError apiError;
+            if (error instanceof FieldError) {
+                apiError = new ApiFieldError();
+                ((ApiFieldError) apiError).setField(((FieldError) error).getField());
+            } else
+                apiError = new ApiError();
+            apiError.setMessage(ObjectUtils.nullSafeToString(error.getDefaultMessage()));
+            apiError.setObjectName(ObjectUtils.nullSafeToString(error.getObjectName()));
+            errors.add(apiError);
         }
         ApiError[] arr = new ApiError[errors.size()];
         errors.toArray(arr);

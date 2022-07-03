@@ -5,7 +5,7 @@
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.*;
-import com.yil.workflow.exception.FlowGroupNotFoundException;
+import com.yil.workflow.exception.GroupNotFoundException;
 import com.yil.workflow.exception.GroupUserNotFoundException;
 import com.yil.workflow.exception.YouDoNotHavePermissionException;
 import com.yil.workflow.model.Group;
@@ -61,11 +61,11 @@ public class GroupService {
      * @param groupId
      * @param userId
      * @return
-     * @throws FlowGroupNotFoundException
+     * @throws GroupNotFoundException
      * @throws YouDoNotHavePermissionException
      */
     @Transactional(rollbackFor = {Throwable.class})
-    public GroupResponse replace(GroupRequest request, long groupId, long userId) throws FlowGroupNotFoundException, YouDoNotHavePermissionException {
+    public GroupResponse replace(GroupRequest request, long groupId, long userId) throws GroupNotFoundException, YouDoNotHavePermissionException {
         Group group = findByIdAndDeletedTimeIsNull(groupId);
         if (!groupUserService.isGroupAdmin(groupId, userId))
             throw new YouDoNotHavePermissionException();
@@ -73,8 +73,8 @@ public class GroupService {
     }
 
     @Transactional(readOnly = true)
-    public Group findByIdAndDeletedTimeIsNull(Long id) throws FlowGroupNotFoundException {
-        return groupDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(FlowGroupNotFoundException::new);
+    public Group findByIdAndDeletedTimeIsNull(Long id) throws GroupNotFoundException {
+        return groupDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(GroupNotFoundException::new);
     }
 
     /**
@@ -92,4 +92,7 @@ public class GroupService {
         groupUserService.deleteByGroupId(groupId, userId);
     }
 
+    public boolean existsById(Long groupId) {
+        return groupDao.existsById(groupId);
+    }
 }

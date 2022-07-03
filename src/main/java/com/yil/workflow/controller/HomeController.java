@@ -7,10 +7,7 @@ package com.yil.workflow.controller;
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.FlowDto;
-import com.yil.workflow.exception.ActionNotFoundException;
-import com.yil.workflow.exception.FlowNotFoundException;
-import com.yil.workflow.exception.StepNotFoundException;
-import com.yil.workflow.exception.TaskNotFoundException;
+import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Flow;
 import com.yil.workflow.service.ActionService;
 import com.yil.workflow.service.FlowService;
@@ -35,7 +32,7 @@ public class HomeController {
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(value = "/{taskId}/actions")
     public ResponseEntity<List<ActionDto>> getNextActions(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                                          @PathVariable Long taskId) throws ActionNotFoundException, StepNotFoundException, TaskNotFoundException {
+                                                          @PathVariable Long taskId) throws ActionNotFoundException, StepNotFoundException, TaskNotFoundException, TaskActionNotFoundException {
         List<ActionDto> actions = taskActionService.getNextActions(taskId, authenticatedUserId);
         return ResponseEntity.ok(actions);
     }
@@ -61,4 +58,5 @@ public class HomeController {
         List<ActionDto> actionDtos = actionService.getStartUpActions(flowId, authenticatedUserId);
         return ResponseEntity.ok(actionDtos);
     }
+
 }

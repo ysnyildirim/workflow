@@ -29,8 +29,36 @@ public class Action extends AbstractEntity {
     @ColumnDefault(value = "1")
     @Column(name = "ENABLED", nullable = false)
     private Boolean enabled;
+    /**
+     * Aksiyonun adımı
+     */
     @Column(name = "STEP_ID", nullable = false)
     private Long stepId;
+    /**
+     * Aksiyonun sonraki adımı
+     */
     @Column(name = "NEXT_STEP_ID", nullable = false)
     private Long nextStepId;
+    /**
+     * Bu aksiyonu kullanabilen hedef kişi/kişiler
+     */
+    @Column(name = "TARGET_TYPE_ID", nullable = false)
+    private Integer targetTypeId;
+    /**
+     * Bu aksiyonu kullanabilen group
+     */
+    @Column(name = "GROUP_ID")
+    private Long groupId;
+    /**
+     * Bu aksiyonu kullanabilen user
+     */
+    @Column(name = "USER_ID")
+    private Long userId;
+    /**
+     * Bu aksiyon gerçekleştirildiğinde seçilen user veya grubun manageri task atansın mı ?
+     */
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    @ColumnDefault(value = "0")
+    @Column(name = "ASSIGNABLE", nullable = false)
+    private Boolean assignable;
 }

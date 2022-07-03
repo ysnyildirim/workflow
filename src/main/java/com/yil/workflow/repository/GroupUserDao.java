@@ -21,4 +21,6 @@ public interface GroupUserDao extends JpaRepository<GroupUser, Long> {
 
     List<GroupUser> findAllByGroupIdAndUserIdAndGroupUserTypeId(long groupId, long userId, int groupUserTypeId);
 
+    List<GroupUser> findAllByGroupIdAndGroupUserTypeId(long groupId, int groupUserTypeId);
+
 }
