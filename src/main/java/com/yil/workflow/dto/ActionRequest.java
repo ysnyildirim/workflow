@@ -28,6 +28,4 @@ public class ActionRequest {
     private Integer targetTypeId;
     private Long groupId;
     private Long userId;
-    @NotNull
-    private Boolean assignable;
 }

@@ -1,6 +1,7 @@
 package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
+import com.yil.workflow.base.Mapper;
 import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.TaskBaseRequest;
 import com.yil.workflow.dto.TaskDto;
@@ -15,7 +16,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,6 +30,7 @@ import javax.validation.Valid;
 public class TaskController {
 
     private final TaskService taskService;
+    private final Mapper<Task, TaskDto> mapper = new Mapper<>(TaskService::convert);
 
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping
@@ -41,23 +42,21 @@ public class TaskController {
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-        Page<Task> taskPage = taskService.findAll(pageable);
-        PageDto<TaskDto> pageDto = PageDto.toDto(taskPage, TaskService::toDto);
+        PageDto<TaskDto> pageDto = mapper.map(taskService.findAll(pageable));
         return ResponseEntity.ok(pageDto);
     }
 
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(value = "/{id}")
     public ResponseEntity<TaskDto> findByIdAndDeletedTimeIsNull(@PathVariable Long id) throws TaskNotFoundException {
-        Task task = taskService.findById(id);
-        TaskDto dto = TaskService.toDto(task);
+        TaskDto dto = mapper.map(taskService.findById(id));
         return ResponseEntity.ok(dto);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<TaskResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                               @Valid @RequestBody TaskRequest request) throws FlowNotFoundException, ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, NotAvailableActionException, TaskNotFoundException, TaskActionNotFoundException, StepNotFoundException, NotNextActionException, StartUpActionException {
+                                               @Valid @RequestBody TaskRequest request) throws FlowNotFoundException, ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, StepNotFoundException, NotNextActionException, StartUpActionException {
         TaskResponse responce = taskService.save(request, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }

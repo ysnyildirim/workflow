@@ -1,6 +1,7 @@
 package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
+import com.yil.workflow.base.Mapper;
 import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.ActionRequest;
 import com.yil.workflow.dto.ActionResponse;
@@ -21,10 +22,11 @@ import java.util.List;
 public class ActionController {
 
     private final ActionService actionService;
+    private final Mapper<Action, ActionDto> mapper = new Mapper<>(ActionService::convert);
 
     @GetMapping
     public ResponseEntity<List<ActionDto>> findAll(@PathVariable Long stepId) {
-        List<ActionDto> actions = actionService.findAll(stepId);
+        List<ActionDto> actions = mapper.map(actionService.findAll(stepId));
         return ResponseEntity.ok(actions);
     }
 
@@ -32,8 +34,7 @@ public class ActionController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<ActionDto> findByIdAndStepId(@PathVariable Long stepId,
                                                        @PathVariable Long id) throws ActionNotFoundException {
-        Action action = actionService.findByIdAndStepId(id, stepId);
-        ActionDto dto = ActionService.toDto(action);
+        ActionDto dto = mapper.map(actionService.findByIdAndStepId(id, stepId));
         return ResponseEntity.ok(dto);
     }
 

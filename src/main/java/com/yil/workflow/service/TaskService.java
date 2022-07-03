@@ -24,9 +24,7 @@ public class TaskService {
     private final TaskActionService taskActionService;
     private final ActionService actionService;
 
-    public static TaskDto toDto(Task task) throws NullPointerException {
-        if (task == null)
-            throw new NullPointerException("Task is null");
+    public static TaskDto convert(Task task) {
         TaskDto dto = new TaskDto();
         dto.setId(task.getId());
         dto.setFinishDate(task.getFinishDate());
@@ -64,14 +62,13 @@ public class TaskService {
                 .build();
     }
 
-
     @Transactional(readOnly = true)
     public Task findById(Long id) throws TaskNotFoundException {
         return taskDao.findById(id).orElseThrow(() -> new TaskNotFoundException());
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, NotAvailableActionException, StepNotFoundException, StartUpActionException, NotNextActionException {
+    public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, StartUpActionException, NotNextActionException {
         if (!flowService.existsByIdAndEnabledTrueAndDeletedTimeIsNull(request.getFlowId()))
             throw new FlowNotFoundException();
         if (!priorityTypeService.existsByIdAndDeletedTimeIsNull(request.getPriorityTypeId()))

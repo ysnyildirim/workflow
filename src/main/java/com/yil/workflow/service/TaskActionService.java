@@ -1,8 +1,13 @@
 package com.yil.workflow.service;
 
-import com.yil.workflow.dto.*;
+import com.yil.workflow.dto.TaskActionDocumentRequest;
+import com.yil.workflow.dto.TaskActionDto;
+import com.yil.workflow.dto.TaskActionMessageRequest;
+import com.yil.workflow.dto.TaskActionRequest;
 import com.yil.workflow.exception.*;
-import com.yil.workflow.model.*;
+import com.yil.workflow.model.Action;
+import com.yil.workflow.model.Step;
+import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.repository.TaskActionDao;
 import com.yil.workflow.repository.TaskDao;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -29,10 +33,8 @@ public class TaskActionService {
     private final GroupUserService groupUserService;
     private final TaskDao taskDao;
 
-    public static TaskActionResponse toDto(TaskAction taskAction) throws NullPointerException {
-        if (taskAction == null)
-            throw new NullPointerException("TaskAction is null");
-        TaskActionResponse dto = new TaskActionResponse();
+    public static TaskActionDto convert(TaskAction taskAction) {
+        TaskActionDto dto = new TaskActionDto();
         dto.setId(taskAction.getId());
         dto.setActionId(taskAction.getActionId());
         dto.setTaskId(taskAction.getTaskId());
@@ -40,7 +42,7 @@ public class TaskActionService {
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskActionResponse save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, NotAvailableActionException, YouDoNotHavePermissionException, StepNotFoundException, StartUpActionException, NotNextActionException {
+    public TaskAction save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, YouDoNotHavePermissionException, StartUpActionException, NotNextActionException {
         TaskAction lastAction = taskActionDao.getLastAction(taskId).orElse(null);
         //region action control
         if (lastAction == null) { // yeni ise başlangıç aksiyonu mu ?
@@ -98,29 +100,7 @@ public class TaskActionService {
             for (TaskActionMessageRequest message : request.getMessages()) {
                 taskActionMessageService.save(message, taskAction.getId(), userId);
             }
-
-        if (action.getAssignable()) {
-            Long assignUserId = null;
-            if (Arrays.asList(TargetTypeService.User,
-                    TargetTypeService.LastActionUser,
-                    TargetTypeService.TaskCreator).contains(action.getTargetTypeId()))
-                assignUserId = userId;
-            else if (action.getTargetTypeId().equals(TargetTypeService.GroupMembers)) {
-                List<GroupUser> managers = groupUserService.getManagers(action.getGroupId());
-                if (managers != null && !managers.isEmpty())
-                    assignUserId = managers.get(0).getUserId();
-            }
-            Task task = taskDao.findById(taskId).orElse(null);
-            if (task != null) {
-                task.setAssignedUserId(assignUserId);
-                taskDao.save(task);
-            }
-        }
-
-        return TaskActionResponse
-                .builder()
-                .id(taskAction.getId())
-                .build();
+        return taskAction;
     }
 
     /**
@@ -153,8 +133,8 @@ public class TaskActionService {
     }
 
     @Transactional(readOnly = true)
-    public List<ActionDto> getNextActions(long taskId, long userId) throws ActionNotFoundException, StepNotFoundException, TaskNotFoundException, TaskActionNotFoundException {
-        List<ActionDto> actions = new ArrayList<>();
+    public List<Action> getNextActions(long taskId, long userId) throws ActionNotFoundException, StepNotFoundException, TaskNotFoundException, TaskActionNotFoundException {
+        List<Action> actions = new ArrayList<>();
         TaskAction lastAction = null;
         try {
             lastAction = getLastAction(taskId);
@@ -178,11 +158,11 @@ public class TaskActionService {
         if (firstAction.getCreatedUserId().equals(userId))
             actions = actionService.findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(step.getId(), TargetTypeService.TaskCreator);
         if (lastAction.getCreatedUserId().equals(userId)) {
-            List<ActionDto> lastActionUserActions = actionService.findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(step.getId(), TargetTypeService.LastActionUser);
+            List<Action> lastActionUserActions = actionService.findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(step.getId(), TargetTypeService.LastActionUser);
             if (lastActionUserActions != null)
                 actions.addAll(lastActionUserActions);
         }
-        List<ActionDto> groupActions = actionService.getGroupActionsByStepIdAndUserId(step.getId(), userId);
+        List<Action> groupActions = actionService.getGroupActionsByStepIdAndUserId(step.getId(), userId);
         if (groupActions != null)
             actions.addAll(groupActions);
         return actions;

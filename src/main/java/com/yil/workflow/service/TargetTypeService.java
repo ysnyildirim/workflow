@@ -23,8 +23,6 @@ public class TargetTypeService {
     private final TargetTypeDao targetTypeDao;
 
     public static TargetDto toDto(TargetType targetType) {
-        if (targetType == null)
-            throw new NullPointerException("Step Type is null");
         TargetDto dto = new TargetDto();
         dto.setId(targetType.getId());
         dto.setName(targetType.getName());

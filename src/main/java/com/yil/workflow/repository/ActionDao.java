@@ -42,13 +42,13 @@ public interface ActionDao extends JpaRepository<Action, Long> {
     @Query(nativeQuery = true,
             value = " select case when count(1) > 0  then true else false end " +
                     " from WFS.Action a " +
-                    "   where a.Enabled=1" +
-                    "   and a.Id=:id" +
+                    "   where a.ENABLED=1" +
+                    "   and a.ID=:id" +
                     "   and a.DELETED_TIME is null" +
                     "   and exists (" +
                     "       select 1 from WFS.Step s " +
                     "       where  s.ID =a.STEP_ID " +
-                    "       and s.enabled=1 " +
+                    "       and s.ENABLED=1 " +
                     "       and s.STEP_TYPE_ID=1" +
                     "       and s.DELETED_TIME is null)")
     boolean isStartUpAction(@Param(value = "id") long id);
@@ -79,7 +79,7 @@ public interface ActionDao extends JpaRepository<Action, Long> {
                         and a.DELETED_TIME IS NULL
                         and a.TARGET_TYPE_ID=4
                         and a.USER_ID=:userId
-                        union all 
+                        union all
                         select * from WFS.ACTION a
                         where a.ENABLED=1
                         and a.DELETED_TIME IS NULL
@@ -92,7 +92,7 @@ public interface ActionDao extends JpaRepository<Action, Long> {
                         select * from tbl t
                         where exists(
                             select 1 from WFS.STEP s
-                            where s.ID=t.STEP_ID 
+                            where s.ID=t.STEP_ID
                             and s.DELETED_TIME IS NULL
                             and s.ENABLED=1
                             and exists (
@@ -120,7 +120,7 @@ public interface ActionDao extends JpaRepository<Action, Long> {
                             and gu.GROUP_USER_TYPE_ID=3)
                         and exists(
                             select 1 from WFS.STEP s
-                            where s.ID=a.STEP_ID 
+                            where s.ID=a.STEP_ID
                             and s.DELETED_TIME IS NULL
                             and s.ENABLED=1
                             and exists (

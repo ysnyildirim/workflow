@@ -22,9 +22,7 @@ public class PageDto<T> {
 
     public static <P, V> PageDto<V> toDto(Page<P> page, Function<P, V> function) {
         List<V> list = new ArrayList<>();
-        page.getContent().forEach(f -> {
-            list.add(function.apply(f));
-        });
+        page.getContent().forEach(f -> list.add(function.apply(f)));
         return new PageDtoBuilder<V>()
                 .currentPage(page.getNumber())
                 .totalElements(page.getTotalElements())

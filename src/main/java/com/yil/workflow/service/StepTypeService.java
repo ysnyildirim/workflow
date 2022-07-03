@@ -19,9 +19,7 @@ import java.util.List;
 public class StepTypeService {
     private final StepTypeDao stepTypeDao;
 
-    public static StepTypeDto toDto(StepType stepType) {
-        if (stepType == null)
-            throw new NullPointerException("Step Type is null");
+    public static StepTypeDto convert(StepType stepType) {
         StepTypeDto dto = new StepTypeDto();
         dto.setId(stepType.getId());
         dto.setName(stepType.getName());
@@ -31,7 +29,7 @@ public class StepTypeService {
 
     @Transactional(readOnly = true)
     public StepType findById(Integer id) throws StepTypeNotFoundException {
-        return stepTypeDao.findById(id).orElseThrow(() -> new StepTypeNotFoundException());
+        return stepTypeDao.findById(id).orElseThrow(StepTypeNotFoundException::new);
     }
 
     @Transactional(readOnly = true)

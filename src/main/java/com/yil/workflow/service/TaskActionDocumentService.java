@@ -21,9 +21,7 @@ public class TaskActionDocumentService {
     private final DocumentService documentService;
     private final TaskActionDocumentDao taskActionDocumentDao;
 
-    public static TaskActionDocumentDto toDto(TaskActionDocument taskActionDocument) throws NullPointerException {
-        if (taskActionDocument == null)
-            throw new NullPointerException("TaskActionDocument is null");
+    public static TaskActionDocumentDto convert(TaskActionDocument taskActionDocument) {
         TaskActionDocumentDto dto = new TaskActionDocumentDto();
         dto.setId(taskActionDocument.getId());
         dto.setTaskActionId(taskActionDocument.getTaskActionId());
@@ -41,13 +39,13 @@ public class TaskActionDocumentService {
 
     @Transactional(readOnly = true)
     public TaskActionDocument findByIdAndTaskActionIdAndDeletedTimeIsNull(Long id, Long taskActionId) throws TaskActionDocumentNotFoundException {
-        return taskActionDocumentDao.findByIdAndTaskActionId(id, taskActionId).orElseThrow(() -> new TaskActionDocumentNotFoundException());
+        return taskActionDocumentDao.findByIdAndTaskActionId(id, taskActionId).orElseThrow(TaskActionDocumentNotFoundException::new);
 
     }
 
     @Transactional(readOnly = true)
     public TaskActionDocument findById(long id) throws TaskActionDocumentNotFoundException {
-        return taskActionDocumentDao.findById(id).orElseThrow(() -> new TaskActionDocumentNotFoundException());
+        return taskActionDocumentDao.findById(id).orElseThrow(TaskActionDocumentNotFoundException::new);
     }
 
     @Transactional(rollbackFor = {Throwable.class})

@@ -20,9 +20,7 @@ public class GroupUserTypeService {
 
     private final GroupUserTypeDao groupUserTypeDao;
 
-    public static GroupUserTypeDto toDto(GroupUserType groupUserType) throws NullPointerException {
-        if (groupUserType == null)
-            throw new NullPointerException("TaskGroupUser is null");
+    private static GroupUserTypeDto convert(GroupUserType groupUserType) {
         GroupUserTypeDto dto = new GroupUserTypeDto();
         dto.setId(groupUserType.getId());
         dto.setName(groupUserType.getName());
@@ -32,9 +30,7 @@ public class GroupUserTypeService {
 
     @Transactional(readOnly = true)
     public GroupUserType findById(Integer id) throws GroupUserNotFoundException {
-        return groupUserTypeDao.findById(id).orElseThrow(() -> {
-            return new GroupUserNotFoundException();
-        });
+        return groupUserTypeDao.findById(id).orElseThrow(GroupUserNotFoundException::new);
     }
 
     @Transactional(readOnly = true)

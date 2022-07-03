@@ -1,6 +1,7 @@
 package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
+import com.yil.workflow.base.Mapper;
 import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.TaskActionDocumentDetailDto;
 import com.yil.workflow.dto.TaskActionDocumentDto;
@@ -16,7 +17,6 @@ import com.yil.workflow.service.DocumentService;
 import com.yil.workflow.service.TaskActionDocumentService;
 import com.yil.workflow.service.TaskActionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -33,6 +33,7 @@ public class TaskActionDocumentController {
     private final TaskActionDocumentService taskActionDocumentService;
     private final DocumentService documentService;
     private final TaskActionService taskActionService;
+    private final Mapper<TaskActionDocument, TaskActionDocumentDto> mapper = new Mapper<>(TaskActionDocumentService::convert);
 
     @GetMapping
     public ResponseEntity<PageDto<TaskActionDocumentDto>> findAll(
@@ -44,8 +45,7 @@ public class TaskActionDocumentController {
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-        Page<TaskActionDocument> taskPage = taskActionDocumentService.findAllByTaskActionIdAndDeletedTimeIsNull(pageable, taskActionId);
-        PageDto<TaskActionDocumentDto> pageDto = PageDto.toDto(taskPage, TaskActionDocumentService::toDto);
+        PageDto<TaskActionDocumentDto> pageDto = mapper.map(taskActionDocumentService.findAllByTaskActionIdAndDeletedTimeIsNull(pageable, taskActionId));
         return ResponseEntity.ok(pageDto);
     }
 

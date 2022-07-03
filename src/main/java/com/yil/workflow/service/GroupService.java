@@ -23,9 +23,7 @@ public class GroupService {
     private final GroupDao groupDao;
     private final GroupUserService groupUserService;
 
-    public static GroupDto toDto(Group group) {
-        if (group == null)
-            throw new NullPointerException();
+    public static GroupDto convert(Group group) {
         GroupDto dto = new GroupDto();
         dto.setId(group.getId());
         dto.setName(group.getName());
@@ -66,7 +64,7 @@ public class GroupService {
      */
     @Transactional(rollbackFor = {Throwable.class})
     public GroupResponse replace(GroupRequest request, long groupId, long userId) throws GroupNotFoundException, YouDoNotHavePermissionException {
-        Group group = findByIdAndDeletedTimeIsNull(groupId);
+        Group group = groupDao.findByIdAndDeletedTimeIsNull(groupId).orElseThrow(GroupNotFoundException::new);
         if (!groupUserService.isGroupAdmin(groupId, userId))
             throw new YouDoNotHavePermissionException();
         return getFlowGroupResponse(request, userId, group);

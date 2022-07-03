@@ -40,7 +40,7 @@ public class Action extends AbstractEntity {
     @Column(name = "NEXT_STEP_ID", nullable = false)
     private Long nextStepId;
     /**
-     * Bu aksiyonu kullanabilen hedef kişi/kişiler
+     * Bu aksiyonu kullanabilen hedef türü
      */
     @Column(name = "TARGET_TYPE_ID", nullable = false)
     private Integer targetTypeId;
@@ -54,11 +54,4 @@ public class Action extends AbstractEntity {
      */
     @Column(name = "USER_ID")
     private Long userId;
-    /**
-     * Bu aksiyon gerçekleştirildiğinde seçilen user veya grubun manageri task atansın mı ?
-     */
-    @Type(type = "org.hibernate.type.NumericBooleanType")
-    @ColumnDefault(value = "0")
-    @Column(name = "ASSIGNABLE", nullable = false)
-    private Boolean assignable;
 }

@@ -33,12 +33,12 @@ public interface FlowDao extends JpaRepository<Flow, Long> {
                                 select 1 from WFS.ACTION a
                                 where a.ENABLED=1
                                 and a.DELETED_TIME IS NULL
-                                and 
+                                and
                                 (
                                     (
-                                        a.TARGET_TYPE_ID=4 
+                                        a.TARGET_TYPE_ID=4
                                         and a.USER_ID=:userId
-                                    ) 
+                                    )
                                     or
                                     (
                                         a.TARGET_TYPE_ID=3
@@ -46,6 +46,7 @@ public interface FlowDao extends JpaRepository<Flow, Long> {
                                         (
                                             select  1 from WFS.GROUP_USER gu
                                             where gu.GROUP_ID=a.GROUP_ID
+                                            and gu.GROUP_USER_TYPE_ID=3
                                             and gu.USER_ID=:userId
                                         )
                                     )

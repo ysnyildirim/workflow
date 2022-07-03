@@ -64,7 +64,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     protected final ResponseEntity<Object> handleApiError(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
         ex.printStackTrace();
-        return new ResponseEntity(body, headers, status);
+        return ResponseEntity.status(status).headers(headers).body(body);
     }
 
     @ExceptionHandler({Exception.class})

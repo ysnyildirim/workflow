@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TaskActionResponse {
+public class TaskActionDto {
     private Long id;
     private Long actionId;
     private Long taskId;

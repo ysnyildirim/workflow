@@ -16,7 +16,6 @@ public enum ErrorCode {
     GroupNotFound(7000014, "Group not found"),
     StepTypeNotFound(7000013, "Step type not found"),
     YouDoNotHavePermission(7000011, "You do not have permission"),
-    NotAvailableAction(7000010, "Action not available"),
     TaskNotFound(7000009, "Task not found"),
     TaskActionMessageNotFound(7000008, "Task action message not found"),
     TaskActionDocumentNotFound(7000007, "Task action document not found"),

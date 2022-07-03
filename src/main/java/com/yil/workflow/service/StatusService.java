@@ -16,9 +16,7 @@ public class StatusService {
 
     private final StatusRepository statusRepository;
 
-    public static StatusDto toDto(Status status) throws NullPointerException {
-        if (status == null)
-            throw new NullPointerException("Status is null");
+    public static StatusDto convert(Status status) {
         StatusDto dto = new StatusDto();
         dto.setId(status.getId());
         dto.setName(status.getName());
@@ -27,8 +25,7 @@ public class StatusService {
 
     @Transactional(readOnly = true)
     public Status findById(Integer id) throws StatusNotFoundException {
-        return statusRepository.findById(id).orElseThrow(() -> new StatusNotFoundException());
-
+        return statusRepository.findById(id).orElseThrow(StatusNotFoundException::new);
     }
 
     @Transactional(readOnly = true)

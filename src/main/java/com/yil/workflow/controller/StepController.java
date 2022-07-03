@@ -1,6 +1,7 @@
 package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
+import com.yil.workflow.base.Mapper;
 import com.yil.workflow.dto.StepDto;
 import com.yil.workflow.dto.StepRequest;
 import com.yil.workflow.dto.StepResponse;
@@ -16,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -25,14 +25,11 @@ import java.util.List;
 public class StepController {
 
     private final StepService stepService;
+    private final Mapper<Step, StepDto> mapper = new Mapper<>(StepService::convert);
 
     @GetMapping
     public ResponseEntity<List<StepDto>> findAll(@PathVariable Long flowId) {
-        List<Step> stepList = stepService.findAllByFlowIdAndDeletedTimeIsNull(flowId);
-        List<StepDto> stepDtos = new ArrayList<>();
-        stepList.forEach(f -> {
-            stepDtos.add(StepService.toDto(f));
-        });
+        List<StepDto> stepDtos = mapper.map(stepService.findAllByFlowIdAndDeletedTimeIsNull(flowId));
         return ResponseEntity.ok(stepDtos);
     }
 
@@ -40,8 +37,7 @@ public class StepController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<StepDto> findByIdAndFlowIdAndDeletedTimeIsNull(@PathVariable Long flowId,
                                                                          @PathVariable Long id) throws StepNotFoundException {
-        Step step = stepService.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId);
-        StepDto dto = StepService.toDto(step);
+        StepDto dto = mapper.map(stepService.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId));
         return ResponseEntity.ok(dto);
     }
 

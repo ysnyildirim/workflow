@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,42 +23,36 @@ public class ActionService {
     private final GroupService groupService;
     private final TargetTypeService targetTypeService;
 
+
+    public static ActionDto convert(Action entity) {
+        ActionDto dto = new ActionDto();
+        dto.setId(entity.getId());
+        dto.setDescription(entity.getDescription());
+        dto.setEnabled(entity.getEnabled());
+        dto.setName(entity.getName());
+        dto.setStepId(entity.getStepId());
+        dto.setNextStepId(entity.getNextStepId());
+        return dto;
+    }
+
     @Transactional(readOnly = true)
     public boolean taskCanChangedByActionIdAndUserId(long id, long userId) {
         return actionDao.taskCanChangedByActionIdAndUserId(id, userId);
     }
 
     @Transactional(readOnly = true)
-    public List<ActionDto> findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(Long stepId, int targetTypeId) {
-        List<Action> actionList = actionDao.findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(stepId, targetTypeId);
-        List<ActionDto> actions = new ArrayList<>();
-        actionList.forEach(f -> {
-            actions.add(ActionService.toDto(f));
-        });
-        return actions;
-    }
-
-    public static ActionDto toDto(Action action) throws NullPointerException {
-        if (action == null)
-            throw new NullPointerException("Action is null");
-        ActionDto dto = new ActionDto();
-        dto.setId(action.getId());
-        dto.setDescription(action.getDescription());
-        dto.setEnabled(action.getEnabled());
-        dto.setName(action.getName());
-        dto.setStepId(action.getStepId());
-        dto.setNextStepId(action.getNextStepId());
-        return dto;
+    public List<Action> findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(Long stepId, int targetTypeId) {
+        return actionDao.findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(stepId, targetTypeId);
     }
 
     @Transactional(readOnly = true)
     public Action findById(Long id) throws ActionNotFoundException {
-        return actionDao.findById(id).orElseThrow(() -> new ActionNotFoundException());
+        return actionDao.findById(id).orElseThrow(ActionNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
     public Action findByIdAndStepId(Long id, Long stepId) throws ActionNotFoundException {
-        return actionDao.findByIdAndStepId(id, stepId).orElseThrow(() -> new ActionNotFoundException());
+        return actionDao.findByIdAndStepId(id, stepId).orElseThrow(ActionNotFoundException::new);
     }
 
     @Transactional(rollbackFor = {Throwable.class})
@@ -86,7 +79,6 @@ public class ActionService {
         action.setDescription(request.getDescription());
         action.setEnabled(request.getEnabled());
         action.setNextStepId(request.getNextStepId());
-        action.setAssignable(request.getAssignable());
         action.setGroupId(request.getGroupId());
         action.setUserId(request.getUserId());
         action.setTargetTypeId(request.getTargetTypeId());
@@ -104,7 +96,7 @@ public class ActionService {
 
     @Transactional(readOnly = true)
     public Action findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id) throws ActionNotFoundException {
-        return actionDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
+        return actionDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(ActionNotFoundException::new);
     }
 
     @Transactional(rollbackFor = {Throwable.class})
@@ -117,7 +109,7 @@ public class ActionService {
 
     @Transactional(readOnly = true)
     public Action findByIdAndDeletedTimeIsNull(Long id) throws ActionNotFoundException {
-        return actionDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new ActionNotFoundException());
+        return actionDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(ActionNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
@@ -125,13 +117,8 @@ public class ActionService {
         return actionDao.findAllByStepIdAndDeletedTimeIsNull(stepId);
     }
 
-    public List<ActionDto> findAll(long stepId) {
-        List<Action> actionList = actionDao.findAllByStepIdAndDeletedTimeIsNull(stepId);
-        List<ActionDto> actions = new ArrayList<>();
-        actionList.forEach(f -> {
-            actions.add(ActionService.toDto(f));
-        });
-        return actions;
+    public List<Action> findAll(long stepId) {
+        return actionDao.findAllByStepIdAndDeletedTimeIsNull(stepId);
     }
 
     @Transactional(readOnly = true)
@@ -145,24 +132,14 @@ public class ActionService {
     }
 
     @Transactional(readOnly = true)
-    public List<ActionDto> getStartUpActions(long flowId, long userId) {
-        List<Action> actionList = actionDao.getStartUpActions(flowId, userId);
-        List<ActionDto> actions = new ArrayList<>();
-        actionList.forEach(f -> {
-            actions.add(ActionService.toDto(f));
-        });
-        return actions;
+    public List<Action> getStartUpActions(long flowId, long userId) {
+        return actionDao.getStartUpActions(flowId, userId);
     }
 
     @Transactional(readOnly = true)
-    public List<ActionDto> getGroupActionsByStepIdAndUserId(long stepId, long userId) {
-        return toDto(actionDao.getGroupActionsByStepIdAndUserId(stepId, userId));
+    public List<Action> getGroupActionsByStepIdAndUserId(long stepId, long userId) {
+        return actionDao.getGroupActionsByStepIdAndUserId(stepId, userId);
     }
 
-    public static List<ActionDto> toDto(List<Action> actions) {
-        List<ActionDto> dtos = new ArrayList<>();
-        for (Action action : actions)
-            dtos.add(ActionService.toDto(action));
-        return dtos;
-    }
+
 }

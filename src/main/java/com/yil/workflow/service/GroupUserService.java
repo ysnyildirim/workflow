@@ -4,7 +4,6 @@
 
 package com.yil.workflow.service;
 
-import com.yil.workflow.dto.GroupUserDto;
 import com.yil.workflow.dto.GroupUserRequest;
 import com.yil.workflow.dto.GroupUserResponse;
 import com.yil.workflow.exception.GroupUserNotFoundException;
@@ -23,17 +22,6 @@ public class GroupUserService {
 
     private final GroupUserDao groupUserDao;
     private final GroupUserTypeService groupUserTypeService;
-
-    public static GroupUserDto toDto(GroupUser groupUser) {
-        if (groupUser == null)
-            throw new NullPointerException("Group user is null");
-        GroupUserDto dto = new GroupUserDto();
-        dto.setId(groupUser.getId());
-        dto.setUserId(groupUser.getUserId());
-        dto.setGroupId(groupUser.getGroupId());
-        dto.setGroupUserTypeId(groupUser.getGroupUserTypeId());
-        return dto;
-    }
 
     /**
      * Gruba sadece admin veya manager ekleme yapabilir.

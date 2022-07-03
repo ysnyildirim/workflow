@@ -1,6 +1,7 @@
 package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
+import com.yil.workflow.base.Mapper;
 import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.TaskActionMessageDto;
 import com.yil.workflow.dto.TaskActionMessageRequest;
@@ -12,7 +13,6 @@ import com.yil.workflow.model.TaskActionMessage;
 import com.yil.workflow.service.TaskActionMessageService;
 import com.yil.workflow.service.TaskActionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -28,6 +28,7 @@ public class TaskActionMessageController {
 
     private final TaskActionMessageService taskActionMessageService;
     private final TaskActionService taskActionService;
+    private final Mapper<TaskActionMessage, TaskActionMessageDto> mapper = new Mapper<>(TaskActionMessageService::convert);
 
     @GetMapping
     public ResponseEntity<PageDto<TaskActionMessageDto>> findAll(
@@ -39,8 +40,7 @@ public class TaskActionMessageController {
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-        Page<TaskActionMessage> taskPage = taskActionMessageService.findAllByTaskActionId(pageable, taskActionId);
-        PageDto<TaskActionMessageDto> pageDto = PageDto.toDto(taskPage, TaskActionMessageService::toDto);
+        PageDto<TaskActionMessageDto> pageDto = mapper.map(taskActionMessageService.findAllByTaskActionId(pageable, taskActionId));
         return ResponseEntity.ok(pageDto);
     }
 
@@ -48,8 +48,7 @@ public class TaskActionMessageController {
     public ResponseEntity<TaskActionMessageDto> findById(
             @PathVariable Long taskActionId,
             @PathVariable Long id) throws TaskActionMessageNotFoundException {
-        TaskActionMessage task = taskActionMessageService.findByIdAndTaskActionId(id, taskActionId);
-        TaskActionMessageDto dto = TaskActionMessageService.toDto(task);
+        TaskActionMessageDto dto = mapper.map(taskActionMessageService.findByIdAndTaskActionId(id, taskActionId));
         return ResponseEntity.ok(dto);
     }
 

@@ -19,9 +19,7 @@ public class TaskActionMessageService {
 
     private final TaskActionMessageDao taskActionMessageDao;
 
-    public static TaskActionMessageDto toDto(TaskActionMessage taskActionMessage) throws NullPointerException {
-        if (taskActionMessage == null)
-            throw new NullPointerException("TaskActionMessage is null");
+    public static TaskActionMessageDto convert(TaskActionMessage taskActionMessage) {
         TaskActionMessageDto dto = new TaskActionMessageDto();
         dto.setId(taskActionMessage.getId());
         dto.setTaskActionId(taskActionMessage.getTaskActionId());
@@ -32,7 +30,7 @@ public class TaskActionMessageService {
 
     @Transactional(readOnly = true)
     public TaskActionMessage findByIdAndTaskActionId(Long id, Long taskActionId) throws TaskActionMessageNotFoundException {
-        return taskActionMessageDao.findByIdAndTaskActionId(id, taskActionId).orElseThrow(() -> new TaskActionMessageNotFoundException());
+        return taskActionMessageDao.findByIdAndTaskActionId(id, taskActionId).orElseThrow(TaskActionMessageNotFoundException::new);
     }
 
     @Transactional(readOnly = true)

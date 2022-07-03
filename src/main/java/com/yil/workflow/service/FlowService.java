@@ -19,9 +19,7 @@ public class FlowService {
 
     private final FlowDao flowDao;
 
-    public static FlowDto toDto(Flow flow) throws NullPointerException {
-        if (flow == null)
-            throw new NullPointerException("Flow is null");
+    public static FlowDto convert(Flow flow) {
         FlowDto dto = new FlowDto();
         dto.setId(flow.getId());
         dto.setDescription(flow.getDescription());
@@ -63,18 +61,18 @@ public class FlowService {
 
     @Transactional(rollbackFor = {Throwable.class})
     public FlowResponse replace(FlowRequest request, Long flowId, Long userId) throws FlowNotFoundException {
-        Flow flow = findByIdAndDeletedTimeIsNull(flowId);
+        Flow flow = flowDao.findByIdAndDeletedTimeIsNull(flowId).orElseThrow(FlowNotFoundException::new);
         return getFlowResponce(request, userId, flow);
     }
 
     @Transactional(readOnly = true)
     public Flow findByIdAndDeletedTimeIsNull(Long id) throws FlowNotFoundException {
-        return flowDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new FlowNotFoundException());
+        return flowDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(FlowNotFoundException::new);
     }
 
     @Transactional(rollbackFor = {Throwable.class})
     public void delete(Long id, Long userId) throws FlowNotFoundException {
-        Flow flow = findByIdAndDeletedTimeIsNull(id);
+        Flow flow = flowDao.findByIdAndDeletedTimeIsNull(id).orElseThrow(FlowNotFoundException::new);
         flow.setDeletedUserId(userId);
         flow.setDeletedTime(new Date());
         flowDao.save(flow);
@@ -84,4 +82,5 @@ public class FlowService {
     public List<Flow> findAllByDeletedTimeIsNull() {
         return flowDao.findAllByDeletedTimeIsNull();
     }
+
 }

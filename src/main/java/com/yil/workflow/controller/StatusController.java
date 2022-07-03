@@ -1,13 +1,13 @@
 package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
+import com.yil.workflow.base.Mapper;
 import com.yil.workflow.base.PageDto;
 import com.yil.workflow.dto.StatusDto;
 import com.yil.workflow.exception.StatusNotFoundException;
 import com.yil.workflow.model.Status;
 import com.yil.workflow.service.StatusService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class StatusController {
 
     private final StatusService statusService;
+    private final Mapper<Status, StatusDto> mapper = new Mapper<>(StatusService::convert);
 
     @GetMapping
     public ResponseEntity<PageDto<StatusDto>> findAll(
@@ -29,15 +30,13 @@ public class StatusController {
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-        Page<Status> taskStatusPage = statusService.findAll(pageable);
-        PageDto<StatusDto> pageDto = PageDto.toDto(taskStatusPage, StatusService::toDto);
+        PageDto<StatusDto> pageDto = mapper.map(statusService.findAll(pageable));
         return ResponseEntity.ok(pageDto);
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<StatusDto> findById(@PathVariable Integer id) throws StatusNotFoundException {
-        Status status = statusService.findById(id);
-        StatusDto dto = StatusService.toDto(status);
+        StatusDto dto = mapper.map(statusService.findById(id));
         return ResponseEntity.ok(dto);
     }
 

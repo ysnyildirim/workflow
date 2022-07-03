@@ -8,7 +8,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode
 @Entity
 @Data
 @Table(schema = "WFS", name = "FLOW")

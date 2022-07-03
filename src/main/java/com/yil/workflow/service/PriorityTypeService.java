@@ -16,9 +16,7 @@ public class PriorityTypeService {
 
     private final PriorityTypeDao priorityTypeDao;
 
-    public static PriorityTypeDto toDto(PriorityType priorityType) throws NullPointerException {
-        if (priorityType == null)
-            throw new NullPointerException("TaskPriority is null");
+    public static PriorityTypeDto convert(PriorityType priorityType) {
         PriorityTypeDto dto = new PriorityTypeDto();
         dto.setId(priorityType.getId());
         dto.setName(priorityType.getName());
@@ -28,9 +26,7 @@ public class PriorityTypeService {
 
     @Transactional(readOnly = true)
     public PriorityType findById(Integer id) throws PriorityNotFoundException {
-        return priorityTypeDao.findById(id).orElseThrow(() -> {
-            return new PriorityNotFoundException();
-        });
+        return priorityTypeDao.findById(id).orElseThrow(PriorityNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
@@ -42,4 +38,5 @@ public class PriorityTypeService {
     public List<PriorityType> findAll() {
         return priorityTypeDao.findAll();
     }
+
 }

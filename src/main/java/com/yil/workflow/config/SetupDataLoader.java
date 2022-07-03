@@ -80,7 +80,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 e.printStackTrace();
             }
         }*/
-         try {
+        try {
             generateGroups(1L);
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,80 +132,27 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         addGroupUserType(GroupUserType.builder().id(3).name("USER").description("USers").build());
     }
 
-    private void addStatus(Status status) {
-        if (statusRepository.existsById(status.getId()))
-            return;
-        statusRepository.save(status);
-    }
+    public void generateGroups(long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
+        {
+            GroupRequest everyone = GroupRequest.builder().name("Everyone").description("All users").build();
+            GroupResponse groupResponse = groupService.save(everyone, userId);
+            for (int j = 1; j < 1000; j++) {
 
-    private void addTarget(TargetType target) {
-        if (targetTypeDao.existsById(target.getId()))
-            return;
-        targetTypeDao.save(target);
-    }
-
-    private void addPriority(PriorityType priority) {
-        if (priorityTypeDao.existsById(priority.getId()))
-            return;
-        priorityTypeDao.save(priority);
-    }
-
-    private void addStepType(StepType stepType) {
-        if (stepTypeDao.existsById(stepType.getId()))
-            return;
-        stepTypeDao.save(stepType);
-    }
-
-    private void addGroupUserType(GroupUserType type) {
-        if (groupUserTypeDao.existsById(type.getId()))
-            return;
-        groupUserTypeDao.save(type);
-    }
-
-    public void generateTask() {
-        try {
-            List<Flow> flows = flowDao.findAllByDeletedTimeIsNull();
-            for (int i = 0; i < 1; i++) {
-                Flow flow = flows.get(i);
-                Step step = stepService.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flow.getId(), 1).get(0);
-                Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(step.getId()).get(0);
-                for (int j = 0; j < 10000; j++) {
-                    //    threadPoolTaskExecutor.execute(() -> {
-                    taskStart(flow, action);
-                    //   System.out.println(Thread.currentThread().getId());
-                    //  });
+                groupUserDao.save(GroupUser.builder().groupId(groupResponse.getId()).groupUserTypeId(GroupUserTypeService.User).userId(Long.valueOf(j)).build());
+                GroupUserRequest groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.User).userId(Long.valueOf(j)).build();
+                //groupUserService.save(groupRequest, groupResponse.getId(), userId);
+                if (j == 1) {
+                    groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.Admin).userId(Long.valueOf(j)).build();
+                    groupUserService.save(groupRequest, groupResponse.getId(), userId);
+                    groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.Manager).userId(Long.valueOf(j)).build();
+                    groupUserService.save(groupRequest, groupResponse.getId(), userId);
                 }
             }
-//            while (threadPoolTaskExecutor.getActiveCount() > 0) {
-//                System.out.println("Number of tasks left: " + threadPoolTaskExecutor.getActiveCount());
-//                Thread.sleep(5000);
-//            }
-//            threadPoolTaskExecutor.shutdown();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-    }
-
-    public void taskStart(Flow flow, Action action) throws ActionNotFoundException, NotAvailableActionException, StepNotFoundException, TaskActionNotFoundException, YouDoNotHavePermissionException, FlowNotFoundException, PriorityNotFoundException, StartUpActionException, NotNextActionException {
-        int u = new Random().nextInt(1, 500000);
-        TaskRequest request = generateTaskRequest(flow, action);
-        TaskResponse taskResponse = taskService.save(request, u);
-        finishTask(taskResponse.getTaskId(), (long) u);
-        System.out.println(taskResponse.getTaskId());
-    }
-
-    private void finishTask(Long taskId, Long userId) throws ActionNotFoundException, NotAvailableActionException, StepNotFoundException, YouDoNotHavePermissionException, TaskActionNotFoundException, StartUpActionException, NotNextActionException {
-        TaskAction taskAction = taskActionService.getLastAction(taskId);
-        Action currentAction = actionService.findById(taskAction.getActionId());
-        Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(currentAction.getNextStepId()).get(0);
-        while (action != null) {
-            TaskActionRequest request = generateTaskAction(action);
-            TaskActionResponse taskActionResponse = taskActionService.save(request, taskAction.getTaskId(), userId);
-            List<Action> actionList = actionService.findAllByStepIdAndDeletedTimeIsNull(action.getNextStepId());
-            if (actionList.isEmpty())
-                action = null;
-            else
-                action = actionList.get(0);
+        for (int j = 0; j < 100; j++) {
+            GroupRequest groupRequest = GroupRequest.builder().name(randomString(20)).description(randomString(100)).build();
+            GroupResponse groupResponse = groupService.save(groupRequest, userId);
+            generateGroupUsers(groupResponse.getId(), userId);
         }
     }
 
@@ -238,11 +185,48 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         }
     }
 
+    private void addStatus(Status status) {
+        if (statusRepository.existsById(status.getId()))
+            return;
+        statusRepository.save(status);
+    }
+
+    private void addTarget(TargetType target) {
+        if (targetTypeDao.existsById(target.getId()))
+            return;
+        targetTypeDao.save(target);
+    }
+
+    private void addPriority(PriorityType priority) {
+        if (priorityTypeDao.existsById(priority.getId()))
+            return;
+        priorityTypeDao.save(priority);
+    }
+
+    private void addStepType(StepType stepType) {
+        if (stepTypeDao.existsById(stepType.getId()))
+            return;
+        stepTypeDao.save(stepType);
+    }
+
+    private void addGroupUserType(GroupUserType type) {
+        if (groupUserTypeDao.existsById(type.getId()))
+            return;
+        groupUserTypeDao.save(type);
+    }
+
     private String randomString(int i) {
         String s = "";
         for (int k = 0; k < i; k++)
             s += upper.toCharArray()[new Random().nextInt(upper.length())];
         return s;
+    }
+
+    private void generateGroupUsers(Long groupId, long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
+        for (int j = 0; j < 1000; j++) {
+            GroupUserRequest groupRequest = GroupUserRequest.builder().groupUserTypeId(new Random().nextInt(1, 4)).userId(new Random().nextLong(1, 1001)).build();
+            GroupUserResponse response = groupUserService.save(groupRequest, groupId, userId);
+        }
     }
 
     public void generateStep(long flowId, long userId, int stepTypeId) throws Exception {
@@ -262,7 +246,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         request.setDescription(randomString(100));
         request.setEnabled(true);
         request.setNextStepId(nextStepId);
-        request.setAssignable(false);
         if (firstStep)
             request.setTargetTypeId(new Random().nextInt(3, 5));
         else
@@ -270,15 +253,60 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         switch (request.getTargetTypeId()) {
             case 3:
                 request.setGroupId(1L);
-                request.setAssignable(true);
                 break;
             case 4:
-                request.setUserId(1L);
-                request.setAssignable(true);
+                request.setUserId(new Random().nextLong(1, 500001));
                 break;
         }
         ActionResponse response = actionService.save(request, stepId, userId);
         return response;
+    }
+
+    public void generateTask() {
+        try {
+            List<Flow> flows = flowDao.findAllByDeletedTimeIsNull();
+            for (int i = 0; i < 1; i++) {
+                Flow flow = flows.get(i);
+                Step step = stepService.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flow.getId(), 1).get(0);
+                Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(step.getId()).get(0);
+                for (int j = 0; j < 10000; j++) {
+                    //    threadPoolTaskExecutor.execute(() -> {
+                    taskStart(flow, action);
+                    //   System.out.println(Thread.currentThread().getId());
+                    //  });
+                }
+            }
+//            while (threadPoolTaskExecutor.getActiveCount() > 0) {
+//                System.out.println("Number of tasks left: " + threadPoolTaskExecutor.getActiveCount());
+//                Thread.sleep(5000);
+//            }
+//            threadPoolTaskExecutor.shutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void taskStart(Flow flow, Action action) throws ActionNotFoundException, StepNotFoundException, TaskActionNotFoundException, YouDoNotHavePermissionException, FlowNotFoundException, PriorityNotFoundException, StartUpActionException, NotNextActionException {
+        int u = new Random().nextInt(1, 500000);
+        TaskRequest request = generateTaskRequest(flow, action);
+        TaskResponse taskResponse = taskService.save(request, u);
+        finishTask(taskResponse.getTaskId(), (long) u);
+        System.out.println(taskResponse.getTaskId());
+    }
+
+    private void finishTask(Long taskId, Long userId) throws ActionNotFoundException, YouDoNotHavePermissionException, TaskActionNotFoundException, StartUpActionException, NotNextActionException {
+        TaskAction taskAction = taskActionService.getLastAction(taskId);
+        Action currentAction = actionService.findById(taskAction.getActionId());
+        Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(currentAction.getNextStepId()).get(0);
+        while (action != null) {
+            TaskActionRequest request = generateTaskAction(action);
+            taskActionService.save(request, taskAction.getTaskId(), userId);
+            List<Action> actionList = actionService.findAllByStepIdAndDeletedTimeIsNull(action.getNextStepId());
+            if (actionList.isEmpty())
+                action = null;
+            else
+                action = actionList.get(0);
+        }
     }
 
     private TaskRequest generateTaskRequest(Flow flow, Action action) {
@@ -334,37 +362,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 .content(byteObject)
                 .extension(randomString(3))
                 .build();
-    }
-
-    public void generateGroups(long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
-        {
-            GroupRequest everyone = GroupRequest.builder().name("Everyone").description("All users").build();
-            GroupResponse groupResponse = groupService.save(everyone, userId);
-            for (int j = 1; j < 500000; j++) {
-
-                groupUserDao.save(GroupUser.builder().groupId(groupResponse.getId()).groupUserTypeId(GroupUserTypeService.User).userId(Long.valueOf(j)).build());
-                GroupUserRequest groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.User).userId(Long.valueOf(j)).build();
-                //groupUserService.save(groupRequest, groupResponse.getId(), userId);
-                if (j == 1) {
-                    groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.Admin).userId(Long.valueOf(j)).build();
-                    groupUserService.save(groupRequest, groupResponse.getId(), userId);
-                    groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.Manager).userId(Long.valueOf(j)).build();
-                    groupUserService.save(groupRequest, groupResponse.getId(), userId);
-                }
-            }
-        }
-        for (int j = 0; j < 100; j++) {
-            GroupRequest groupRequest = GroupRequest.builder().name(randomString(20)).description(randomString(100)).build();
-            GroupResponse groupResponse = groupService.save(groupRequest, userId);
-            generateGroupUsers(groupResponse.getId(), userId);
-        }
-    }
-
-    private void generateGroupUsers(Long groupId, long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
-        for (int j = 0; j < 1000; j++) {
-            GroupUserRequest groupRequest = GroupUserRequest.builder().groupUserTypeId(new Random().nextInt(1, 4)).userId(new Random().nextLong(1, 500000)).build();
-            GroupUserResponse response = groupUserService.save(groupRequest, groupId, userId);
-        }
     }
 
 

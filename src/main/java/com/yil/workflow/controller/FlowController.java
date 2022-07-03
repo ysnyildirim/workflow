@@ -1,6 +1,7 @@
 package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
+import com.yil.workflow.base.Mapper;
 import com.yil.workflow.dto.FlowDto;
 import com.yil.workflow.dto.FlowRequest;
 import com.yil.workflow.dto.FlowResponse;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -22,15 +22,12 @@ import java.util.List;
 public class FlowController {
 
     private final FlowService flowService;
+    private final Mapper<Flow, FlowDto> mapper = new Mapper<>(FlowService::convert);
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<FlowDto>> findAll() {
-        List<Flow> data = flowService.findAllByDeletedTimeIsNull();
-        List<FlowDto> dto = new ArrayList<>();
-        data.forEach(f -> {
-            dto.add(FlowService.toDto(f));
-        });
+        List<FlowDto> dto = mapper.map(flowService.findAllByDeletedTimeIsNull());
         return ResponseEntity.ok(dto);
     }
 
@@ -38,8 +35,7 @@ public class FlowController {
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<FlowDto> findById(@PathVariable Long id) throws FlowNotFoundException {
-        Flow flow = flowService.findByIdAndDeletedTimeIsNull(id);
-        FlowDto dto = FlowService.toDto(flow);
+        FlowDto dto = mapper.map(flowService.findByIdAndDeletedTimeIsNull(id));
         return ResponseEntity.ok(dto);
     }
 

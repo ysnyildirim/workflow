@@ -25,9 +25,7 @@ public class StepService {
     private final StepTypeService stepTypeService;
     private final StatusService statusService;
 
-    public static StepDto toDto(Step step) throws NullPointerException {
-        if (step == null)
-            throw new NullPointerException("Step is null");
+    public static StepDto convert(Step step) {
         StepDto dto = new StepDto();
         dto.setId(step.getId());
         dto.setDescription(step.getDescription());
@@ -39,9 +37,10 @@ public class StepService {
         return dto;
     }
 
+
     @Transactional(readOnly = true)
     public Step findByIdAndStepTypeIdAndDeletedTimeIsNull(Long id, Integer stepTypeId) throws StepNotFoundException {
-        return stepRepository.findByIdAndStepTypeIdAndDeletedTimeIsNull(id, stepTypeId).orElseThrow(() -> new StepNotFoundException());
+        return stepRepository.findByIdAndStepTypeIdAndDeletedTimeIsNull(id, stepTypeId).orElseThrow(StepNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +60,7 @@ public class StepService {
 
     @Transactional(readOnly = true)
     public Step findByIdAndFlowIdAndDeletedTimeIsNull(Long id, Long flowId) throws StepNotFoundException {
-        return stepRepository.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId).orElseThrow(() -> new StepNotFoundException());
+        return stepRepository.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId).orElseThrow(StepNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
@@ -102,12 +101,12 @@ public class StepService {
 
     @Transactional(readOnly = true)
     public Step findByIdAndDeletedTimeIsNull(Long id) throws StepNotFoundException {
-        return stepRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(() -> new StepNotFoundException());
+        return stepRepository.findByIdAndDeletedTimeIsNull(id).orElseThrow(StepNotFoundException::new);
     }
 
     @Transactional(rollbackFor = {Throwable.class})
     public void delete(Long stepId, Long userId) throws StepNotFoundException {
-        Step step = findByIdAndDeletedTimeIsNull(stepId);
+        Step step = stepRepository.findByIdAndDeletedTimeIsNull(stepId).orElseThrow(StepNotFoundException::new);
         step.setDeletedUserId(userId);
         step.setDeletedTime(new Date());
         stepRepository.save(step);
@@ -120,6 +119,6 @@ public class StepService {
 
     @Transactional(readOnly = true)
     public Step findByIdAndEnabledTrueAndDeletedTimeIsNull(long id) throws StepNotFoundException {
-        return stepRepository.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(() -> new StepNotFoundException());
+        return stepRepository.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(StepNotFoundException::new);
     }
 }
