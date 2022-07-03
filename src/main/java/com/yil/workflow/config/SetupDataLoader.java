@@ -12,7 +12,6 @@ import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -68,29 +67,12 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         initStepType();
         initGroupUserTypes();
 
-
-
-       /* List<Group> groups = groupDao.findAll();
-        for (int i = 1; i < groups.size(); i++) {
-            try {
-                generateGroupUsers(groups.get(i).getId(), 1L);
-            } catch (GroupUserNotFoundException e) {
-                e.printStackTrace();
-            } catch (YouDoNotHavePermissionException e) {
-                e.printStackTrace();
-            }
-        }*/
         try {
-            generateGroups(1L);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+             generateGroups(1L);
 
-        //generateTask();
+              for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
 
-        try {
-            for (int i = 0; i < 100; i++)
-                generateFlow(new Random().nextLong(1, 50));
+            generateTask();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -137,7 +119,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
             GroupRequest everyone = GroupRequest.builder().name("Everyone").description("All users").build();
             GroupResponse groupResponse = groupService.save(everyone, userId);
             for (int j = 1; j < 1000; j++) {
-
                 groupUserDao.save(GroupUser.builder().groupId(groupResponse.getId()).groupUserTypeId(GroupUserTypeService.User).userId(Long.valueOf(j)).build());
                 GroupUserRequest groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.User).userId(Long.valueOf(j)).build();
                 //groupUserService.save(groupRequest, groupResponse.getId(), userId);
@@ -156,7 +137,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     public void generateFlow(long userId) throws Exception {
         FlowRequest request = new FlowRequest();
         request.setName(randomString(20));
@@ -255,27 +235,96 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 request.setGroupId(1L);
                 break;
             case 4:
-                request.setUserId(new Random().nextLong(1, 500001));
+                request.setUserId(new Random().nextLong(1, 1000));
                 break;
         }
         ActionResponse response = actionService.save(request, stepId, userId);
         return response;
     }
 
+
     public void generateTask() {
         try {
-            List<Flow> flows = flowDao.findAllByDeletedTimeIsNull();
-            for (int i = 0; i < 1; i++) {
-                Flow flow = flows.get(i);
-                Step step = stepService.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flow.getId(), 1).get(0);
-                Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(step.getId()).get(0);
-                for (int j = 0; j < 10000; j++) {
-                    //    threadPoolTaskExecutor.execute(() -> {
-                    taskStart(flow, action);
-                    //   System.out.println(Thread.currentThread().getId());
-                    //  });
+            threadPoolTaskExecutor.execute(() -> {
+                while (true) {
+                    for (long userId = 1; userId < 1001l; userId++) {
+                        long uId = userId;
+                        try {
+                            List<Task> myTasks = taskService.getMyTasks(uId);
+                            if (myTasks.isEmpty()) {
+                                List<Flow> flows = flowService.getStartUpFlows(uId);
+                                Flow flow = flows.get(new Random().nextInt(0, flows.size()));
+                                List<Action> actions = actionService.getStartUpActions(flow.getId(), uId);
+                                Action action = actions.get(new Random().nextInt(0, actions.size()));
+                                TaskRequest request = generateTaskRequest(flow, action);
+                                TaskResponse taskResponse = taskService.save(request, uId);
+                                System.out.println("Task aksiyon oluşturuldu: userId:" + uId + ", taskId:" + taskResponse.getTaskId() + ", actionid:" + action.getId());
+                            } else {
+                                for (Task task : myTasks) {
+                                    List<Action> actions = taskActionService.getNextActions(task.getId(), uId);
+                                    if (!actions.isEmpty()) {
+                                        Action action = actions.get(new Random().nextInt(0, actions.size()));
+                                        TaskActionRequest request = generateTaskAction(action);
+                                        TaskAction taskAction = taskActionService.save(request, task.getId(), uId);
+                                        System.out.println("Task ilerletildi: userId:" + uId + ", taskId:" + taskAction.getTaskId() + ", actionid:" + taskAction.getActionId());
+                                    }
+
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
+            });
+
+           /* for (long userId = 1; userId < 1001l; userId++) {
+                long uId = userId;
+                threadPoolTaskExecutor.execute(() -> {
+                    try {
+                        while (true) {
+                            List<Task> myTasks = taskService.getMyTasks(uId);
+                            if (myTasks.isEmpty()) {
+                                List<Flow> flows = flowService.getStartUpFlows(uId);
+                                Flow flow = flows.get(new Random().nextInt(0, flows.size()));
+                                List<Action> actions = actionService.getStartUpActions(flow.getId(), uId);
+                                Action action = actions.get(new Random().nextInt(0, actions.size()));
+                                TaskRequest request = generateTaskRequest(flow, action);
+                                TaskResponse taskResponse = taskService.save(request, uId);
+                                System.out.println("Task aksiyon oluşturuldu: userId:" + uId + ", taskId:" + taskResponse.getTaskId() + ", actionid:" + action.getId());
+                            } else {
+                                for (Task task : myTasks) {
+                                    List<Action> actions = taskActionService.getNextActions(task.getId(), uId);
+                                    if (!actions.isEmpty()) {
+                                        Action action = actions.get(new Random().nextInt(0, actions.size()));
+                                        TaskActionRequest request = generateTaskAction(action);
+                                        TaskAction taskAction = taskActionService.save(request, task.getId(), uId);
+                                        System.out.println("Task ilerletildi: userId:" + uId + ", taskId:" + taskAction.getTaskId() + ", actionid:" + taskAction.getActionId());
+                                    }
+
+                                }
+                            }
+                            Thread.sleep(10000);
+                        }
+                    } catch (Exception e) {
+                        System.out.println(Thread.currentThread().getId());
+                        e.printStackTrace();
+                    }
+                });
             }
+*/
+//            List<Flow> flows = flowDao.findAllByDeletedTimeIsNull();
+//            for (int i = 0; i < 1; i++) {
+//                Flow flow = flows.get(i);
+//                Step step = stepService.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flow.getId(), 1).get(0);
+//                Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(step.getId()).get(0);
+//                for (int j = 0; j < 10000; j++) {
+//                    //    threadPoolTaskExecutor.execute(() -> {
+//                    taskStart(flow, action);
+//                    //   System.out.println(Thread.currentThread().getId());
+//                    //  });
+//                }
+//            }
 //            while (threadPoolTaskExecutor.getActiveCount() > 0) {
 //                System.out.println("Number of tasks left: " + threadPoolTaskExecutor.getActiveCount());
 //                Thread.sleep(5000);

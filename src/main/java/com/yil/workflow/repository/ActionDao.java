@@ -73,62 +73,110 @@ public interface ActionDao extends JpaRepository<Action, Long> {
 
     @Query(nativeQuery = true,
             value = """
-                        with tbl as(
-                        select * from WFS.ACTION a
-                        where a.ENABLED=1
-                        and a.DELETED_TIME IS NULL
-                        and a.TARGET_TYPE_ID=4
-                        and a.USER_ID=:userId
+                    with tbl as (
+                        select *
+                        from WFS.ACTION a
+                        where a.ENABLED = 1
+                          and a.DELETED_TIME IS NULL
+                          and a.TARGET_TYPE_ID = 4
+                          and a.USER_ID = :userId
                         union all
-                        select * from WFS.ACTION a
-                        where a.ENABLED=1
-                        and a.DELETED_TIME IS NULL
-                        and a.TARGET_TYPE_ID=3
-                        and exists(
-                            select 1 from WFS.GROUP_USER gu
-                            where gu.GROUP_ID=a.GROUP_ID
-                            and gu.USER_ID=:userId
-                            and gu.GROUP_USER_TYPE_ID=3))
-                        select * from tbl t
-                        where exists(
-                            select 1 from WFS.STEP s
-                            where s.ID=t.STEP_ID
-                            and s.DELETED_TIME IS NULL
-                            and s.ENABLED=1
-                            and exists (
-                                select 1 from WFS.FLOW f
-                                where f.ID=s.FLOW_ID
-                                and f.ID=:flowId
-                                and f.ENABLED=1
-                                and f.DELETED_TIME IS NULL))
-                        
-                    """)
+                        select *
+                        from WFS.ACTION a
+                        where a.ENABLED = 1
+                          and a.DELETED_TIME IS NULL
+                          and a.TARGET_TYPE_ID = 3
+                          and exists(
+                                select 1
+                                from WFS.GROUP_USER gu
+                                where gu.GROUP_ID = a.GROUP_ID
+                                  and gu.USER_ID = :userId
+                                  and gu.GROUP_USER_TYPE_ID = 3))
+                    select *
+                    from tbl t
+                    where exists(
+                                  select 1
+                                  from WFS.STEP s
+                                  where s.ID = t.STEP_ID
+                                    and s.DELETED_TIME IS NULL
+                                    and s.ENABLED = 1
+                                    and s.STEP_TYPE_ID = 1
+                                    and exists(
+                                          select 1
+                                          from WFS.FLOW f
+                                          where f.ID = s.FLOW_ID
+                                            and f.ID = :flowId
+                                            and f.ENABLED = 1
+                                            and f.DELETED_TIME IS NULL))                        
+                                    """)
     List<Action> getStartUpActions(@Param(value = "flowId") long flowId,
                                    @Param(value = "userId") long userId);
 
     @Query(nativeQuery = true,
             value = """
-                        select * from WFS.ACTION a
-                        where a.ENABLED=1
-                        and a.DELETED_TIME IS NULL
-                        and a.STEP_ID=:stepId
-                        and a.TARGET_TYPE_ID =3
+                    select *
+                    from WFS.ACTION a
+                    where a.ENABLED = 1
+                      and a.DELETED_TIME IS NULL
+                      and a.STEP_ID = :stepId
+                      and ((a.TARGET_TYPE_ID = 3
                         and exists(
-                            select 1 from WFS.GROUP_USER gu
-                            where gu.GROUP_ID=a.GROUP_ID
-                            and gu.USER_ID=:userId
-                            and gu.GROUP_USER_TYPE_ID=3)
-                        and exists(
-                            select 1 from WFS.STEP s
-                            where s.ID=a.STEP_ID
-                            and s.DELETED_TIME IS NULL
-                            and s.ENABLED=1
-                            and exists (
-                                select 1 from WFS.FLOW f
-                                where f.ID=s.FLOW_ID
-                                and f.ENABLED=1
-                                and f.DELETED_TIME IS NULL))
+                                    select 1
+                                    from WFS.GROUP_USER gu
+                                    where gu.GROUP_ID = a.GROUP_ID
+                                      and gu.USER_ID = :userId
+                                      and gu.GROUP_USER_TYPE_ID = 3)
+                               ) or (a.TARGET_TYPE_ID = 4 and a.USER_ID=:userId))
+                      and exists(
+                            select 1
+                            from WFS.STEP s
+                            where s.ID = a.STEP_ID
+                              and s.DELETED_TIME IS NULL
+                              and s.ENABLED = 1
+                              and exists(
+                                    select 1
+                                    from WFS.FLOW f
+                                    where f.ID = s.FLOW_ID
+                                      and f.ENABLED = 1
+                                      and f.DELETED_TIME IS NULL))
                     """)
     List<Action> getGroupActionsByStepIdAndUserId(@Param(value = "stepId") long stepId,
                                                   @Param(value = "userId") long userId);
+
+
+    @Query(nativeQuery = true,
+            value = """
+                    select *
+                    from WFS.ACTION a
+                    where a.ENABLED = 1
+                      and a.DELETED_TIME IS NULL
+                      and a.STEP_ID = :stepId
+                      and exists(
+                            select 1
+                            from WFS.STEP s
+                            where s.ID = a.STEP_ID
+                              and s.DELETED_TIME IS NULL
+                              and s.ENABLED = 1
+                              and exists(
+                                    select 1
+                                    from WFS.FLOW f
+                                    where f.ID = s.FLOW_ID
+                                      and f.ENABLED = 1
+                                      and f.DELETED_TIME IS NULL))
+                      and ((
+                                a.TARGET_TYPE_ID = 3
+                                and exists(
+                                        select 1
+                                        from WFS.GROUP_USER gu
+                                        where gu.GROUP_ID = a.GROUP_ID
+                                          and gu.USER_ID = :userId
+                                          and gu.GROUP_USER_TYPE_ID = 3)
+                            or (
+                                        a.TARGET_TYPE_ID = 4
+                                        and a.USER_ID = :userId)
+                        ))
+                                        """)
+    List<Action> getNextActionsByStepIdAndUserId(@Param(value = "stepId") long stepId,
+                                                 @Param(value = "userId") long userId);
+
 }

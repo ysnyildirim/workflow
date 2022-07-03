@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class TaskService {
@@ -79,6 +81,7 @@ public class TaskService {
         task.setStartDate(request.getStartDate());
         task.setFinishDate(request.getFinishDate());
         task.setEstimatedFinishDate(request.getEstimatedFinishDate());
+        task.setIsClosed(false);
         task = taskDao.save(task);
 
         taskActionService.save(request.getActionRequest(), task.getId(), userId);
@@ -90,5 +93,10 @@ public class TaskService {
     @Transactional(readOnly = true)
     public boolean existsById(Long taskId) {
         return taskDao.existsById(taskId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Task> getMyTasks(long userId) {
+        return taskDao.getMyTasks(userId);
     }
 }
