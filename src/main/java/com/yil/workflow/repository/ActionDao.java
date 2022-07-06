@@ -59,15 +59,9 @@ public interface ActionDao extends JpaRepository<Action, Long> {
                     "   where a.ENABLED=1" +
                     "   and a.ID=:nextActionId" +
                     "   and a.DELETED_TIME IS NULL" +
-                    "   and EXISTS(" +
-                    "       select 1 from WFS.ACTION a2" +
-                    "       where a2.ID=:currentActionId" +
-                    "       and a2.NEXT_STEP_ID=a.STEP_ID)" +
-                    "   and exists(" +
-                    "       select 1 from WFS.STEP s" +
-                    "       where s.ID=a.STEP_ID" +
-                    "       and s.ENABLED=1" +
-                    "       and s.DELETED_TIME IS NULL)")
+                    "   and EXISTS(select 1 from WFS.ACTION a2 where a2.ID=:currentActionId and a2.NEXT_STEP_ID=a.STEP_ID)" +
+                    "       and exists(select 1 from WFS.STEP s where s.ID=a.STEP_ID and s.ENABLED=1 and s.DELETED_TIME IS NULL" +
+                    "           and exists(select 1 from WFS.FLOW f where f.ID=s.FLOW_ID and f.ENABLED=1 and f.DELETED_TIME IS NULL))")
     boolean isNextAction(@Param(value = "currentActionId") long currentActionId,
                          @Param(value = "nextActionId") long nextActionId);
 

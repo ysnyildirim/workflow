@@ -28,7 +28,7 @@ public class Action extends AbstractEntity {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     @ColumnDefault(value = "1")
     @Column(name = "ENABLED", nullable = false)
-    private Boolean enabled;
+    private boolean enabled;
     /**
      * Aksiyonun adımı
      */
@@ -39,19 +39,4 @@ public class Action extends AbstractEntity {
      */
     @Column(name = "NEXT_STEP_ID", nullable = false)
     private Long nextStepId;
-    /**
-     * Bu aksiyonu kullanabilen hedef türü
-     */
-    @Column(name = "TARGET_TYPE_ID", nullable = false)
-    private Integer targetTypeId;
-    /**
-     * Bu aksiyonu kullanabilen group
-     */
-    @Column(name = "GROUP_ID")
-    private Long groupId;
-    /**
-     * Bu aksiyonu kullanabilen user
-     */
-    @Column(name = "USER_ID")
-    private Long userId;
 }

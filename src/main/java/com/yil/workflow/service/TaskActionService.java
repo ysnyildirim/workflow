@@ -8,7 +8,9 @@ import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Action;
 import com.yil.workflow.model.Step;
 import com.yil.workflow.model.TaskAction;
+import com.yil.workflow.model.TaskActionTarget;
 import com.yil.workflow.repository.TaskActionDao;
+import com.yil.workflow.repository.TaskActionTargetDao;
 import com.yil.workflow.repository.TaskDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -25,13 +28,16 @@ import java.util.List;
 public class TaskActionService {
 
     private final TaskActionDao taskActionDao;
+    private final TaskActionTargetDao taskActionTargetDao;
     private final ActionService actionService;
     private final TaskActionDocumentService taskActionDocumentService;
     private final TaskActionMessageService taskActionMessageService;
     private final StepService stepService;
     private final FlowService flowService;
     private final GroupUserService groupUserService;
+    private final GroupService groupService;
     private final TaskDao taskDao;
+    private final ActionPermissionService actionPermissionService;
 
     public static TaskActionDto convert(TaskAction taskAction) {
         TaskActionDto dto = new TaskActionDto();
@@ -42,8 +48,9 @@ public class TaskActionService {
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskAction save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, YouDoNotHavePermissionException, StartUpActionException, NotNextActionException {
+    public TaskAction save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, YouDoNotHavePermissionException, StartUpActionException, NotNextActionException, GroupNotFoundException, TargetGroupNotHavePermissionException, TargetUserNotHavePermissionException {
         TaskAction lastAction = taskActionDao.getLastAction(taskId).orElse(null);
+        TaskAction firstAction = null;
         //region action control
         if (lastAction == null) { // yeni ise başlangıç aksiyonu mu ?
             if (!actionService.isStartUpAction(request.getActionId()))
@@ -51,34 +58,29 @@ public class TaskActionService {
         } else {
             if (!actionService.isNextAction(lastAction.getActionId(), request.getActionId()))
                 throw new NotNextActionException();
+            if (lastAction.getParentId() != null)
+                firstAction = taskActionDao.getFirstAction(taskId).orElse(null);
+            else
+                firstAction = lastAction;
         }
         //endregion action control
 
         //region permission control
         Action action = actionService.findByIdAndEnabledTrueAndDeletedTimeIsNull(request.getActionId());
-        switch (action.getTargetTypeId()) {
-            case TargetTypeService.User:
-                if (!action.getUserId().equals(userId))
-                    throw new YouDoNotHavePermissionException();
-                break;
-            case TargetTypeService.GroupMembers:
-                if (!groupUserService.isGroupUser(action.getGroupId(), userId))
-                    throw new YouDoNotHavePermissionException();
-                break;
-            case TargetTypeService.TaskCreator:
-                TaskAction firstAction = null;
-                if (lastAction != null && lastAction.getParentId() != null) //current action parent id is null then first action
-                    firstAction = taskActionDao.getFirstAction(taskId).orElse(null);
-                else
-                    firstAction = lastAction;
-                if (firstAction == null || !firstAction.getCreatedUserId().equals(userId))
-                    throw new YouDoNotHavePermissionException();
-                break;
-            case TargetTypeService.LastActionUser:
-                if (lastAction == null || !lastAction.getCreatedUserId().equals(userId))
-                    throw new YouDoNotHavePermissionException();
-                break;
-            default:
+        {
+            boolean permission = false;
+            //user yetkisi varsa
+            if (actionPermissionService.existsByActionIdAndTargetTypeIdAndUserId(action.getId(), TargetTypeService.User, userId))
+                permission = true;
+            else if (actionPermissionService.existsByActionIdAndTargetTypeId(action.getId(), TargetTypeService.TaskCreator)) {
+                if (firstAction != null && firstAction.getCreatedUserId().equals(userId)) {
+                    permission = true;
+                }
+            } else if (actionPermissionService.existsByActionIdAndTargetTypeId(action.getId(), TargetTypeService.GroupMembers)) {
+                if (actionPermissionService.availableActionInUserId(action.getId(), userId))
+                    permission = true;
+            }
+            if (!permission)
                 throw new YouDoNotHavePermissionException();
         }
         //endregion permission control
@@ -90,6 +92,46 @@ public class TaskActionService {
         taskAction.setCreatedUserId(userId);
         taskAction.setCreatedTime(new Date());
         taskAction = taskActionDao.save(taskAction);
+
+        if (request.getTargetGroups() != null) {
+            List<Long> targetGroups = new ArrayList<>();
+            Arrays.stream(request.getTargetGroups()).forEach(f -> {
+                if (!targetGroups.contains(f))
+                    targetGroups.add(f);
+            });
+            for (Long targetGroupId : targetGroups) {
+                if (!actionPermissionService.existsByActionIdAndTargetTypeIdAndGroupId(action.getId(), TargetTypeService.GroupMembers, targetGroupId))
+                    throw new TargetGroupNotHavePermissionException();
+                TaskActionTarget taskActionTarget = new TaskActionTarget();
+                taskActionTarget.setGroupId(targetGroupId);
+                taskActionTarget.setActionId(taskAction.getActionId());
+                taskActionTargetDao.save(taskActionTarget);
+            }
+        }
+        if (request.getTargetUsers() != null && request.getTargetUsers().length > 0) {
+            List<Long> targetUsers = new ArrayList<>();
+            Arrays.stream(request.getTargetUsers()).forEach(f -> {
+                if (!targetUsers.contains(f))
+                    targetUsers.add(f);
+            });
+            boolean createdUserAvailable = actionPermissionService.existsByActionIdAndTargetTypeId(action.getId(), TargetTypeService.TaskCreator);
+            boolean lastUserAvailable = actionPermissionService.existsByActionIdAndTargetTypeId(action.getId(), TargetTypeService.LastActionUser);
+            for (Long targetUserId : targetUsers) {
+                boolean state = false;
+                if (createdUserAvailable && firstAction != null && firstAction.getCreatedUserId().equals(targetUserId))
+                    state = true;
+                else if (lastUserAvailable && lastAction != null && lastAction.getCreatedUserId().equals(targetUserId))
+                    state = true;
+                else if (actionPermissionService.existsByActionIdAndTargetTypeIdAndUserId(action.getId(), TargetTypeService.User, targetUserId))
+                    state = true;
+                if (!state)
+                    throw new TargetUserNotHavePermissionException();
+                TaskActionTarget taskActionTarget = new TaskActionTarget();
+                taskActionTarget.setUserId(targetUserId);
+                taskActionTarget.setActionId(taskAction.getActionId());
+                taskActionTargetDao.save(taskActionTarget);
+            }
+        }
 
         if (request.getDocuments() != null)
             for (TaskActionDocumentRequest doc : request.getDocuments()) {

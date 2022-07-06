@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TargetTypeService {
 
     public static final int TaskCreator = 1;
-    public static final int LastActionUser = 2;
+    public static final int LastActionUser =2;
     public static final int GroupMembers = 3;
     public static final int User = 4;
 

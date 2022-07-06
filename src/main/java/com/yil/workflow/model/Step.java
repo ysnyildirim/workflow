@@ -31,7 +31,7 @@ public class Step extends AbstractEntity {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     @ColumnDefault(value = "1")
     @Column(name = "ENABLED", nullable = false)
-    private Boolean enabled;
+    private boolean enabled;
     @Column(name = "FLOW_ID", nullable = false)
     private Long flowId;
     @Column(name = "STATUS_ID", nullable = false)

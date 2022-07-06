@@ -40,5 +40,5 @@ public class Task implements IEntity {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     @ColumnDefault(value = "0")
     @Column(name = "IS_CLOSED", nullable = false)
-    private Boolean isClosed;
+    private boolean isClosed;
 }
