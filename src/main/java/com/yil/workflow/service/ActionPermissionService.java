@@ -4,28 +4,21 @@
 
 package com.yil.workflow.service;
 
+import com.yil.workflow.model.ActionPermission;
 import com.yil.workflow.repository.ActionPermissionDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Service
+import java.util.List;
+
 @RequiredArgsConstructor
+@Service
 public class ActionPermissionService {
+
     private final ActionPermissionDao actionPermissionDao;
 
-    public boolean existsByActionIdAndTargetTypeIdAndUserId(long actionId, int targetTypeId, long userId) {
-        return actionPermissionDao.existsByActionIdAndTargetTypeIdAndUserId(actionId, targetTypeId, userId);
+    public List<ActionPermission> findAllByActionId(long actionId) {
+        return actionPermissionDao.findAllByPk_ActionId(actionId);
     }
 
-    public boolean existsByActionIdAndTargetTypeIdAndGroupId(long actionId, int targetTypeId, long groupId) {
-        return actionPermissionDao.existsByActionIdAndTargetTypeIdAndGroupId(actionId, targetTypeId, groupId);
-    }
-
-    public boolean existsByActionIdAndTargetTypeId(Long actionId, int targetTypeId) {
-        return actionPermissionDao.existsByActionIdAndTargetTypeId(actionId, targetTypeId);
-    }
-
-    public boolean availableActionInUserId(long actionId, long userId) {
-        return actionPermissionDao.availableActionInUserId(actionId, userId);
-    }
 }

@@ -20,15 +20,13 @@ public class ActionService {
 
     private final ActionDao actionDao;
     private final StepService stepService;
-    private final GroupService groupService;
     private final TargetTypeService targetTypeService;
-
 
     public static ActionDto convert(Action entity) {
         ActionDto dto = new ActionDto();
         dto.setId(entity.getId());
         dto.setDescription(entity.getDescription());
-        dto.setEnabled(entity.getEnabled());
+        dto.setEnabled(entity.isEnabled());
         dto.setName(entity.getName());
         dto.setStepId(entity.getStepId());
         dto.setNextStepId(entity.getNextStepId());
@@ -41,8 +39,8 @@ public class ActionService {
     }
 
     @Transactional(readOnly = true)
-    public List<Action> findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(Long stepId, int targetTypeId) {
-        return actionDao.findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(stepId, targetTypeId);
+    public List<Action> findAllByStepIdAndEnabledTrueAndDeletedTimeIsNull(Long stepId) {
+        return actionDao.findAllByStepIdAndEnabledTrueAndDeletedTimeIsNull(stepId);
     }
 
     @Transactional(readOnly = true)
@@ -67,21 +65,10 @@ public class ActionService {
     public ActionResponse getActionResponce(ActionRequest request, Long userId, Action action) throws StepNotFoundException, TargetNotFoundException, GroupNotFoundException, UserNotFoundException {
         if (!stepService.existsById(request.getNextStepId()))
             throw new StepNotFoundException();
-        if (!targetTypeService.existsById(request.getTargetTypeId()))
-            throw new TargetNotFoundException();
-        if (request.getTargetTypeId().equals(TargetTypeService.User))
-            if (request.getUserId() == null)
-                throw new UserNotFoundException();
-        if (request.getTargetTypeId().equals(TargetTypeService.GroupMembers))
-            if (!groupService.existsById(request.getGroupId()))
-                throw new GroupNotFoundException();
         action.setName(request.getName());
         action.setDescription(request.getDescription());
         action.setEnabled(request.getEnabled());
         action.setNextStepId(request.getNextStepId());
-        action.setGroupId(request.getGroupId());
-        action.setUserId(request.getUserId());
-        action.setTargetTypeId(request.getTargetTypeId());
         action.setCreatedUserId(userId);
         action.setCreatedTime(new Date());
         action = actionDao.save(action);
@@ -132,14 +119,8 @@ public class ActionService {
     }
 
     @Transactional(readOnly = true)
-    public List<Action> getStartUpActions(long flowId, long userId) {
-        return actionDao.getStartUpActions(flowId, userId);
-    }
-
-    @Transactional(readOnly = true)
     public List<Action> getGroupActionsByStepIdAndUserId(long stepId, long userId) {
         return actionDao.getGroupActionsByStepIdAndUserId(stepId, userId);
     }
-
 
 }

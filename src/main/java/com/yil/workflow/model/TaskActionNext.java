@@ -18,9 +18,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(schema = "WFS", name = "ACTION_PERMISSION")
-public class ActionPermission implements IEntity {
-
+@Table(schema = "WFS", name = "TASK_ACTION_NEXT")
+public class TaskActionNext implements IEntity {
     @EmbeddedId
     private Pk pk;
 
@@ -31,11 +30,13 @@ public class ActionPermission implements IEntity {
     @Embeddable
     public static class Pk implements Serializable {
         @Id
-        @Column(name = "ACTION_ID", nullable = false)
-        private Long actionId;
-        @Id
-        @Column(name = "TARGET_ID", nullable = false)
+        @Column(name = "TARGET_ID")
         private Long targetId;
+        @Id
+        @Column(name = "TASK_ACTION_ID", nullable = false)
+        private Long taskActionId;
     }
+
+
 }
 

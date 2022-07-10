@@ -9,9 +9,11 @@ import java.util.Optional;
 
 
 @Repository
-public interface StepRepository extends JpaRepository<Step, Long> {
+public interface StepDao extends JpaRepository<Step, Long> {
 
     List<Step> findAllByFlowIdAndDeletedTimeIsNull(Long flowId);
+
+    List<Step> findAllByFlowIdAndDeletedTimeIsNullAndEnabledTrue(Long flowId);
 
     Optional<Step> findByIdAndDeletedTimeIsNull(Long id);
 

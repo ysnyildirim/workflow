@@ -4,9 +4,10 @@
 
 package com.yil.workflow.repository;
 
-import com.yil.workflow.model.TaskActionNext;
+import com.yil.workflow.model.ActionNext;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TaskActionTargetDao extends JpaRepository<TaskActionNext, Long> {
+public interface ActionTargetDao extends JpaRepository<ActionNext, Long> {
 
+    boolean existsByActionIdAndTargetTypeId();
 }

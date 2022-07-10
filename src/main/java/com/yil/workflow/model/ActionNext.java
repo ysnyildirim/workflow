@@ -18,9 +18,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(schema = "WFS", name = "ACTION_PERMISSION")
-public class ActionPermission implements IEntity {
-
+@Table(schema = "WFS", name = "ACTION_NEXT")
+public class ActionNext implements IEntity {
     @EmbeddedId
     private Pk pk;
 

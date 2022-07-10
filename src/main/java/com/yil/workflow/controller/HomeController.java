@@ -8,6 +8,7 @@ import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.Mapper;
 import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.FlowDto;
+import com.yil.workflow.dto.StartUpFlowResponce;
 import com.yil.workflow.dto.TaskDto;
 import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Action;
@@ -42,26 +43,15 @@ public class HomeController {
     @GetMapping(value = "/{taskId}/actions")
     public ResponseEntity<List<ActionDto>> getNextActions(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                           @PathVariable Long taskId) throws ActionNotFoundException, StepNotFoundException, TaskNotFoundException, TaskActionNotFoundException {
-        List<ActionDto> actions = actionMapper.map(taskActionService.getNextActions(taskId, authenticatedUserId));
+        List<ActionDto> actions = taskActionService.getNextActions(taskId, authenticatedUserId);
         return ResponseEntity.ok(actions);
     }
 
     @GetMapping(value = "/flows")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<FlowDto>> getStartUpFlows(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId) {
-        List<FlowDto> dto = mapper.map(flowService.getStartUpFlows(authenticatedUserId));
+    public ResponseEntity<List<StartUpFlowResponce>> getStartUpFlows(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId) throws TargetNotFoundException {
+        List<StartUpFlowResponce> dto = flowService.getStartUpFlows(authenticatedUserId);
         return ResponseEntity.ok(dto);
-    }
-
-
-    @GetMapping(value = "/flows/{flowId}/actions")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<ActionDto>> getStartActions(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                                           @PathVariable Long flowId) throws FlowNotFoundException {
-        if (!flowService.existsByIdAndEnabledTrueAndDeletedTimeIsNull(flowId))
-            throw new FlowNotFoundException();
-        List<ActionDto> actionDtos = actionMapper.map(actionService.getStartUpActions(flowId, authenticatedUserId));
-        return ResponseEntity.ok(actionDtos);
     }
 
     @GetMapping(value = "/task")

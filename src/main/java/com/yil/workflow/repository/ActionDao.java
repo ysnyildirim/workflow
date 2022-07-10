@@ -36,8 +36,7 @@ public interface ActionDao extends JpaRepository<Action, Long> {
     boolean taskCanChangedByActionIdAndUserId(@Param(value = "id") long id,
                                               @Param(value = "userId") long userId);
 
-    List<Action> findAllByStepIdAndTargetTypeIdAndEnabledTrueAndDeletedTimeIsNull(long stepId,
-                                                                                  int targetTypeId);
+    List<Action> findAllByStepIdAndEnabledTrueAndDeletedTimeIsNull(long stepId);
 
     @Query(nativeQuery = true,
             value = " select case when count(1) > 0  then true else false end " +
@@ -65,46 +64,6 @@ public interface ActionDao extends JpaRepository<Action, Long> {
     boolean isNextAction(@Param(value = "currentActionId") long currentActionId,
                          @Param(value = "nextActionId") long nextActionId);
 
-    @Query(nativeQuery = true,
-            value = """
-                    with tbl as (
-                        select *
-                        from WFS.ACTION a
-                        where a.ENABLED = 1
-                          and a.DELETED_TIME IS NULL
-                          and a.TARGET_TYPE_ID = 4
-                          and a.USER_ID = :userId
-                        union all
-                        select *
-                        from WFS.ACTION a
-                        where a.ENABLED = 1
-                          and a.DELETED_TIME IS NULL
-                          and a.TARGET_TYPE_ID = 3
-                          and exists(
-                                select 1
-                                from WFS.GROUP_USER gu
-                                where gu.GROUP_ID = a.GROUP_ID
-                                  and gu.USER_ID = :userId
-                                  and gu.GROUP_USER_TYPE_ID = 3))
-                    select *
-                    from tbl t
-                    where exists(
-                                  select 1
-                                  from WFS.STEP s
-                                  where s.ID = t.STEP_ID
-                                    and s.DELETED_TIME IS NULL
-                                    and s.ENABLED = 1
-                                    and s.STEP_TYPE_ID = 1
-                                    and exists(
-                                          select 1
-                                          from WFS.FLOW f
-                                          where f.ID = s.FLOW_ID
-                                            and f.ID = :flowId
-                                            and f.ENABLED = 1
-                                            and f.DELETED_TIME IS NULL))                        
-                                    """)
-    List<Action> getStartUpActions(@Param(value = "flowId") long flowId,
-                                   @Param(value = "userId") long userId);
 
     @Query(nativeQuery = true,
             value = """

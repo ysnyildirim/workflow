@@ -1,7 +1,8 @@
 package com.yil.workflow.config;
 
 import com.yil.workflow.dto.*;
-import com.yil.workflow.exception.*;
+import com.yil.workflow.exception.GroupUserNotFoundException;
+import com.yil.workflow.exception.YouDoNotHavePermissionException;
 import com.yil.workflow.model.*;
 import com.yil.workflow.repository.*;
 import com.yil.workflow.service.*;
@@ -34,6 +35,8 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     @Autowired
     private FlowDao flowDao;
     @Autowired
+    private GroupUserDao groupUserDao;
+    @Autowired
     private TaskService taskService;
     @Autowired
     private StepTypeDao stepTypeDao;
@@ -44,17 +47,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     @Autowired
     private TargetTypeDao targetTypeDao;
     @Autowired
-    private GroupUserTypeDao groupUserTypeDao;
-    @Autowired
-    private ActionDao actionDao;
-    @Autowired
-    private GroupDao groupDao;
-    @Autowired
     private GroupService groupService;
-    @Autowired
-    private GroupUserService groupUserService;
-    @Autowired
-    private GroupUserDao groupUserDao;
 
     @Override
     public void onApplicationEvent(ContextStartedEvent event) {
@@ -68,10 +61,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         initGroupUserTypes();
 
         try {
-             generateGroups(1L);
-
-              for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
-
+            for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
             generateTask();
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,6 +103,9 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         addGroupUserType(GroupUserType.builder().id(2).name("MANAGER").description("MANAgers").build());
         addGroupUserType(GroupUserType.builder().id(3).name("USER").description("USers").build());
     }
+
+    @Autowired
+    private GroupUserService groupUserService;
 
     public void generateGroups(long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
         {
@@ -189,18 +182,15 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         stepTypeDao.save(stepType);
     }
 
+    @Autowired
+    private GroupUserTypeDao groupUserTypeDao;
+
     private void addGroupUserType(GroupUserType type) {
         if (groupUserTypeDao.existsById(type.getId()))
             return;
         groupUserTypeDao.save(type);
     }
 
-    private String randomString(int i) {
-        String s = "";
-        for (int k = 0; k < i; k++)
-            s += upper.toCharArray()[new Random().nextInt(upper.length())];
-        return s;
-    }
 
     private void generateGroupUsers(Long groupId, long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
         for (int j = 0; j < 1000; j++) {
@@ -226,22 +216,16 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         request.setDescription(randomString(100));
         request.setEnabled(true);
         request.setNextStepId(nextStepId);
-        if (firstStep)
-            request.setTargetTypeId(new Random().nextInt(3, 5));
-        else
-            request.setTargetTypeId(new Random().nextInt(1, 5));
-        switch (request.getTargetTypeId()) {
-            case 3:
-                request.setGroupId(1L);
-                break;
-            case 4:
-                request.setUserId(new Random().nextLong(1, 1000));
-                break;
-        }
         ActionResponse response = actionService.save(request, stepId, userId);
         return response;
     }
 
+    private String randomString(int i) {
+        String s = "";
+        for (int k = 0; k < i; k++)
+            s += upper.toCharArray()[new Random().nextInt(upper.length())];
+        return s;
+    }
 
     public void generateTask() {
         try {
@@ -252,18 +236,17 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         try {
                             List<Task> myTasks = taskService.getMyTasks(uId);
                             if (myTasks.isEmpty()) {
-                                List<Flow> flows = flowService.getStartUpFlows(uId);
-                                Flow flow = flows.get(new Random().nextInt(0, flows.size()));
-                                List<Action> actions = actionService.getStartUpActions(flow.getId(), uId);
-                                Action action = actions.get(new Random().nextInt(0, actions.size()));
-                                TaskRequest request = generateTaskRequest(flow, action);
+                                List<StartUpFlowResponce> flows = flowService.getStartUpFlows(uId);
+                                StartUpFlowResponce flow = flows.get(new Random().nextInt(0, flows.size()));
+                                ActionDto action = flow.getActions()[new Random().nextInt(0, flow.getActions().length)];
+                                TaskRequest request = generateTaskRequest(flow.getId(), action);
                                 TaskResponse taskResponse = taskService.save(request, uId);
                                 System.out.println("Task aksiyon oluşturuldu: userId:" + uId + ", taskId:" + taskResponse.getTaskId() + ", actionid:" + action.getId());
                             } else {
                                 for (Task task : myTasks) {
-                                    List<Action> actions = taskActionService.getNextActions(task.getId(), uId);
+                                    List<ActionDto> actions = taskActionService.getNextActions(task.getId(), uId);
                                     if (!actions.isEmpty()) {
-                                        Action action = actions.get(new Random().nextInt(0, actions.size()));
+                                        ActionDto action = actions.get(new Random().nextInt(0, actions.size()));
                                         TaskActionRequest request = generateTaskAction(action);
                                         TaskAction taskAction = taskActionService.save(request, task.getId(), uId);
                                         System.out.println("Task ilerletildi: userId:" + uId + ", taskId:" + taskAction.getTaskId() + ", actionid:" + taskAction.getActionId());
@@ -335,32 +318,9 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         }
     }
 
-    public void taskStart(Flow flow, Action action) throws ActionNotFoundException, StepNotFoundException, TaskActionNotFoundException, YouDoNotHavePermissionException, FlowNotFoundException, PriorityNotFoundException, StartUpActionException, NotNextActionException {
-        int u = new Random().nextInt(1, 500000);
-        TaskRequest request = generateTaskRequest(flow, action);
-        TaskResponse taskResponse = taskService.save(request, u);
-        finishTask(taskResponse.getTaskId(), (long) u);
-        System.out.println(taskResponse.getTaskId());
-    }
-
-    private void finishTask(Long taskId, Long userId) throws ActionNotFoundException, YouDoNotHavePermissionException, TaskActionNotFoundException, StartUpActionException, NotNextActionException {
-        TaskAction taskAction = taskActionService.getLastAction(taskId);
-        Action currentAction = actionService.findById(taskAction.getActionId());
-        Action action = actionService.findAllByStepIdAndDeletedTimeIsNull(currentAction.getNextStepId()).get(0);
-        while (action != null) {
-            TaskActionRequest request = generateTaskAction(action);
-            taskActionService.save(request, taskAction.getTaskId(), userId);
-            List<Action> actionList = actionService.findAllByStepIdAndDeletedTimeIsNull(action.getNextStepId());
-            if (actionList.isEmpty())
-                action = null;
-            else
-                action = actionList.get(0);
-        }
-    }
-
-    private TaskRequest generateTaskRequest(Flow flow, Action action) {
+    private TaskRequest generateTaskRequest(long flowId, ActionDto action) {
         TaskRequest request = new TaskRequest();
-        request.setFlowId(flow.getId());
+        request.setFlowId(flowId);
         request.setStartDate(new Date());
         request.setFinishDate(new Date());
         request.setEstimatedFinishDate(new Date());
@@ -369,7 +329,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         return request;
     }
 
-    private TaskActionRequest generateTaskAction(Action action) {
+    private TaskActionRequest generateTaskAction(ActionDto action) {
         TaskActionRequest taskActionRequest = new TaskActionRequest();
         taskActionRequest.setActionId(action.getId());
         taskActionRequest.setDocuments(generateDocumentArr());

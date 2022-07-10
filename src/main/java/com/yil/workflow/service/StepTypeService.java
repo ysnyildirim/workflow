@@ -14,6 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+
+/**
+ * id(1).name("Start").des
+ * id(2).name("Normal").de
+ * id(3).name("Complete").
+ * id(4).name("Denied").de
+ * id(5).name("Cancelled")
+ */
 @RequiredArgsConstructor
 @Service
 public class StepTypeService {

@@ -43,27 +43,23 @@ public interface TaskDao extends JpaRepository<Task, Long> {
                         from WFS.ACTION a
                         where a.ENABLED = 1
                           and a.DELETED_TIME IS NULL
-                          and exists(select 1
-                                     from WFS.STEP s
-                                     where s.ID = a.STEP_ID
-                                       and s.ENABLED = 1
-                                       and s.DELETED_TIME IS NULL
-                                       and s.STEP_TYPE_ID = 2
-                            )
-                          and (
-                                (
-                                        a.TARGET_TYPE_ID = 4
-                                        and a.USER_ID = :userId)
+                          and exists
+                              (
+                                select 1 from WFS.STEP s 
+                                where s.ID = a.STEP_ID 
+                                and s.ENABLED = 1 
+                                and s.DELETED_TIME IS NULL 
+                                and s.STEP_TYPE_ID = 2
+                              )
+                                              and (
+                                (a.TARGET_TYPE_ID = 4 and a.USER_ID = :userId)
                                 or
                                 (
                                         a.TARGET_TYPE_ID = 3
                                         and exists
                                             (
-                                                select 1
-                                                from WFS.GROUP_USER gu
-                                                where gu.GROUP_ID = a.GROUP_ID
-                                                  and gu.GROUP_USER_TYPE_ID = 3
-                                                  and gu.USER_ID = :userId
+                                                select 1 from WFS.GROUP_USER gu 
+                                                where gu.GROUP_ID = a.GROUP_ID and gu.GROUP_USER_TYPE_ID = 3 and gu.USER_ID = :userId
                                             )
                                     )
                                 or

@@ -1,15 +1,15 @@
 package com.yil.workflow.service;
 
-import com.yil.workflow.dto.FlowDto;
-import com.yil.workflow.dto.FlowRequest;
-import com.yil.workflow.dto.FlowResponse;
+import com.yil.workflow.dto.*;
 import com.yil.workflow.exception.FlowNotFoundException;
-import com.yil.workflow.model.Flow;
+import com.yil.workflow.exception.TargetNotFoundException;
+import com.yil.workflow.model.*;
 import com.yil.workflow.repository.FlowDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,12 +18,15 @@ import java.util.List;
 public class FlowService {
 
     private final FlowDao flowDao;
+    private final StepService stepService;
+    private final ActionService actionService;
+    private final ActionPermissionService actionPermissionService;
 
     public static FlowDto convert(Flow flow) {
         FlowDto dto = new FlowDto();
         dto.setId(flow.getId());
         dto.setDescription(flow.getDescription());
-        dto.setEnabled(flow.getEnabled());
+        dto.setEnabled(flow.isEnabled());
         dto.setName(flow.getName());
         return dto;
     }
@@ -38,9 +41,51 @@ public class FlowService {
         return flowDao.existsByIdAndEnabledTrueAndDeletedTimeIsNull(id);
     }
 
+
+    private final GroupService groupService;
+    private final GroupUserService groupUserService;
+    private final TargetService targetService;
+
     @Transactional(readOnly = true)
-    public List<Flow> getStartUpFlows(long userId) {
-        return flowDao.getStartUpFlows(userId);
+    public List<StartUpFlowResponce> getStartUpFlows(long userId) throws TargetNotFoundException {
+        List<StartUpFlowResponce> startupFlows = new ArrayList<>();
+        List<Flow> flows = flowDao.findAllByDeletedTimeIsNullAndEnabledTrue();
+        for (Flow flow : flows) {
+            List<ActionDto> availableActions = new ArrayList<>();
+            List<Step> steps = stepService.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flow.getId(), 1);
+            for (Step step : steps) {
+                List<Action> actions = actionService.findAllByStepIdAndEnabledTrueAndDeletedTimeIsNull(step.getId());
+                for (Action action : actions) {
+                    List<ActionPermission> actionPermissions = actionPermissionService.findAllByActionId(action.getId());
+                    for (ActionPermission actionPermission : actionPermissions) {
+                        Target target = targetService.findById(actionPermission.getPk().getTargetId());
+                        switch (target.getTargetTypeId()) {
+                            case TargetTypeService.User:
+                                if (target.getUserId().equals(userId)) {
+                                    availableActions.add(ActionService.convert(action));
+                                    continue;
+                                }
+                                break;
+                            case TargetTypeService.GroupMembers:
+                                if (groupUserService.isGroupUser(target.getGroupId(), userId)) {
+                                    availableActions.add(ActionService.convert(action));
+                                    continue;
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+            if (availableActions.size() > 0) {
+                StartUpFlowResponce startUpFlowResponce = new StartUpFlowResponce();
+                startUpFlowResponce.setName(flow.getName());
+                startUpFlowResponce.setDescription(flow.getDescription());
+                startUpFlowResponce.setId(flow.getId());
+                startUpFlowResponce.setActions(flows.toArray(ActionDto[]::new));
+                startupFlows.add(startUpFlowResponce);
+            }
+        }
+        return startupFlows;
     }
 
     @Transactional(rollbackFor = {Throwable.class})

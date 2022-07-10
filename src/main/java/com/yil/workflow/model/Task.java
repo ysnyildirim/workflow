@@ -41,4 +41,6 @@ public class Task implements IEntity {
     @ColumnDefault(value = "0")
     @Column(name = "IS_CLOSED", nullable = false)
     private boolean isClosed;
+
+
 }

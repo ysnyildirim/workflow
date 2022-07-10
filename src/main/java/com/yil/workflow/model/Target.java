@@ -17,18 +17,18 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(schema = "WFS", name = "TASK_ACTION_TARGET")
-public class TaskActionTarget implements IEntity {
+@Table(schema = "WFS", name = "TARGET")
+public class Target implements IEntity {
     @Id
-    @SequenceGenerator(name = "TASK_ACTION_TARGET_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_TASK_ACTION_TARGET_ID",
+    @SequenceGenerator(name = "TARGET_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_TARGET_ID",
             schema = "WFS",
             allocationSize = 1)
-    @GeneratedValue(generator = "TASK_ACTION_TARGET_SEQUENCE_GENERATOR")
+    @GeneratedValue(generator = "TARGET_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Long id;
-    @Column(name = "TASK_ACTION_ID", nullable = false)
-    private Long actionId;
+    @Column(name = "TARGET_TYPE_ID", nullable = false)
+    private Integer targetTypeId;
     @Column(name = "GROUP_ID")
     private Long groupId;
     @Column(name = "USER_ID")

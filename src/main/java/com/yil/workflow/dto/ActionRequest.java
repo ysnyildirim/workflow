@@ -24,8 +24,4 @@ public class ActionRequest {
     private Boolean enabled;
     @NotNull
     private Long nextStepId;
-    @NotNull
-    private Integer targetTypeId;
-    private Long groupId;
-    private Long userId;
 }

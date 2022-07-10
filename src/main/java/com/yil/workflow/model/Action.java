@@ -39,4 +39,10 @@ public class Action extends AbstractEntity {
      */
     @Column(name = "NEXT_STEP_ID", nullable = false)
     private Long nextStepId;
+    @Column(name = "TARGET_TYPE_ID", nullable = false)
+    private Integer targetTypeId;
+    @Column(name = "NEXT_GROUP_ID")
+    private Long nextGroupId;
+    @Column(name = "NEXT_USER_ID")
+    private Long nextUserId;
 }

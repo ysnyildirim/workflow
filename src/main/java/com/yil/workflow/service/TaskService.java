@@ -70,7 +70,7 @@ public class TaskService {
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, StartUpActionException, NotNextActionException {
+    public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, StartUpActionException, NotNextActionException, TargetUserNotHavePermissionException, TargetGroupNotHavePermissionException, GroupNotFoundException {
         if (!flowService.existsByIdAndEnabledTrueAndDeletedTimeIsNull(request.getFlowId()))
             throw new FlowNotFoundException();
         if (!priorityTypeService.existsByIdAndDeletedTimeIsNull(request.getPriorityTypeId()))
@@ -81,9 +81,7 @@ public class TaskService {
         task.setStartDate(request.getStartDate());
         task.setFinishDate(request.getFinishDate());
         task.setEstimatedFinishDate(request.getEstimatedFinishDate());
-        task.setIsClosed(false);
         task = taskDao.save(task);
-
         taskActionService.save(request.getActionRequest(), task.getId(), userId);
         TaskResponse responce = new TaskResponse();
         responce.setTaskId(task.getId());
@@ -97,6 +95,15 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public List<Task> getMyTasks(long userId) {
+        /**
+         * açık olan işlerden
+         * son adımı benim veya grubumun üzerinde olan
+         * yetkimin bulunduğu işler
+         */
+
+
+
+
         return taskDao.getMyTasks(userId);
     }
 }
