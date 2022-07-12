@@ -20,7 +20,6 @@ public class ActionService {
 
     private final ActionDao actionDao;
     private final StepService stepService;
-    private final TargetTypeService targetTypeService;
 
     public static ActionDto convert(Action entity) {
         ActionDto dto = new ActionDto();
@@ -30,6 +29,7 @@ public class ActionService {
         dto.setName(entity.getName());
         dto.setStepId(entity.getStepId());
         dto.setNextStepId(entity.getNextStepId());
+        dto.setPermissionId(entity.getPermissionId());
         return dto;
     }
 
@@ -62,6 +62,8 @@ public class ActionService {
         return getActionResponce(request, userId, action);
     }
 
+    private final AccountService accountService;
+
     public ActionResponse getActionResponce(ActionRequest request, Long userId, Action action) throws StepNotFoundException, TargetNotFoundException, GroupNotFoundException, UserNotFoundException {
         if (!stepService.existsById(request.getNextStepId()))
             throw new StepNotFoundException();
@@ -69,6 +71,7 @@ public class ActionService {
         action.setDescription(request.getDescription());
         action.setEnabled(request.getEnabled());
         action.setNextStepId(request.getNextStepId());
+        action.setPermissionId(request.getPermissionId());
         action.setCreatedUserId(userId);
         action.setCreatedTime(new Date());
         action = actionDao.save(action);

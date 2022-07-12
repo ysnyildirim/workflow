@@ -13,8 +13,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class TaskRequest extends TaskBaseRequest {
     @NotNull
-    private Long flowId;
-    @NotNull
     private TaskActionRequest actionRequest;
 }
 

@@ -18,4 +18,5 @@ public class ActionDto {
     private Boolean enabled;
     private Long stepId;
     private Long nextStepId;
+    private Long permissionId;
 }

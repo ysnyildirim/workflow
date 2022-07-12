@@ -13,7 +13,6 @@ import java.util.Date;
 @Table(schema = "WFS",
         name = "TASK",
         indexes = {
-                @Index(name = "IDX_TASK_ID", columnList = "FLOW_ID"),
                 @Index(name = "IDX_TASK_IS_CLOSED", columnList = "IS_CLOSED")
         })
 public class Task implements IEntity {
@@ -24,8 +23,6 @@ public class Task implements IEntity {
     @GeneratedValue(generator = "TASK_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Long id;
-    @Column(name = "FLOW_ID", nullable = false)
-    private Long flowId;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "START_DATE", nullable = false)
     private Date startDate;
@@ -41,6 +38,4 @@ public class Task implements IEntity {
     @ColumnDefault(value = "0")
     @Column(name = "IS_CLOSED", nullable = false)
     private boolean isClosed;
-
-
 }

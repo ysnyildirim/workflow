@@ -14,10 +14,7 @@ import javax.validation.constraints.NotNull;
 public class TaskActionRequest {
     @NotNull
     private Long actionId;
-
-    private Long[] targetGroups;
-    private Long[] targetUsers;
-
     private TaskActionMessageRequest[] messages;
     private TaskActionDocumentRequest[] documents;
+    private Long assignedUserId;
 }

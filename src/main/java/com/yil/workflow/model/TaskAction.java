@@ -12,7 +12,8 @@ import java.util.Date;
         indexes = {
                 @Index(name = "IDX_TASK_ACTION_TASK_ID", columnList = "TASK_ID"),
                 @Index(name = "IDX_TASK_ACTION_PARENT_ID", columnList = "PARENT_ID", unique = true),
-                @Index(name = "IDX_TASK_ACTION_CREATED_USER_ID", columnList = "CREATED_USER_ID")
+                @Index(name = "IDX_TASK_ACTION_CREATED_USER_ID", columnList = "CREATED_USER_ID"),
+                @Index(name = "IDX_TASK_ACTION_ASSIGNED_USER_ID", columnList = "ASSIGNED_USER_ID")
         })
 public class TaskAction implements IEntity {
     @Id
@@ -33,10 +34,6 @@ public class TaskAction implements IEntity {
     private Date createdTime;
     @Column(name = "CREATED_USER_ID", nullable = false)
     private Long createdUserId;
-
-    @Column(name = "NEXT_GROUP_ID")
-    private Long nextGroupId;
-    @Column(name = "NEXT_USER_ID")
-    private Long nextUserId;
-
+    @Column(name = "ASSIGNED_USER_ID")
+    private Long assignedUserId;
 }

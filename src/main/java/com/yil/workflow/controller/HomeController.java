@@ -6,10 +6,8 @@ package com.yil.workflow.controller;
 
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.Mapper;
-import com.yil.workflow.dto.ActionDto;
-import com.yil.workflow.dto.FlowDto;
-import com.yil.workflow.dto.StartUpFlowResponce;
-import com.yil.workflow.dto.TaskDto;
+import com.yil.workflow.base.PageDto;
+import com.yil.workflow.dto.*;
 import com.yil.workflow.exception.*;
 import com.yil.workflow.model.Action;
 import com.yil.workflow.model.Flow;
@@ -19,10 +17,14 @@ import com.yil.workflow.service.FlowService;
 import com.yil.workflow.service.TaskActionService;
 import com.yil.workflow.service.TaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -56,8 +58,16 @@ public class HomeController {
 
     @GetMapping(value = "/task")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<TaskDto>> getMyTasks(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId) {
-        List<TaskDto> dtos = taskMapper.map(taskService.getMyTasks(authenticatedUserId));
+    public ResponseEntity<PageDto<TaskDto>> getMyTasks(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
+                                                       @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
+                                                       @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
+        if (page < 0)
+            page = 0;
+        if (size <= 0 || size > 1000)
+            size = 1000;
+        Pageable pageable = PageRequest.of(page, size);
+        PageDto<TaskDto> dtos = taskMapper.map(taskService.getMyTask(pageable, authenticatedUserId));
         return ResponseEntity.ok(dtos);
     }
+
 }

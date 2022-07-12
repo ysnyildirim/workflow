@@ -24,4 +24,6 @@ public class ActionRequest {
     private Boolean enabled;
     @NotNull
     private Long nextStepId;
+
+    private Long permissionId;
 }

@@ -2,8 +2,9 @@ package com.yil.workflow.service;
 
 import com.yil.workflow.dto.*;
 import com.yil.workflow.exception.FlowNotFoundException;
-import com.yil.workflow.exception.TargetNotFoundException;
-import com.yil.workflow.model.*;
+import com.yil.workflow.model.Action;
+import com.yil.workflow.model.Flow;
+import com.yil.workflow.model.Step;
 import com.yil.workflow.repository.FlowDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,6 @@ public class FlowService {
     private final FlowDao flowDao;
     private final StepService stepService;
     private final ActionService actionService;
-    private final ActionPermissionService actionPermissionService;
 
     public static FlowDto convert(Flow flow) {
         FlowDto dto = new FlowDto();
@@ -41,13 +41,8 @@ public class FlowService {
         return flowDao.existsByIdAndEnabledTrueAndDeletedTimeIsNull(id);
     }
 
-
-    private final GroupService groupService;
-    private final GroupUserService groupUserService;
-    private final TargetService targetService;
-
     @Transactional(readOnly = true)
-    public List<StartUpFlowResponce> getStartUpFlows(long userId) throws TargetNotFoundException {
+    public List<StartUpFlowResponce> getStartUpFlows(long userId) {
         List<StartUpFlowResponce> startupFlows = new ArrayList<>();
         List<Flow> flows = flowDao.findAllByDeletedTimeIsNullAndEnabledTrue();
         for (Flow flow : flows) {
@@ -56,24 +51,7 @@ public class FlowService {
             for (Step step : steps) {
                 List<Action> actions = actionService.findAllByStepIdAndEnabledTrueAndDeletedTimeIsNull(step.getId());
                 for (Action action : actions) {
-                    List<ActionPermission> actionPermissions = actionPermissionService.findAllByActionId(action.getId());
-                    for (ActionPermission actionPermission : actionPermissions) {
-                        Target target = targetService.findById(actionPermission.getPk().getTargetId());
-                        switch (target.getTargetTypeId()) {
-                            case TargetTypeService.User:
-                                if (target.getUserId().equals(userId)) {
-                                    availableActions.add(ActionService.convert(action));
-                                    continue;
-                                }
-                                break;
-                            case TargetTypeService.GroupMembers:
-                                if (groupUserService.isGroupUser(target.getGroupId(), userId)) {
-                                    availableActions.add(ActionService.convert(action));
-                                    continue;
-                                }
-                                break;
-                        }
-                    }
+                    availableActions.add(ActionService.convert(action));
                 }
             }
             if (availableActions.size() > 0) {
@@ -81,7 +59,7 @@ public class FlowService {
                 startUpFlowResponce.setName(flow.getName());
                 startUpFlowResponce.setDescription(flow.getDescription());
                 startUpFlowResponce.setId(flow.getId());
-                startUpFlowResponce.setActions(flows.toArray(ActionDto[]::new));
+                startUpFlowResponce.setActions(availableActions.toArray(ActionDto[]::new));
                 startupFlows.add(startUpFlowResponce);
             }
         }

@@ -4,6 +4,7 @@ import com.yil.workflow.base.AbstractEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -39,10 +40,7 @@ public class Action extends AbstractEntity {
      */
     @Column(name = "NEXT_STEP_ID", nullable = false)
     private Long nextStepId;
-    @Column(name = "TARGET_TYPE_ID", nullable = false)
-    private Integer targetTypeId;
-    @Column(name = "NEXT_GROUP_ID")
-    private Long nextGroupId;
-    @Column(name = "NEXT_USER_ID")
-    private Long nextUserId;
+    @Comment(value = "Bu aksiyonu kullanabilmesi için gerekli yetki idsi")
+    @Column(name = "PERMISSION_ID")
+    private Long permissionId;
 }

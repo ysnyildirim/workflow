@@ -8,6 +8,7 @@ import com.yil.workflow.exception.StatusNotFoundException;
 import com.yil.workflow.exception.StepNotFoundException;
 import com.yil.workflow.exception.StepTypeNotFoundException;
 import com.yil.workflow.model.Step;
+import com.yil.workflow.repository.FlowDao;
 import com.yil.workflow.repository.StepDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import java.util.List;
 public class StepService {
 
     private final StepDao stepDao;
-    private final FlowService flowService;
+    private final FlowDao flowDao;
     private final StepTypeService stepTypeService;
     private final StatusService statusService;
 
@@ -70,7 +71,7 @@ public class StepService {
 
     @Transactional(rollbackFor = {Throwable.class})
     public StepResponse save(StepRequest request, Long flowId, Long userId) throws FlowNotFoundException, StepTypeNotFoundException, StatusNotFoundException {
-        if (!flowService.existsById(flowId))
+        if (!flowDao.existsById(flowId))
             throw new FlowNotFoundException();
         Step step = new Step();
         step.setFlowId(flowId);
@@ -120,5 +121,9 @@ public class StepService {
     @Transactional(readOnly = true)
     public Step findByIdAndEnabledTrueAndDeletedTimeIsNull(long id) throws StepNotFoundException {
         return stepDao.findByIdAndEnabledTrueAndDeletedTimeIsNull(id).orElseThrow(StepNotFoundException::new);
+    }
+
+    public Step findById(Long stepId) throws StepNotFoundException {
+        return stepDao.findById(stepId).orElseThrow(StepNotFoundException::new);
     }
 }

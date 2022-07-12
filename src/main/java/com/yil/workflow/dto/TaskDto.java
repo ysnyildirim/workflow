@@ -15,7 +15,6 @@ import java.util.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskDto {
     private Long id;
-    private Long flowId;
     private Date startDate;
     private Date finishDate;
     private Date estimatedFinishDate;

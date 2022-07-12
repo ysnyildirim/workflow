@@ -14,8 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Service
 public class TaskService {
@@ -33,13 +31,7 @@ public class TaskService {
         dto.setEstimatedFinishDate(task.getEstimatedFinishDate());
         dto.setPriorityTypeId(task.getPriorityTypeId());
         dto.setStartDate(task.getStartDate());
-        dto.setFlowId(task.getFlowId());
         return dto;
-    }
-
-    @Transactional(rollbackFor = {Throwable.class})
-    public void closedTask() {
-        taskDao.closedTask();
     }
 
     @Transactional(readOnly = true)
@@ -70,17 +62,15 @@ public class TaskService {
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, StartUpActionException, NotNextActionException, TargetUserNotHavePermissionException, TargetGroupNotHavePermissionException, GroupNotFoundException {
-        if (!flowService.existsByIdAndEnabledTrueAndDeletedTimeIsNull(request.getFlowId()))
-            throw new FlowNotFoundException();
+    public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, StartUpActionException, NotNextActionException, TargetUserNotHavePermissionException, TargetGroupNotHavePermissionException, GroupNotFoundException, StepNotFoundException {
         if (!priorityTypeService.existsByIdAndDeletedTimeIsNull(request.getPriorityTypeId()))
             throw new PriorityNotFoundException();
         Task task = new Task();
-        task.setFlowId(request.getFlowId());
         task.setPriorityTypeId(request.getPriorityTypeId());
         task.setStartDate(request.getStartDate());
         task.setFinishDate(request.getFinishDate());
         task.setEstimatedFinishDate(request.getEstimatedFinishDate());
+        task.setClosed(false);
         task = taskDao.save(task);
         taskActionService.save(request.getActionRequest(), task.getId(), userId);
         TaskResponse responce = new TaskResponse();
@@ -94,16 +84,8 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<Task> getMyTasks(long userId) {
-        /**
-         * açık olan işlerden
-         * son adımı benim veya grubumun üzerinde olan
-         * yetkimin bulunduğu işler
-         */
-
-
-
-
-        return taskDao.getMyTasks(userId);
+    public Page<Task> getMyTask(Pageable pageable, long userId) {
+        return taskDao.getMyTask(pageable, userId);
     }
+
 }

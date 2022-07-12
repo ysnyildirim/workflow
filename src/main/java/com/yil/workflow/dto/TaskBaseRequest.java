@@ -22,4 +22,5 @@ public class TaskBaseRequest {
     private Date estimatedFinishDate;
     @NotNull
     private Integer priorityTypeId;
+    private Long assignedUserId;
 }

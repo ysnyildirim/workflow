@@ -1,15 +1,19 @@
 package com.yil.workflow.config;
 
 import com.yil.workflow.dto.*;
-import com.yil.workflow.exception.GroupUserNotFoundException;
-import com.yil.workflow.exception.YouDoNotHavePermissionException;
 import com.yil.workflow.model.*;
-import com.yil.workflow.repository.*;
+import com.yil.workflow.repository.FlowDao;
+import com.yil.workflow.repository.PriorityTypeDao;
+import com.yil.workflow.repository.StatusRepository;
+import com.yil.workflow.repository.StepTypeDao;
 import com.yil.workflow.service.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -35,8 +39,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     @Autowired
     private FlowDao flowDao;
     @Autowired
-    private GroupUserDao groupUserDao;
-    @Autowired
     private TaskService taskService;
     @Autowired
     private StepTypeDao stepTypeDao;
@@ -44,10 +46,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     private PriorityTypeDao priorityTypeDao;
     @Autowired
     private StatusRepository statusRepository;
-    @Autowired
-    private TargetTypeDao targetTypeDao;
-    @Autowired
-    private GroupService groupService;
 
     @Override
     public void onApplicationEvent(ContextStartedEvent event) {
@@ -55,13 +53,11 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         System.out.println(new Date(event.getTimestamp()));
         System.out.println("----------------------");
         initStatus();
-        initTargetTypes();
         initPriorityTypes();
         initStepType();
-        initGroupUserTypes();
 
         try {
-            for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
+            // for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
             generateTask();
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,12 +70,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         addStatus(Status.builder().id(3).name("Finished").description("Finished").build());
     }
 
-    private void initTargetTypes() {
-        addTarget(TargetType.builder().id(1).name("Task Creator").description("Task creator").build());
-        addTarget(TargetType.builder().id(2).name("Last Action User").description("Last action user").build());
-        addTarget(TargetType.builder().id(3).name("Group Members").description("Group Members").build());
-        addTarget(TargetType.builder().id(4).name("User").description("User").build());
-    }
 
     private void initPriorityTypes() {
         addPriority(PriorityType.builder().id(1).name("Highest").description("This problem will block progress").build());
@@ -96,38 +86,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         addStepType(StepType.builder().id(3).name("Complete").description("A state signifying that any Request in this state have completed normally.").build());
         addStepType(StepType.builder().id(4).name("Denied").description("A state signifying that any Request in this state has been denied (e.g. never got started and will not be worked on).").build());
         addStepType(StepType.builder().id(5).name("Cancelled").description("A state signifying that any Request in this state has been cancelled (e.g. work was started but never completed).").build());
-    }
-
-    private void initGroupUserTypes() {
-        addGroupUserType(GroupUserType.builder().id(1).name("ADMIN").description("ADMINs").build());
-        addGroupUserType(GroupUserType.builder().id(2).name("MANAGER").description("MANAgers").build());
-        addGroupUserType(GroupUserType.builder().id(3).name("USER").description("USers").build());
-    }
-
-    @Autowired
-    private GroupUserService groupUserService;
-
-    public void generateGroups(long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
-        {
-            GroupRequest everyone = GroupRequest.builder().name("Everyone").description("All users").build();
-            GroupResponse groupResponse = groupService.save(everyone, userId);
-            for (int j = 1; j < 1000; j++) {
-                groupUserDao.save(GroupUser.builder().groupId(groupResponse.getId()).groupUserTypeId(GroupUserTypeService.User).userId(Long.valueOf(j)).build());
-                GroupUserRequest groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.User).userId(Long.valueOf(j)).build();
-                //groupUserService.save(groupRequest, groupResponse.getId(), userId);
-                if (j == 1) {
-                    groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.Admin).userId(Long.valueOf(j)).build();
-                    groupUserService.save(groupRequest, groupResponse.getId(), userId);
-                    groupRequest = GroupUserRequest.builder().groupUserTypeId(GroupUserTypeService.Manager).userId(Long.valueOf(j)).build();
-                    groupUserService.save(groupRequest, groupResponse.getId(), userId);
-                }
-            }
-        }
-        for (int j = 0; j < 100; j++) {
-            GroupRequest groupRequest = GroupRequest.builder().name(randomString(20)).description(randomString(100)).build();
-            GroupResponse groupResponse = groupService.save(groupRequest, userId);
-            generateGroupUsers(groupResponse.getId(), userId);
-        }
     }
 
     public void generateFlow(long userId) throws Exception {
@@ -164,12 +122,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         statusRepository.save(status);
     }
 
-    private void addTarget(TargetType target) {
-        if (targetTypeDao.existsById(target.getId()))
-            return;
-        targetTypeDao.save(target);
-    }
-
     private void addPriority(PriorityType priority) {
         if (priorityTypeDao.existsById(priority.getId()))
             return;
@@ -180,23 +132,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         if (stepTypeDao.existsById(stepType.getId()))
             return;
         stepTypeDao.save(stepType);
-    }
-
-    @Autowired
-    private GroupUserTypeDao groupUserTypeDao;
-
-    private void addGroupUserType(GroupUserType type) {
-        if (groupUserTypeDao.existsById(type.getId()))
-            return;
-        groupUserTypeDao.save(type);
-    }
-
-
-    private void generateGroupUsers(Long groupId, long userId) throws GroupUserNotFoundException, YouDoNotHavePermissionException {
-        for (int j = 0; j < 1000; j++) {
-            GroupUserRequest groupRequest = GroupUserRequest.builder().groupUserTypeId(new Random().nextInt(1, 4)).userId(new Random().nextLong(1, 1001)).build();
-            GroupUserResponse response = groupUserService.save(groupRequest, groupId, userId);
-        }
     }
 
     public void generateStep(long flowId, long userId, int stepTypeId) throws Exception {
@@ -216,6 +151,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         request.setDescription(randomString(100));
         request.setEnabled(true);
         request.setNextStepId(nextStepId);
+        request.setPermissionId(null);
         ActionResponse response = actionService.save(request, stepId, userId);
         return response;
     }
@@ -231,17 +167,19 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         try {
             threadPoolTaskExecutor.execute(() -> {
                 while (true) {
-                    for (long userId = 1; userId < 1001l; userId++) {
-                        long uId = userId;
+                    for (long uId = 1; uId < 1001l; uId++) {
                         try {
-                            List<Task> myTasks = taskService.getMyTasks(uId);
+                            Pageable pageable = PageRequest.of(0, 1000);
+                            Page<Task> myTasks = taskService.getMyTask(pageable, uId);
                             if (myTasks.isEmpty()) {
                                 List<StartUpFlowResponce> flows = flowService.getStartUpFlows(uId);
                                 StartUpFlowResponce flow = flows.get(new Random().nextInt(0, flows.size()));
-                                ActionDto action = flow.getActions()[new Random().nextInt(0, flow.getActions().length)];
-                                TaskRequest request = generateTaskRequest(flow.getId(), action);
-                                TaskResponse taskResponse = taskService.save(request, uId);
-                                System.out.println("Task aksiyon oluşturuldu: userId:" + uId + ", taskId:" + taskResponse.getTaskId() + ", actionid:" + action.getId());
+                                for (int i = 0; i < 100; i++) {
+                                    ActionDto action = flow.getActions()[new Random().nextInt(0, flow.getActions().length)];
+                                    TaskRequest request = generateTaskRequest(flow.getId(), action);
+                                    TaskResponse taskResponse = taskService.save(request, uId);
+                                    System.out.println("Task aksiyon oluşturuldu: userId:" + uId + ", taskId:" + taskResponse.getTaskId() + ", actionid:" + action.getId());
+                                }
                             } else {
                                 for (Task task : myTasks) {
                                     List<ActionDto> actions = taskActionService.getNextActions(task.getId(), uId);
@@ -320,7 +258,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
 
     private TaskRequest generateTaskRequest(long flowId, ActionDto action) {
         TaskRequest request = new TaskRequest();
-        request.setFlowId(flowId);
         request.setStartDate(new Date());
         request.setFinishDate(new Date());
         request.setEstimatedFinishDate(new Date());
@@ -334,6 +271,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         taskActionRequest.setActionId(action.getId());
         taskActionRequest.setDocuments(generateDocumentArr());
         taskActionRequest.setMessages(generateMessages());
+        taskActionRequest.setAssignedUserId(new Random().nextLong(1, 1001));
         return taskActionRequest;
     }
 
