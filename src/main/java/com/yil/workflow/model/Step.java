@@ -8,7 +8,6 @@ import com.yil.workflow.base.AbstractEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -16,11 +15,16 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
-@Table(schema = "WFS", name = "STEP")
+@Table(schema = "WFS", name = "STEP",
+        indexes = {
+                @Index(name = "IDX_STEP_FLOW_ID", columnList = "FLOW_ID"),
+                @Index(name = "IDX_STEP_STEP_TYPE_ID", columnList = "STEP_TYPE_ID")
+        })
 public class Step extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "STEP_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_STEP_ID", schema = "WFS",
+            sequenceName = "SEQ_STEP_ID",
+            schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "STEP_SEQUENCE_GENERATOR")
     @Column(name = "ID")

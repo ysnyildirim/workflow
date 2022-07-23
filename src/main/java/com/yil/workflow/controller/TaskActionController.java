@@ -3,10 +3,13 @@ package com.yil.workflow.controller;
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.Mapper;
 import com.yil.workflow.base.PageDto;
+import com.yil.workflow.dto.ActionDto;
 import com.yil.workflow.dto.TaskActionDto;
 import com.yil.workflow.dto.TaskActionRequest;
 import com.yil.workflow.exception.*;
+import com.yil.workflow.model.Action;
 import com.yil.workflow.model.TaskAction;
+import com.yil.workflow.service.ActionService;
 import com.yil.workflow.service.TaskActionService;
 import com.yil.workflow.service.TaskService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +29,15 @@ public class TaskActionController {
     private final TaskActionService taskActionService;
     private final TaskService taskService;
     private final Mapper<TaskAction, TaskActionDto> mapper = new Mapper<>(TaskActionService::convert);
+    private final Mapper<Action, ActionDto> actionMapper = new Mapper<>(ActionService::convert);
 
+    @ResponseStatus(value = HttpStatus.OK)
+    @GetMapping(value = "/{userId}/next")
+    public ResponseEntity<ActionDto[]> getNextActions(@PathVariable Long userId,
+                                                      @PathVariable Long taskId) throws ActionNotFoundException, StepNotFoundException, TaskNotFoundException {
+        ActionDto[] actions = actionMapper.map(taskActionService.getNextActions(taskId, userId)).toArray(ActionDto[]::new);
+        return ResponseEntity.ok(actions);
+    }
 
     @GetMapping
     public ResponseEntity<PageDto<TaskActionDto>> findAll(
@@ -56,7 +67,7 @@ public class TaskActionController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<TaskActionDto> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                 @PathVariable Long taskId,
-                                                @Valid @RequestBody TaskActionRequest request) throws ActionNotFoundException, YouDoNotHavePermissionException, TaskNotFoundException, StartUpActionException, NotNextActionException, TargetUserNotHavePermissionException, TargetGroupNotHavePermissionException, GroupNotFoundException, StepNotFoundException {
+                                                @Valid @RequestBody TaskActionRequest request) throws ActionNotFoundException, YouDoNotHavePermissionException, TaskNotFoundException, StartUpActionException, NotNextActionException, StepNotFoundException {
         if (!taskService.existsById(taskId))
             throw new TaskNotFoundException();
         TaskActionDto responce = mapper.map(taskActionService.save(request, taskId, authenticatedUserId));

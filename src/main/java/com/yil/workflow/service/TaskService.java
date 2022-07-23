@@ -39,11 +39,28 @@ public class TaskService {
         return taskDao.findAll(pageable);
     }
 
+    @Transactional(readOnly = true)
+    public Page<Task> findAllByActionCreatedUserId(Pageable pageable, long userId) {
+        return taskDao.findAllByActionCreatedUserId(pageable, userId);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Task> findAllByAssignedUserId(Pageable pageable, long userId) {
+        return taskDao.findAllByAssignedUserIdAndClosedFalse(pageable, userId);
+//        return taskDao.findAllByAssignedUserId(pageable, userId);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Task> findAllByCreatedUserId(Pageable pageable, long userId) {
+        return taskDao.findAllByCreatedUserIdAndClosedFalse(pageable, userId);
+//        return taskDao.findAllByCreatedUserId(pageable, userId);
+    }
+
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskResponse replace(TaskBaseRequest request, long taskId, long userId) throws YouDoNotHavePermissionException, TaskNotFoundException, TaskActionNotFoundException {
+    public TaskResponse replace(TaskBaseRequest request, long taskId, long userId) throws TaskNotFoundException, TaskActionNotFoundException, PriorityNotFoundException {
         TaskAction lastAction = taskActionService.getLastAction(taskId);
-        if (!actionService.taskCanChangedByActionIdAndUserId(lastAction.getActionId(), userId))
-            throw new YouDoNotHavePermissionException();
+        if (!priorityTypeService.existsByIdAndDeletedTimeIsNull(request.getPriorityTypeId()))
+            throw new PriorityNotFoundException();
         Task task = findById(taskId);
         task.setPriorityTypeId(request.getPriorityTypeId());
         task.setStartDate(request.getStartDate());
@@ -62,7 +79,7 @@ public class TaskService {
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskResponse save(TaskRequest request, long userId) throws FlowNotFoundException, ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, StartUpActionException, NotNextActionException, TargetUserNotHavePermissionException, TargetGroupNotHavePermissionException, GroupNotFoundException, StepNotFoundException {
+    public TaskResponse save(TaskRequest request, long userId) throws ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, StartUpActionException, NotNextActionException, StepNotFoundException {
         if (!priorityTypeService.existsByIdAndDeletedTimeIsNull(request.getPriorityTypeId()))
             throw new PriorityNotFoundException();
         Task task = new Task();
@@ -73,19 +90,15 @@ public class TaskService {
         task.setClosed(false);
         task = taskDao.save(task);
         taskActionService.save(request.getActionRequest(), task.getId(), userId);
-        TaskResponse responce = new TaskResponse();
-        responce.setTaskId(task.getId());
-        return responce;
+        return TaskResponse
+                .builder()
+                .taskId(task.getId())
+                .build();
     }
 
     @Transactional(readOnly = true)
     public boolean existsById(Long taskId) {
         return taskDao.existsById(taskId);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<Task> getMyTask(Pageable pageable, long userId) {
-        return taskDao.getMyTask(pageable, userId);
     }
 
 }

@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,11 +25,10 @@ public class FlowController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<FlowDto>> findAll() {
-        List<FlowDto> dto = mapper.map(flowService.findAllByDeletedTimeIsNull());
+    public ResponseEntity<FlowDto[]> findAll() {
+        FlowDto[] dto = mapper.map(flowService.findAllByDeletedTimeIsNull()).toArray(FlowDto[]::new);
         return ResponseEntity.ok(dto);
     }
-
 
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -66,5 +64,11 @@ public class FlowController {
         return ResponseEntity.ok("Flow deleted.");
     }
 
+    @GetMapping(value = "/start")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<FlowDto[]> getStartUpFlows() {
+        FlowDto[] dto = mapper.map(flowService.findAllByDeletedTimeIsNullAndEnabledTrue()).toArray(FlowDto[]::new);
+        return ResponseEntity.ok(dto);
+    }
 
 }

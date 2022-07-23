@@ -3,7 +3,6 @@ package com.yil.workflow.repository;
 import com.yil.workflow.model.Action;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,116 +19,37 @@ public interface ActionDao extends JpaRepository<Action, Long> {
 
     Optional<Action> findByIdAndDeletedTimeIsNull(Long id);
 
-    @Query(nativeQuery = true,
-            value = """
-                        select case when count(1)>0 then true else false end from WFS.ACTION a
-                        where a.Id=:id
-                        and a.TARGET_TypE_ID=3
-                        and exists
-                        (
-                            select 1 from WFS.GROUP_USER gu
-                            where gu.ID=a.GROUP_ID
-                            and gu.GROUP_USER_TYPE_ID IN(1,2)
-                            and gu.USER_ID=:userId
-                        )
-                    """)
-    boolean taskCanChangedByActionIdAndUserId(@Param(value = "id") long id,
-                                              @Param(value = "userId") long userId);
-
     List<Action> findAllByStepIdAndEnabledTrueAndDeletedTimeIsNull(long stepId);
 
-    @Query(nativeQuery = true,
-            value = " select case when count(1) > 0  then true else false end " +
-                    " from WFS.Action a " +
-                    "   where a.ENABLED=1" +
-                    "   and a.ID=:id" +
-                    "   and a.DELETED_TIME is null" +
-                    "   and exists (" +
-                    "       select 1 from WFS.Step s " +
-                    "       where  s.ID =a.STEP_ID " +
-                    "       and s.ENABLED=1 " +
-                    "       and s.STEP_TYPE_ID=1" +
-                    "       and s.DELETED_TIME is null)")
-    boolean isStartUpAction(@Param(value = "id") long id);
+    boolean existsByIdAndNextStepId(long id, long nextStepId);
 
-    @Query(nativeQuery = true,
-            value = " select case when count(1) > 0  then true else false end" +
-                    " from WFS.ACTION a " +
-                    "   where a.ENABLED=1" +
-                    "   and a.ID=:nextActionId" +
-                    "   and a.DELETED_TIME IS NULL" +
-                    "   and EXISTS(select 1 from WFS.ACTION a2 where a2.ID=:currentActionId and a2.NEXT_STEP_ID=a.STEP_ID)" +
-                    "       and exists(select 1 from WFS.STEP s where s.ID=a.STEP_ID and s.ENABLED=1 and s.DELETED_TIME IS NULL" +
-                    "           and exists(select 1 from WFS.FLOW f where f.ID=s.FLOW_ID and f.ENABLED=1 and f.DELETED_TIME IS NULL))")
-    boolean isNextAction(@Param(value = "currentActionId") long currentActionId,
-                         @Param(value = "nextActionId") long nextActionId);
-
+    long countByIdAndEnabledTrueAndDeletedTimeIsNull(long id);
 
     @Query(nativeQuery = true,
             value = """
-                    select *
-                    from WFS.ACTION a
-                    where a.ENABLED = 1
-                      and a.DELETED_TIME IS NULL
-                      and a.STEP_ID = :stepId
-                      and ((a.TARGET_TYPE_ID = 3
-                        and exists(
-                                    select 1
-                                    from WFS.GROUP_USER gu
-                                    where gu.GROUP_ID = a.GROUP_ID
-                                      and gu.USER_ID = :userId
-                                      and gu.GROUP_USER_TYPE_ID = 3)
-                               ) or (a.TARGET_TYPE_ID = 4 and a.USER_ID=:userId))
-                      and exists(
-                            select 1
-                            from WFS.STEP s
-                            where s.ID = a.STEP_ID
-                              and s.DELETED_TIME IS NULL
-                              and s.ENABLED = 1
-                              and exists(
-                                    select 1
-                                    from WFS.FLOW f
-                                    where f.ID = s.FLOW_ID
-                                      and f.ENABLED = 1
-                                      and f.DELETED_TIME IS NULL))
+                    SELECT *
+                    FROM WFS.ACTION A
+                    WHERE A.DELETED_TIME IS NULL
+                    	AND A.ENABLED = 1
+                    	AND EXISTS
+                    		(SELECT 1
+                    			FROM WFS.STEP S
+                    			WHERE S.ENABLED = 1
+                    				AND A.STEP_ID = S.ID
+                    				AND S.DELETED_TIME IS NULL
+                    				AND EXISTS
+                    					(SELECT 1
+                    						FROM WFS.FLOW F
+                    						WHERE F.ENABLED = 1
+                    							AND F.DELETED_TIME IS NULL
+                    							AND F.ID = S.FLOW_ID)
+                    				AND EXISTS
+                    					(SELECT 1
+                    						FROM WFS.ACTION A2
+                    						WHERE A2.ID =:id
+                    							AND A2.NEXT_STEP_ID = S.ID))
                     """)
-    List<Action> getGroupActionsByStepIdAndUserId(@Param(value = "stepId") long stepId,
-                                                  @Param(value = "userId") long userId);
+    List<Action> getNextActions(long id);
 
-
-    @Query(nativeQuery = true,
-            value = """
-                    select *
-                    from WFS.ACTION a
-                    where a.ENABLED = 1
-                      and a.DELETED_TIME IS NULL
-                      and a.STEP_ID = :stepId
-                      and exists(
-                            select 1
-                            from WFS.STEP s
-                            where s.ID = a.STEP_ID
-                              and s.DELETED_TIME IS NULL
-                              and s.ENABLED = 1
-                              and exists(
-                                    select 1
-                                    from WFS.FLOW f
-                                    where f.ID = s.FLOW_ID
-                                      and f.ENABLED = 1
-                                      and f.DELETED_TIME IS NULL))
-                      and ((
-                                a.TARGET_TYPE_ID = 3
-                                and exists(
-                                        select 1
-                                        from WFS.GROUP_USER gu
-                                        where gu.GROUP_ID = a.GROUP_ID
-                                          and gu.USER_ID = :userId
-                                          and gu.GROUP_USER_TYPE_ID = 3)
-                            or (
-                                        a.TARGET_TYPE_ID = 4
-                                        and a.USER_ID = :userId)
-                        ))
-                                        """)
-    List<Action> getNextActionsByStepIdAndUserId(@Param(value = "stepId") long stepId,
-                                                 @Param(value = "userId") long userId);
 
 }

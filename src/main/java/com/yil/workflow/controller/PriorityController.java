@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/api/wf/v1/priorities")
@@ -23,8 +21,8 @@ public class PriorityController {
     private final Mapper<PriorityType, PriorityTypeDto> mapper = new Mapper<>(PriorityTypeService::convert);
 
     @GetMapping
-    public ResponseEntity<List<PriorityTypeDto>> findAll() {
-        List<PriorityTypeDto> dto = mapper.map(priorityTypeService.findAll());
+    public ResponseEntity<PriorityTypeDto[]> findAll() {
+        PriorityTypeDto[] dto = mapper.map(priorityTypeService.findAll()).toArray(PriorityTypeDto[]::new);
         return ResponseEntity.ok(dto);
     }
 

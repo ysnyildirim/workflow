@@ -15,16 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 
-/**
- * id(1).name("Start").des
- * id(2).name("Normal").de
- * id(3).name("Complete").
- * id(4).name("Denied").de
- * id(5).name("Cancelled")
- */
 @RequiredArgsConstructor
 @Service
 public class StepTypeService {
+
+    public static final Integer Start = 1;
+    public static final Integer Normal = 2;
+    public static final Integer Complete = 3;
+    public static final Integer Denied = 4;
+    public static final Integer Cancelled = 5;
     private final StepTypeDao stepTypeDao;
 
     public static StepTypeDto convert(StepType stepType) {

@@ -18,6 +18,7 @@ public class AppConfig {
         ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
         pool.setCorePoolSize(1000);
         pool.setMaxPoolSize(2000);
+        pool.setQueueCapacity(1000);
         pool.setWaitForTasksToCompleteOnShutdown(true);
         return pool;
     }

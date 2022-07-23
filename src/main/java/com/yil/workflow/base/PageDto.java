@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
 @Data
@@ -17,17 +15,18 @@ import java.util.function.Function;
 public class PageDto<T> {
     private long totalElements;
     private int totalPages;
-    private List<T> content;
+    private T[] content;
     private int currentPage;
 
     public static <P, V> PageDto<V> toDto(Page<P> page, Function<P, V> function) {
-        List<V> list = new ArrayList<>();
-        page.getContent().forEach(f -> list.add(function.apply(f)));
+        Object[] elements = new Object[page.getContent().size()];
+        for (int i = 0; i < page.getContent().size(); i++)
+            elements[i] = function.apply(page.getContent().get(i));
         return new PageDtoBuilder<V>()
                 .currentPage(page.getNumber())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
-                .content(list)
+                .content((V[]) elements)
                 .build();
     }
 

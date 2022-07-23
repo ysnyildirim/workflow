@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,8 +27,8 @@ public class StepController {
     private final Mapper<Step, StepDto> mapper = new Mapper<>(StepService::convert);
 
     @GetMapping
-    public ResponseEntity<List<StepDto>> findAll(@PathVariable Long flowId) {
-        List<StepDto> stepDtos = mapper.map(stepService.findAllByFlowIdAndDeletedTimeIsNull(flowId));
+    public ResponseEntity<StepDto[]> findAll(@PathVariable Long flowId) {
+        StepDto[] stepDtos = mapper.map(stepService.findAllByFlowIdAndDeletedTimeIsNull(flowId)).toArray(StepDto[]::new);
         return ResponseEntity.ok(stepDtos);
     }
 

@@ -18,34 +18,105 @@ public interface TaskDao extends JpaRepository<Task, Long> {
     @Modifying
     @Query(nativeQuery = true,
             value = """
-                        update WFS.TASK t set IS_CLOSED=1
+                        update WFS.TASK t set t.CLOSED=1
                         where t.ID=:taskId
                     """)
     void closedTask(@Param(value = "taskId") long taskId);
 
+    @Transactional
+    @Modifying
     @Query(nativeQuery = true,
             value = """
-                    select * from WFS.TASK t
-                    where t.IS_CLOSED=0 
-                    and exists( 
-                            select 1 from WFS.TASK_ACTION ta
-                            where ta.TASK_ID=t.ID 
-                            and ta.ASSIGNED_USER_ID=:userId
-                            and ta.Id=(
-                                select max(ta2.ID) from WFS.TASK_ACTION ta2
-                                where ta2.TASK_ID=ta.TASK_ID))
-                    """,
-            countQuery = """
-                    select count(t.ID) from WFS.TASK t
-                    where t.IS_CLOSED=0
-                    and exists(
-                            select 1 from WFS.TASK_ACTION ta
-                            where ta.TASK_ID=t.ID
-                            and ta.ASSIGNED_USER_ID=:userId
-                            and ta.Id=(
-                                select max(ta2.ID) from WFS.TASK_ACTION ta2
-                                where ta2.TASK_ID=ta.TASK_ID))
+                        update WFS.TASK t set CLOSED=0
+                        where t.ID=:taskId
                     """)
-    Page<Task> getMyTask(Pageable pageable, @Param(value = "userId") long userId);
+    void openTask(@Param(value = "taskId") long taskId);
 
+    @Query(nativeQuery = true,
+            value = """
+                    SELECT *
+                    FROM WFS.TASK T
+                    WHERE T.CLOSED = 0
+                    	AND EXISTS
+                    		(SELECT 1
+                    			FROM WFS.TASK_ACTION TA
+                    			WHERE TA.TASK_ID = T.ID
+                    				AND TA.ASSIGNED_USER_ID = :userId
+                    				AND TA.ID =
+                    					(SELECT MAX(TA2.ID)
+                    						FROM WFS.TASK_ACTION TA2
+                    						WHERE TA2.TASK_ID = TA.TASK_ID))
+                                        """,
+            countQuery = """
+                    SELECT COUNT(T.ID)
+                    FROM WFS.TASK T
+                    WHERE T.CLOSED = 0
+                    	AND EXISTS
+                    		(SELECT 1
+                    			FROM WFS.TASK_ACTION TA
+                    			WHERE TA.TASK_ID = T.ID
+                    				AND TA.ASSIGNED_USER_ID = :userId
+                    				AND TA.ID =
+                    					(SELECT MAX(TA2.ID)
+                    						FROM WFS.TASK_ACTION TA2
+                    						WHERE TA2.TASK_ID = TA.TASK_ID))
+                                        """)
+    Page<Task> findAllByAssignedUserId(Pageable pageable, @Param(value = "userId") long userId);
+
+    @Query(nativeQuery = true,
+            value = """
+                    WITH TBL AS
+                    	(SELECT TA.TASK_ID
+                    		FROM WFS.TASK_ACTION TA
+                    		WHERE TA.CREATED_USER_ID = :userId
+                    			AND TA.ID =
+                    				(SELECT MIN(TA2.ID)
+                    					FROM WFS.TASK_ACTION TA2
+                    					WHERE TA2.TASK_ID = TA.TASK_ID))
+                    SELECT *
+                    FROM WFS.TASK T
+                    WHERE T.ID in
+                    		(SELECT TASK_ID
+                    			FROM TBL)
+                                        """,
+            countQuery = """
+                    SELECT COUNT(1)
+                    FROM
+                    	(SELECT 1
+                    		FROM WFS.TASK_ACTION TA
+                    		WHERE TA.CREATED_USER_ID = :userId
+                    			AND TA.ID =
+                    				(SELECT MIN(TA2.ID)
+                    					FROM WFS.TASK_ACTION TA2
+                    					WHERE TA2.TASK_ID = TA.TASK_ID)
+                    		GROUP BY TA.TASK_ID) t
+                                        """)
+    Page<Task> findAllByCreatedUserId(Pageable pageable, @Param(value = "userId") long userId);
+
+    @Query(nativeQuery = true,
+            value = """
+                    WITH TBL AS
+                    	(SELECT TASK_ID
+                    		FROM WFS.TASK_ACTION
+                    		WHERE CREATED_USER_ID = :userId)
+                    SELECT *
+                    FROM WFS.TASK T
+                    WHERE ID in
+                    		(SELECT TASK_ID
+                    			FROM TBL)
+                                        """,
+            countQuery = """
+                    SELECT COUNT(1)
+                    FROM
+                    	(SELECT 1
+                    		FROM WFS.TASK_ACTION
+                    		WHERE CREATED_USER_ID = :userId
+                    		GROUP BY TASK_ID) TBL
+                    """)
+    Page<Task> findAllByActionCreatedUserId(Pageable pageable, @Param(value = "userId") long userId);
+
+
+    Page<Task> findAllByAssignedUserIdAndClosedFalse(Pageable pageable, long assignedUserId);
+
+    Page<Task> findAllByCreatedUserIdAndClosedFalse(Pageable pageable, long createdUserId);
 }

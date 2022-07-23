@@ -24,7 +24,7 @@ public class SortOrderConverter implements Converter<String[], List<Sort.Order>>
             String[] sort = order.split(",");
             if (sort.length < 1 || sort.length > 2)
                 throw new UnsupportedOperationException("Sort syntax error!");
-            if (Arrays.stream(avaiableNames).filter(f -> f.equalsIgnoreCase(sort[0].toLowerCase())).count() == 0)
+            if (Arrays.stream(avaiableNames).noneMatch(f -> f.equalsIgnoreCase(sort[0].toLowerCase())))
                 throw new UnsupportedOperationException("Sort not avaiable!");
             if (sort.length == 2 && !Arrays.asList("ASC", "DESC").contains(sort[1].toUpperCase()))
                 throw new IllegalArgumentException("Sort direction not avaiable!");

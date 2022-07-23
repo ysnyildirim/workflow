@@ -12,7 +12,10 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(schema = "WFS", name = "ACTION")
+@Table(schema = "WFS", name = "ACTION",
+        indexes = {
+                @Index(name = "IDX_ACTION_STEP_ID", columnList = "STEP_ID")
+        })
 public class Action extends AbstractEntity {
     @Id
     @SequenceGenerator(name = "ACTION_SEQUENCE_GENERATOR",
@@ -26,6 +29,7 @@ public class Action extends AbstractEntity {
     private String name;
     @Column(name = "DESCRIPTION", nullable = false, length = 1000)
     private String description;
+    @Comment(value = "Aksiyonun durumu aktif/pasif")
     @Type(type = "org.hibernate.type.NumericBooleanType")
     @ColumnDefault(value = "1")
     @Column(name = "ENABLED", nullable = false)
@@ -33,14 +37,17 @@ public class Action extends AbstractEntity {
     /**
      * Aksiyonun adımı
      */
+    @Comment(value = "Aksiyonun adımı")
     @Column(name = "STEP_ID", nullable = false)
     private Long stepId;
     /**
      * Aksiyonun sonraki adımı
      */
+    @Comment(value = "Sonraki adım")
     @Column(name = "NEXT_STEP_ID", nullable = false)
     private Long nextStepId;
-    @Comment(value = "Bu aksiyonu kullanabilmesi için gerekli yetki idsi")
+    @Comment(value = "Kullanıcının Bu aksiyonu kullanabilmesi için gerekli yetki idsi")
     @Column(name = "PERMISSION_ID")
     private Long permissionId;
+
 }

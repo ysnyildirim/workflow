@@ -29,7 +29,8 @@ import javax.persistence.*;
 public class StepType implements IEntity {
     @Id
     @SequenceGenerator(name = "STEP_TYPE_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_STEP_TYPE_ID", schema = "WFS",
+            sequenceName = "SEQ_STEP_TYPE_ID",
+            schema = "WFS",
             allocationSize = 1)
     @GeneratedValue(generator = "STEP_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID")

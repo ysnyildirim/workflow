@@ -40,23 +40,8 @@ public class StepService {
 
 
     @Transactional(readOnly = true)
-    public Step findByIdAndStepTypeIdAndDeletedTimeIsNull(Long id, Integer stepTypeId) throws StepNotFoundException {
-        return stepDao.findByIdAndStepTypeIdAndDeletedTimeIsNull(id, stepTypeId).orElseThrow(StepNotFoundException::new);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Step> findByStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(int stepTypeId) {
-        return stepDao.findByStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(stepTypeId);
-    }
-
-    @Transactional(readOnly = true)
     public List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long flowId, int stepTypeId) {
         return stepDao.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flowId, stepTypeId);
-    }
-
-    @Transactional(readOnly = true)
-    public boolean existsByIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long id, int stepTypeId) {
-        return stepDao.existsByIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(id, stepTypeId);
     }
 
     @Transactional(readOnly = true)
@@ -125,5 +110,9 @@ public class StepService {
 
     public Step findById(Long stepId) throws StepNotFoundException {
         return stepDao.findById(stepId).orElseThrow(StepNotFoundException::new);
+    }
+
+    public boolean existsByIdAndStepTypeIdIn(long id, List<Integer> stepTypeIds) {
+        return stepDao.existsByIdAndStepTypeIdIn(id, stepTypeIds);
     }
 }

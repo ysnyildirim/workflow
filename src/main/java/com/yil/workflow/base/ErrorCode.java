@@ -8,14 +8,9 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
-    TargetUserNotHavePermission(7000021, "Target user not have permission"),
-    TargetGroupNotHavePermission(7000020, "Target group not have permission"),
-    UserNotFound(7000019, "User not found"),
+    CannotBeAddedToThisStep(7000019, "Bu aksiyon bu adıma eklenemez"),
     NotNextAction(7000018, "Not next action"),
     StartUpAction(7000017, "Not in action initialization step"),
-    GroupUserNotFound(7000016, "Group user not found"),
-    TargetNotFound(7000015, "Target not found"),
-    GroupNotFound(7000014, "Group not found"),
     StepTypeNotFound(7000013, "Step type not found"),
     YouDoNotHavePermission(7000011, "You do not have permission"),
     TaskNotFound(7000009, "Task not found"),

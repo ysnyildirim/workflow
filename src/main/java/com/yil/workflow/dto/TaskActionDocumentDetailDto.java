@@ -10,11 +10,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TaskActionDocumentDetailDto extends TaskActionDocumentDto {
+public class TaskActionDocumentDetailDto extends TaskActionDocumentDto implements Serializable {
     private Byte[] content;
 }

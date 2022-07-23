@@ -27,7 +27,7 @@ public class TaskAction implements IEntity {
     private Long taskId;
     @Column(name = "ACTION_ID", nullable = false)
     private Long actionId;
-    @Column(name = "PARENT_ID")
+    @Column(name = "PARENT_ID", unique = true)
     private Long parentId;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATED_TIME", nullable = false)

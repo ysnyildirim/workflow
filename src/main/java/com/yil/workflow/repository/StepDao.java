@@ -13,8 +13,6 @@ public interface StepDao extends JpaRepository<Step, Long> {
 
     List<Step> findAllByFlowIdAndDeletedTimeIsNull(Long flowId);
 
-    List<Step> findAllByFlowIdAndDeletedTimeIsNullAndEnabledTrue(Long flowId);
-
     Optional<Step> findByIdAndDeletedTimeIsNull(Long id);
 
     Optional<Step> findByIdAndStepTypeIdAndDeletedTimeIsNull(Long id, Integer stepTypeId);
@@ -28,4 +26,6 @@ public interface StepDao extends JpaRepository<Step, Long> {
     Optional<Step> findByIdAndFlowIdAndDeletedTimeIsNull(Long id, Long flowId);
 
     Optional<Step> findByIdAndEnabledTrueAndDeletedTimeIsNull(long id);
+
+    boolean existsByIdAndStepTypeIdIn(long id, List<Integer> stepTypeIds);
 }

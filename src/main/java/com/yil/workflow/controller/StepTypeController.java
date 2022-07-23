@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/api/wf/v1/step-types")
@@ -24,8 +22,8 @@ public class StepTypeController {
 
 
     @GetMapping
-    public ResponseEntity<List<StepTypeDto>> findAll() {
-        List<StepTypeDto> dto = mapper.map(stepTypeService.findAll());
+    public ResponseEntity<StepTypeDto[]> findAll() {
+        StepTypeDto[] dto = mapper.map(stepTypeService.findAll()).toArray(StepTypeDto[]::new);
         return ResponseEntity.ok(dto);
     }
 

@@ -47,6 +47,51 @@ public class TaskController {
     }
 
     @ResponseStatus(value = HttpStatus.OK)
+    @GetMapping(value = "/action-created={userId}")
+    public ResponseEntity<PageDto<TaskDto>> findAllByActionCreatedUserId(
+            @PathVariable Long userId,
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
+        if (page < 0)
+            page = 0;
+        if (size <= 0 || size > 1000)
+            size = 1000;
+        Pageable pageable = PageRequest.of(page, size);
+        PageDto<TaskDto> pageDto = mapper.map(taskService.findAllByActionCreatedUserId(pageable, userId));
+        return ResponseEntity.ok(pageDto);
+    }
+
+    @ResponseStatus(value = HttpStatus.OK)
+    @GetMapping(value = "/assigned={userId}")
+    public ResponseEntity<PageDto<TaskDto>> findAllByAssignedUserId(
+            @PathVariable Long userId,
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
+        if (page < 0)
+            page = 0;
+        if (size <= 0 || size > 1000)
+            size = 1000;
+        Pageable pageable = PageRequest.of(page, size);
+        PageDto<TaskDto> pageDto = mapper.map(taskService.findAllByAssignedUserId(pageable, userId));
+        return ResponseEntity.ok(pageDto);
+    }
+
+    @ResponseStatus(value = HttpStatus.OK)
+    @GetMapping(value = "/created={userId}")
+    public ResponseEntity<PageDto<TaskDto>> findAllByCreatedUserId(
+            @PathVariable Long userId,
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
+        if (page < 0)
+            page = 0;
+        if (size <= 0 || size > 1000)
+            size = 1000;
+        Pageable pageable = PageRequest.of(page, size);
+        PageDto<TaskDto> pageDto = mapper.map(taskService.findAllByCreatedUserId(pageable, userId));
+        return ResponseEntity.ok(pageDto);
+    }
+
+    @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(value = "/{id}")
     public ResponseEntity<TaskDto> findByIdAndDeletedTimeIsNull(@PathVariable Long id) throws TaskNotFoundException {
         TaskDto dto = mapper.map(taskService.findById(id));
@@ -56,7 +101,7 @@ public class TaskController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<TaskResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                               @Valid @RequestBody TaskRequest request) throws FlowNotFoundException, ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, StepNotFoundException, NotNextActionException, StartUpActionException, TargetUserNotHavePermissionException, TargetGroupNotHavePermissionException, GroupNotFoundException, ActionNotAssignableException {
+                                               @Valid @RequestBody TaskRequest request) throws ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, StepNotFoundException, NotNextActionException, StartUpActionException {
         TaskResponse responce = taskService.save(request, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }
@@ -79,7 +124,7 @@ public class TaskController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<TaskResponse> replace(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                 @PathVariable Long id,
-                                                @Valid @RequestBody TaskBaseRequest request) throws TaskNotFoundException, YouDoNotHavePermissionException, TaskActionNotFoundException {
+                                                @Valid @RequestBody TaskBaseRequest request) throws TaskNotFoundException, TaskActionNotFoundException, PriorityNotFoundException {
         TaskResponse responce = taskService.replace(request, id, authenticatedUserId);
         return ResponseEntity.ok(responce);
     }
