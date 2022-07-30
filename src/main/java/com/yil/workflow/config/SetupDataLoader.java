@@ -52,6 +52,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
 
         try {
 
+            initSikayetFlow();
 
 //            for (long i = 101; i <= 1226; i++) {
 //                List<Step> stepList = stepService.findAllByFlowIdAndDeletedTimeIsNull(i);
@@ -76,6 +77,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
     }
 
@@ -104,6 +106,323 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
 
     private void initProperties() {
         addProperties(Properties.builder().id(1).description("Auto task generator").value("0").build());
+    }
+
+    private void initSikayetFlow() throws Exception {
+        FlowRequest request = new FlowRequest();
+        request.setName("Tüketici Şikayet");
+        request.setDescription("Tüketici şikayet iş akışı");
+        request.setEnabled(true);
+        FlowResponse flowResponse = flowService.save(request, 1L);
+
+        StepRequest s1 = new StepRequest();
+        s1.setName("Şikayet oluştur");
+        s1.setDescription("Şikayet oluşturma");
+        s1.setEnabled(true);
+        s1.setStatusId(1);
+        s1.setStepTypeId(StepTypeService.Start);
+        StepResponse s1c = stepService.save(s1, flowResponse.getId(), 1l);
+
+        StepRequest s2 = new StepRequest();
+        s2.setName("İşletme Tarafından Cevaplama");
+        s2.setDescription("Şikayetin işletme tarafından cevaplanması");
+        s2.setEnabled(true);
+        s2.setStatusId(1);
+        s2.setStepTypeId(StepTypeService.Normal);
+        StepResponse s2c = stepService.save(s2, flowResponse.getId(), 1l);
+
+
+        StepResponse s21c = stepService.save(StepRequest
+                .builder()
+                .name("İşletme Bilgi,Belge Talebi")
+                .description("İşletme tarafından tüketiciden bilgi, belge talebi")
+                .enabled(true)
+                .statusId(1)
+                .stepTypeId(StepTypeService.Normal)
+                .build(), flowResponse.getId(), 1l);
+
+
+        StepRequest s3 = new StepRequest();
+        s3.setName("Tüketici 1. İtiraz");
+        s3.setDescription("Tüketici tarafından işletme tarafından cevaplanan şikayete 1. itirazı");
+        s3.setEnabled(true);
+        s3.setStatusId(1);
+        s3.setStepTypeId(StepTypeService.Normal);
+        StepResponse s3c = stepService.save(s3, flowResponse.getId(), 1l);
+
+        StepRequest s4 = new StepRequest();
+        s4.setName("İşletme Tarafından 1.İtirazın Cevaplanması");
+        s4.setDescription("İşletme Tarafından 1.İtirazın Cevaplanması");
+        s4.setEnabled(true);
+        s4.setStatusId(1);
+        s4.setStepTypeId(StepTypeService.Normal);
+        StepResponse s4c = stepService.save(s4, flowResponse.getId(), 1l);
+
+        StepResponse s41c = stepService.save(StepRequest
+                .builder()
+                .name("İşletme Bilgi,Belge Talebi")
+                .description("İşletme tarafından tüketiciden bilgi, belge talebi")
+                .enabled(true)
+                .statusId(1)
+                .stepTypeId(StepTypeService.Normal)
+                .build(), flowResponse.getId(), 1l);
+
+        StepRequest s5 = new StepRequest();
+        s5.setName("Tüketici 2. İtiraz");
+        s5.setDescription("Tüketici tarafından işletme tarafından cevaplanan şikayete 2. itirazı");
+        s5.setEnabled(true);
+        s5.setStatusId(1);
+        s5.setStepTypeId(StepTypeService.Normal);
+        StepResponse s5c = stepService.save(s5, flowResponse.getId(), 1l);
+
+        StepRequest s6 = new StepRequest();
+        s6.setName("İşletme Tarafından 2.İtirazın Cevaplanması");
+        s6.setDescription("İşletme Tarafından 2.İtirazın Cevaplanması");
+        s6.setEnabled(true);
+        s6.setStatusId(1);
+        s6.setStepTypeId(StepTypeService.Normal);
+        StepResponse s6c = stepService.save(s6, flowResponse.getId(), 1l);
+
+        StepResponse s61c = stepService.save(StepRequest
+                .builder()
+                .name("İşletme Bilgi,Belge Talebi")
+                .description("İşletme tarafından tüketiciden bilgi, belge talebi")
+                .enabled(true)
+                .statusId(1)
+                .stepTypeId(StepTypeService.Normal)
+                .build(), flowResponse.getId(), 1l);
+
+        StepRequest s7 = new StepRequest();
+        s7.setName("Tüketici 3. İtiraz");
+        s7.setDescription("Tüketici tarafından işletme tarafından cevaplanan şikayete 3. itirazı");
+        s7.setEnabled(true);
+        s7.setStatusId(1);
+        s7.setStepTypeId(StepTypeService.Normal);
+        StepResponse s7c = stepService.save(s7, flowResponse.getId(), 1l);
+
+        StepRequest s8 = new StepRequest();
+        s8.setName("Kurum incelemesi");
+        s8.setDescription("Kurum tarafından şikayetin incelenmesi");
+        s8.setEnabled(true);
+        s8.setStatusId(1);
+        s8.setStepTypeId(StepTypeService.Normal);
+        StepResponse s8c = stepService.save(s8, flowResponse.getId(), 1l);
+
+        StepRequest s9 = new StepRequest();
+        s9.setName("İşletmeden bilgi, belge talebi");
+        s9.setDescription("Kurum tarafından işletmeden bilgi, belge talep edilmesi");
+        s9.setEnabled(true);
+        s9.setStatusId(1);
+        s9.setStepTypeId(StepTypeService.Normal);
+        StepResponse s9c = stepService.save(s9, flowResponse.getId(), 1l);
+
+        StepRequest s11 = new StepRequest();
+        s11.setName("Şikayetin Kapatılması");
+        s11.setDescription("Şikayetin kapatılması");
+        s11.setEnabled(true);
+        s11.setStatusId(1);
+        s11.setStepTypeId(StepTypeService.Complete);
+        StepResponse s11c = stepService.save(s11, flowResponse.getId(), 1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Yeni")
+                        .description("Yeni şikayet oluştur")
+                        .enabled(true)
+                        .nextStepId(s2c.getId())
+                        .permissionId(2l)
+                        .build(),
+                s1c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Cevapla")
+                        .description("İşletme tarafından şikayeti cevaplandır")
+                        .enabled(true)
+                        .nextStepId(s3c.getId())
+                        .permissionId(4l)
+                        .build(),
+                s2c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Bilgi, Belge Talebi")
+                        .description("İşletme tarafından tüketiciden bilgi, belge talebi")
+                        .enabled(true)
+                        .nextStepId(s21c.getId())
+                        .permissionId(4l)
+                        .build(),
+                s2c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Bilgi Ekle")
+                        .description("Tüketici tarafından bilgi eklenmesi")
+                        .enabled(true)
+                        .nextStepId(s2c.getId())
+                        .permissionId(2l)
+                        .build(),
+                s21c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("İtiraz Et")
+                        .description("Tüketici tarafından işletme cevabına 1.itiraz edilmesi")
+                        .enabled(true)
+                        .nextStepId(s4c.getId())
+                        .permissionId(2l)
+                        .build(),
+                s3c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Kapat")
+                        .description("Tüketici tarafından şikayetin kapatılması")
+                        .enabled(true)
+                        .nextStepId(s11c.getId())
+                        .permissionId(2l)
+                        .build(),
+                s3c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Cevapla")
+                        .description("İşletme tarafından şikayeti cevaplandır")
+                        .enabled(true)
+                        .nextStepId(s5c.getId())
+                        .permissionId(4l)
+                        .build(),
+                s4c.getId(),
+                1l);
+
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Bilgi, Belge Talebi")
+                        .description("İşletme tarafından tüketiciden bilgi, belge talebi")
+                        .enabled(true)
+                        .nextStepId(s41c.getId())
+                        .permissionId(4l)
+                        .build(),
+                s4c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Bilgi Ekle")
+                        .description("Tüketici tarafından bilgi eklenmesi")
+                        .enabled(true)
+                        .nextStepId(s4c.getId())
+                        .permissionId(2l)
+                        .build(),
+                s41c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("İtiraz Et")
+                        .description("Tüketici tarafından işletme cevabına 2.itiraz edilmesi")
+                        .enabled(true)
+                        .nextStepId(s6c.getId())
+                        .permissionId(2l)
+                        .build(),
+                s5c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Cevapla")
+                        .description("İşletme tarafından şikayeti cevaplandır")
+                        .enabled(true)
+                        .nextStepId(s7c.getId())
+                        .permissionId(4l)
+                        .build(),
+                s6c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Bilgi, Belge Talebi")
+                        .description("İşletme tarafından tüketiciden bilgi, belge talebi")
+                        .enabled(true)
+                        .nextStepId(s61c.getId())
+                        .permissionId(4l)
+                        .build(),
+                s6c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Bilgi Ekle")
+                        .description("Tüketici tarafından bilgi eklenmesi")
+                        .enabled(true)
+                        .nextStepId(s6c.getId())
+                        .permissionId(2l)
+                        .build(),
+                s61c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("İtiraz Et")
+                        .description("Tüketici tarafından işletme cevabına 3.itiraz edilmesi")
+                        .enabled(true)
+                        .nextStepId(s8c.getId())
+                        .permissionId(2l)
+                        .build(),
+                s7c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Cevapla")
+                        .description("Şikayetin kurum tarafından cevaplanması")
+                        .enabled(true)
+                        .nextStepId(s8c.getId())
+                        .permissionId(5l)
+                        .build(),
+                s8c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Bilgi, Belge Talep Et")
+                        .description("Kurum tarafından işletmeden bilgi,belge talep edilmesi")
+                        .enabled(true)
+                        .nextStepId(s9c.getId())
+                        .permissionId(5l)
+                        .build(),
+                s8c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Kapat")
+                        .description("Şikayetin kurum tarafından kapatılması")
+                        .enabled(true)
+                        .nextStepId(s11c.getId())
+                        .permissionId(5l)
+                        .build(),
+                s8c.getId(),
+                1l);
+
+        actionService.save(ActionRequest
+                        .builder()
+                        .name("Bilgi, Belge Gönder")
+                        .description("İşletme tarafından kurumun bilgi,belge talebinin cevaplanması")
+                        .enabled(true)
+                        .nextStepId(s8c.getId())
+                        .permissionId(4l)
+                        .build(),
+                s9c.getId(),
+                1l);
+
     }
 
     private void addStatus(Status status) {

@@ -28,10 +28,8 @@ import java.util.*;
 public class TaskJob {
 
     public static final String upper = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private final PropertiesDao propertiesDao;
     final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS");
-
-
+    private final PropertiesDao propertiesDao;
     private FlowDto[] startupFlows = null;
 
     //   @Scheduled(fixedDelay = 1000, initialDelay = 3 * 1000)
@@ -47,8 +45,7 @@ public class TaskJob {
         }
     }
 
-
-    @Scheduled(fixedDelay = 1, initialDelay = 3 * 1000)
+    @Scheduled(fixedDelay = 1, initialDelay = 1 * 1000)
     public void generate() {
         if (isClosed())
             return;
@@ -61,6 +58,34 @@ public class TaskJob {
             }
             startupFlows = responseEntity.getBody();
         }
+        createTask(new Random().nextLong(2, 1001));
+    }
+
+    @Scheduled(fixedDelay = 1, initialDelay = 5* 1000)
+    public void generate2() {
+        if (isClosed())
+            return;
+        createTask(new Random().nextLong(2, 1001));
+    }
+
+      @Scheduled(fixedDelay = 1, initialDelay = 5* 1000)
+    public void generate3() {
+        if (isClosed())
+            return;
+        createTask(new Random().nextLong(2, 1001));
+    }
+
+    @Scheduled(fixedDelay = 1, initialDelay = 5* 1000)
+    public void generate4() {
+        if (isClosed())
+            return;
+        createTask(new Random().nextLong(2, 1001));
+    }
+
+      @Scheduled(fixedDelay = 1, initialDelay = 5* 1000)
+    public void generate5() {
+        if (isClosed())
+            return;
         createTask(new Random().nextLong(2, 1001));
     }
 

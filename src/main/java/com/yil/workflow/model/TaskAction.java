@@ -12,6 +12,7 @@ import java.util.Date;
         indexes = {
                 @Index(name = "IDX_TASK_ACTION_TASK_ID", columnList = "TASK_ID"),
                 @Index(name = "IDX_TASK_ACTION_PARENT_ID", columnList = "PARENT_ID", unique = true),
+                @Index(name = "IDX_TASK_ACTION_ACTION_ID", columnList = "ACTION_ID"),
                 @Index(name = "IDX_TASK_ACTION_CREATED_USER_ID", columnList = "CREATED_USER_ID"),
                 @Index(name = "IDX_TASK_ACTION_ASSIGNED_USER_ID", columnList = "ASSIGNED_USER_ID")
         })
