@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -187,19 +188,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     private void initProperties() {
         addProperties(Properties.builder().id(1).description("Auto task generator").value("0").build());
     }
-
-    private void addStatus(Status status) {
-        if (statusDao.existsById(status.getId()))
-            return;
-        statusDao.save(status);
-    }
-
-    private void addProperties(Properties properties) {
-        if (propertiesDao.existsById(properties.getId()))
-            return;
-        propertiesDao.save(properties);
-    }
-
+    @Transactional(rollbackFor = {Throwable.class})
     public void generateFlow(long userId) throws Exception {
         FlowRequest request = new FlowRequest();
         request.setName(randomString(20));
@@ -274,6 +263,18 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                     actionPermissionDao.save(ActionPermission.builder().id(ActionPermission.Pk.builder().actionId(response.getId()).actionPermissionTypeId(item).build()).build());
             }
         }
+    }
+
+    private void addStatus(Status status) {
+        if (statusDao.existsById(status.getId()))
+            return;
+        statusDao.save(status);
+    }
+
+    private void addProperties(Properties properties) {
+        if (propertiesDao.existsById(properties.getId()))
+            return;
+        propertiesDao.save(properties);
     }
 
     public static String randomString(int i) {

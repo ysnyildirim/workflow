@@ -14,7 +14,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,6 +33,19 @@ public class TaskJob {
     final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS");
     private final PropertiesDao propertiesDao;
     private FlowDto[] startupFlows = null;
+
+   // @Scheduled(fixedRate = 25, initialDelay = 3 * 1000)
+    public void finish() {
+        for (long i = 1; i <= 1000; i++) {
+            if (isClosed())
+                return;
+            try {
+                finishTask(i);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
+    }
 
     private boolean isClosed() {
         return stopped;
@@ -135,26 +147,13 @@ public class TaskJob {
         return s.toString();
     }
 
-    @Scheduled(fixedRate = 25, initialDelay = 3 * 1000)
-    public void finish() {
-        for (long i = 1; i <= 1000; i++) {
-            if (isClosed())
-                return;
-            try {
-                finishTask(i);
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }
-    }
-
-    @Scheduled(fixedDelay = 15 * 1000, initialDelay = 1 * 500)
+    //  @Scheduled(fixedDelay = 15 * 1000, initialDelay = 1 * 500)
     public void controlClosed() {
         Properties properties = propertiesDao.findById(1).orElse(null);
         stopped = properties.getValue().equals("0");
     }
 
-    @Scheduled(fixedDelay = 1000, initialDelay = 1 * 1000)
+    //  @Scheduled(fixedDelay = 1000, initialDelay = 1 * 1000)
     public void generate() {
         if (isClosed())
             return;
@@ -170,35 +169,8 @@ public class TaskJob {
         createTask(new Random().nextLong(2, 1001));
     }
 
-    //  @Scheduled(fixedDelay = 1, initialDelay = 5 * 1000)
-    public void generate2() {
-        if (isClosed())
-            return;
-        createTask(new Random().nextLong(2, 1001));
-    }
-
-    //  @Scheduled(fixedDelay = 1, initialDelay = 5 * 1000)
-    public void generate3() {
-        if (isClosed())
-            return;
-        createTask(new Random().nextLong(2, 1001));
-    }
-
-    //   @Scheduled(fixedDelay = 1, initialDelay = 5 * 1000)
-    public void generate4() {
-        if (isClosed())
-            return;
-        createTask(new Random().nextLong(2, 1001));
-    }
-
-    // @Scheduled(fixedDelay = 1, initialDelay = 5 * 1000)
-    public void generate5() {
-        if (isClosed())
-            return;
-        createTask(new Random().nextLong(2, 1001));
-    }
-
     private void createTask(long uId) {
+        if (startupFlows.length == 0) return;
         RestTemplate restTemplate = new RestTemplate();
         for (int i = 0; i < 10; i++) {
             FlowDto flow = startupFlows[(new Random().nextInt(0, startupFlows.length))];
