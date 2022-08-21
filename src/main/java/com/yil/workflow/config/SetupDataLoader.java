@@ -56,7 +56,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         try {
             //initSikayetFlow();
 
-            //for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
+            //  for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -173,12 +173,12 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 .build();
         actionTargetTypeDao.save(ActionTargetTypeService.SonIslemYapan);
         ActionTargetTypeService.IslemYapan = ActionTargetType.builder()
-                .id(4)
+                .id(5)
                 .name("İşlem yapan kişi")
                 .build();
         actionTargetTypeDao.save(ActionTargetTypeService.IslemYapan);
         ActionTargetTypeService.IslemYapanFarkliSonKisi = ActionTargetType.builder()
-                .id(5)
+                .id(6)
                 .name("İşlem yapan farklı son kişi")
                 .build();
         actionTargetTypeDao.save(ActionTargetTypeService.IslemYapanFarkliSonKisi);
@@ -236,11 +236,16 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 actionRequest.setEnabled(true);
                 actionRequest.setNextStepId(nextStepId);
                 actionRequest.setPermissionId(null);
-                if (new Random().nextBoolean()) {
+                if (j == 0 || step.getStepTypeId().equals(StepTypeService.Start.getId())) {
                     actionRequest.setActionTargetTypeId(ActionTargetTypeService.BelirliBiri.getId());
                     actionRequest.setNextUserId(new Random().nextLong(2, 1001));
-                } else
-                    actionRequest.setActionTargetTypeId(ActionTargetTypeService.Ozel.getId());
+                } else {
+                    if (new Random().nextBoolean()) {
+                        actionRequest.setActionTargetTypeId(ActionTargetTypeService.Ozel.getId());
+                    } else {
+                        actionRequest.setActionTargetTypeId(new Random().nextInt(3, 7));
+                    }
+                }
                 ActionResponse response = actionService.save(actionRequest, step.getId(), userId);
 
                 List<Integer> targetTypes = new ArrayList<>();

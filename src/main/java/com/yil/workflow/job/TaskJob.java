@@ -14,6 +14,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,9 +35,109 @@ public class TaskJob {
     private final PropertiesDao propertiesDao;
     private FlowDto[] startupFlows = null;
 
-    //   @Scheduled(fixedDelay = 1000, initialDelay = 3 * 1000)
+    private boolean isClosed() {
+        return stopped;
+    }
+
+    public void finishTask(long uId) {
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, String> m3 = new HashMap<>();
+        m3.put("userId", String.valueOf(uId));
+        ResponseEntity<PageTaskResponce> pageDtoResponseEntity = restTemplate.getForEntity("http://localhost:8087/api/wf/v1/tasks/assigned={userId}", PageTaskResponce.class, m3);
+        if (pageDtoResponseEntity.getStatusCode().isError()) {
+            System.out.println("Cevap alınamadı");
+            return;
+        }
+        PageTaskResponce myTasks = pageDtoResponseEntity.getBody();
+        for (TaskDto task : myTasks.getContent()) {
+            continueTask(uId, task.getId());
+        }
+    }
+
+    public void continueTask(long uId, long taskId) {
+        Map<String, String> map = new HashMap<>();
+        map.put("taskId", String.valueOf(taskId));
+        map.put("userId", String.valueOf(uId));
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<ActionDto[]> pageActionDtoResponseEntity = restTemplate.getForEntity("http://localhost:8087/api/wf/v1/tasks/{taskId}/actions/{userId}/next", ActionDto[].class, map);
+        if (pageActionDtoResponseEntity.getStatusCode().isError()) {
+            System.out.println("Task ilerletilemedi." + pageActionDtoResponseEntity.getStatusCode());
+            return;
+        }
+        if (pageActionDtoResponseEntity.getBody().length == 0)
+            return;
+
+        ActionDto action = pageActionDtoResponseEntity.getBody()[(new Random().nextInt(0, pageActionDtoResponseEntity.getBody().length))];
+
+        TaskActionRequest request = generateTaskAction(action);
+        Map<String, String> map2 = new HashMap<>();
+        map2.put("taskId", String.valueOf(taskId));
+        HttpHeaders h2 = new HttpHeaders();
+        h2.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        h2.add(ApiConstant.AUTHENTICATED_USER_ID, String.valueOf(uId));
+        HttpEntity<TaskActionRequest> he2 = new HttpEntity<>(request, h2);
+        ResponseEntity<TaskActionDto> responseEntity = restTemplate.exchange("http://localhost:8087/api/wf/v1/tasks/{taskId}/actions", HttpMethod.POST, he2, TaskActionDto.class, map2);
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            System.out.println("    " + simpleDateFormat.format(new Date()) + " Continue: userId:" + uId + ", taskId:" + responseEntity.getBody().getTaskId() + ", taskActionid:" + responseEntity.getBody().getTaskActionId());
+            //continueTask(request.getAssignedUserId(), taskId);
+        } else
+            System.out.println("Task ilerletilemedi." + responseEntity.getStatusCode());
+    }
+
+    private TaskActionRequest generateTaskAction(ActionDto action) {
+        TaskActionRequest taskActionRequest = new TaskActionRequest();
+        taskActionRequest.setActionId(action.getId());
+        taskActionRequest.setDocuments(generateDocumentArr());
+        taskActionRequest.setMessages(generateMessages());
+        taskActionRequest.setAssignedUserId(new Random().nextLong(2, 11));
+        return taskActionRequest;
+    }
+
+    public TaskActionDocumentRequest[] generateDocumentArr() {
+        List<TaskActionDocumentRequest> lst = new ArrayList<>();
+        int k = new Random().nextInt(5);
+        for (int i = 0; i < k; i++)
+            lst.add(generateDocument());
+        return lst.toArray(TaskActionDocumentRequest[]::new);
+    }
+
+    private TaskActionMessageRequest[] generateMessages() {
+
+        List<TaskActionMessageRequest> lst = new ArrayList<>();
+        int k = new Random().nextInt(5);
+        for (int i = 0; i < k; i++)
+            lst.add(generateMessage());
+        return lst.toArray(TaskActionMessageRequest[]::new);
+    }
+
+    public TaskActionDocumentRequest generateDocument() {
+        byte[] array = new byte[new Random().nextInt(10000)];
+        new Random().nextBytes(array);
+        Byte[] byteObject = ArrayUtils.toObject(array);
+        return TaskActionDocumentRequest.builder()
+                .name(randomString(15))
+                .content(byteObject)
+                .extension(randomString(3))
+                .build();
+    }
+
+    private TaskActionMessageRequest generateMessage() {
+        int k = new Random().nextInt(50, 4000);
+        int s = new Random().nextInt(5, 100);
+        return TaskActionMessageRequest.builder().content(randomString(k))
+                .subject(randomString(s)).build();
+    }
+
+    private String randomString(int i) {
+        StringBuilder s = new StringBuilder();
+        for (int k = 0; k < i; k++)
+            s.append(upper.toCharArray()[new Random().nextInt(upper.length())]);
+        return s.toString();
+    }
+
+    @Scheduled(fixedRate = 25, initialDelay = 3 * 1000)
     public void finish() {
-        for (long i = 1; i <= 200; i++) {
+        for (long i = 1; i <= 1000; i++) {
             if (isClosed())
                 return;
             try {
@@ -47,13 +148,13 @@ public class TaskJob {
         }
     }
 
-    @Scheduled(fixedDelay = 15*1000, initialDelay = 1 * 500)
+    @Scheduled(fixedDelay = 15 * 1000, initialDelay = 1 * 500)
     public void controlClosed() {
         Properties properties = propertiesDao.findById(1).orElse(null);
         stopped = properties.getValue().equals("0");
     }
 
-    //@Scheduled(fixedDelay = 1, initialDelay = 1 * 1000)
+    @Scheduled(fixedDelay = 1000, initialDelay = 1 * 1000)
     public void generate() {
         if (isClosed())
             return;
@@ -97,55 +198,6 @@ public class TaskJob {
         createTask(new Random().nextLong(2, 1001));
     }
 
-    private boolean isClosed() {
-        return stopped;
-    }
-
-    private void finishTask(long uId) {
-        RestTemplate restTemplate = new RestTemplate();
-        Map<String, String> m3 = new HashMap<>();
-        m3.put("userId", String.valueOf(uId));
-        ResponseEntity<PageTaskResponce> pageDtoResponseEntity = restTemplate.getForEntity("http://localhost:8087/api/wf/v1/tasks/assigned={userId}", PageTaskResponce.class, m3);
-        if (pageDtoResponseEntity.getStatusCode().isError()) {
-            System.out.println("Cevap alınamadı");
-            return;
-        }
-        PageTaskResponce myTasks = pageDtoResponseEntity.getBody();
-        for (TaskDto task : myTasks.getContent()) {
-            continueTask(uId, task.getId());
-        }
-    }
-
-    private void continueTask(long uId, long taskId) {
-        Map<String, String> map = new HashMap<>();
-        map.put("taskId", String.valueOf(taskId));
-        map.put("userId", String.valueOf(uId));
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<ActionDto[]> pageActionDtoResponseEntity = restTemplate.getForEntity("http://localhost:8087/api/wf/v1/tasks/{taskId}/actions/{userId}/next", ActionDto[].class, map);
-        if (pageActionDtoResponseEntity.getStatusCode().isError()) {
-            System.out.println("Task ilerletilemedi." + pageActionDtoResponseEntity.getStatusCode());
-            return;
-        }
-        if (pageActionDtoResponseEntity.getBody().length == 0)
-            return;
-
-        ActionDto action = pageActionDtoResponseEntity.getBody()[(new Random().nextInt(0, pageActionDtoResponseEntity.getBody().length))];
-
-        TaskActionRequest request = generateTaskAction(action);
-        Map<String, String> map2 = new HashMap<>();
-        map2.put("taskId", String.valueOf(taskId));
-        HttpHeaders h2 = new HttpHeaders();
-        h2.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        h2.add(ApiConstant.AUTHENTICATED_USER_ID, String.valueOf(uId));
-        HttpEntity<TaskActionRequest> he2 = new HttpEntity<>(request, h2);
-        ResponseEntity<TaskActionDto> responseEntity = restTemplate.exchange("http://localhost:8087/api/wf/v1/tasks/{taskId}/actions", HttpMethod.POST, he2, TaskActionDto.class, map2);
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            System.out.println("    " + simpleDateFormat.format(new Date()) + " Continue: userId:" + uId + ", taskId:" + responseEntity.getBody().getTaskId() + ", taskActionid:" + responseEntity.getBody().getTaskActionId());
-            continueTask(request.getAssignedUserId(), taskId);
-        } else
-            System.out.println("Task ilerletilemedi." + responseEntity.getStatusCode());
-    }
-
     private void createTask(long uId) {
         RestTemplate restTemplate = new RestTemplate();
         for (int i = 0; i < 10; i++) {
@@ -168,7 +220,7 @@ public class TaskJob {
             ResponseEntity<TaskResponse> taskResponseResponseEntity = restTemplate.exchange("http://localhost:8087/api/wf/v1/tasks", HttpMethod.POST, new HttpEntity<>(request, h3), TaskResponse.class);
             if (taskResponseResponseEntity.getStatusCode().is2xxSuccessful()) {
                 System.out.println(simpleDateFormat.format(new Date()) + " Created-> userId:" + uId + ", taskId:" + taskResponseResponseEntity.getBody().getTaskId() + ", actionid:" + action.getId());
-                continueTask(request.getActionRequest().getAssignedUserId(), taskResponseResponseEntity.getBody().getTaskId());
+                //continueTask(request.getActionRequest().getAssignedUserId(), taskResponseResponseEntity.getBody().getTaskId());
             } else
                 System.out.println("Task aksiyon oluşturulamadı." + taskResponseResponseEntity.getStatusCode());
         }
@@ -182,57 +234,6 @@ public class TaskJob {
         request.setPriorityTypeId(new Random().nextInt(1, 5));
         request.setActionRequest(generateTaskAction(action));
         return request;
-    }
-
-    private String randomString(int i) {
-        StringBuilder s = new StringBuilder();
-        for (int k = 0; k < i; k++)
-            s.append(upper.toCharArray()[new Random().nextInt(upper.length())]);
-        return s.toString();
-    }
-
-    private TaskActionRequest generateTaskAction(ActionDto action) {
-        TaskActionRequest taskActionRequest = new TaskActionRequest();
-        taskActionRequest.setActionId(action.getId());
-        taskActionRequest.setDocuments(generateDocumentArr());
-        taskActionRequest.setMessages(generateMessages());
-        taskActionRequest.setAssignedUserId(new Random().nextLong(2, 11));
-        return taskActionRequest;
-    }
-
-    private TaskActionMessageRequest[] generateMessages() {
-
-        List<TaskActionMessageRequest> lst = new ArrayList<>();
-        int k = new Random().nextInt(5);
-        for (int i = 0; i < k; i++)
-            lst.add(generateMessage());
-        return lst.toArray(TaskActionMessageRequest[]::new);
-    }
-
-    private TaskActionMessageRequest generateMessage() {
-        int k = new Random().nextInt(50, 4000);
-        int s = new Random().nextInt(5, 100);
-        return TaskActionMessageRequest.builder().content(randomString(k))
-                .subject(randomString(s)).build();
-    }
-
-    public TaskActionDocumentRequest[] generateDocumentArr() {
-        List<TaskActionDocumentRequest> lst = new ArrayList<>();
-        int k = new Random().nextInt(5);
-        for (int i = 0; i < k; i++)
-            lst.add(generateDocument());
-        return lst.toArray(TaskActionDocumentRequest[]::new);
-    }
-
-    public TaskActionDocumentRequest generateDocument() {
-        byte[] array = new byte[new Random().nextInt(10000)];
-        new Random().nextBytes(array);
-        Byte[] byteObject = ArrayUtils.toObject(array);
-        return TaskActionDocumentRequest.builder()
-                .name(randomString(15))
-                .content(byteObject)
-                .extension(randomString(3))
-                .build();
     }
 
     public static class PageTaskResponce extends PageDto<TaskDto> {

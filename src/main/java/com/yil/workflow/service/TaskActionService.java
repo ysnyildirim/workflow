@@ -74,7 +74,7 @@ public class TaskActionService {
             TaskAction firstAction = taskActionDao.getFirstAction(taskId).orElseThrow(TaskActionNotFoundException::new);
             taskAction.setAssignedUserId(firstAction.getCreatedUserId());
         } else if (ActionTargetTypeService.IslemYapanFarkliSonKisi.getId().equals(action.getActionTargetTypeId())) {
-            TaskAction item = taskActionDao.getActionCreatedLastDifferentUser(taskId, userId).orElse(null);
+            TaskAction item = taskActionDao.getActionCreatedLastDifferentUser(taskId, userId).orElseThrow(TaskActionNotFoundException::new);
             taskAction.setAssignedUserId(item.getCreatedUserId());
         }
 
@@ -118,12 +118,9 @@ public class TaskActionService {
         } else if (actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.IslemYapanlar.getId()).build()) &&
                    taskActionDao.existsByTaskIdAndCreatedUserId(taskId, userId)) {
             return true;
-        } else if (action.getPermissionId() != null &&
-                   actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.YetkisiOlan.getId()).build()) &&
-                   accountService.existsPermission(action.getPermissionId(), userId)) {
-            return true;
-        }
-        return false;
+        } else return action.getPermissionId() != null &&
+                      actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.YetkisiOlan.getId()).build()) &&
+                      accountService.existsPermission(action.getPermissionId(), userId);
     }
 
     /**
@@ -138,9 +135,6 @@ public class TaskActionService {
         if (!taskActionDao.existsByIdAndCreatedUserId(taskActionId, userId))
             throw new YouDoNotHavePermissionException();
         taskActionDao.deleteById(taskActionId);
-//        Action action = actionService.findById(taskAction.getActionId());
-//        if (stepService.existsByIdAndStepTypeIdIn(action.getNextStepId(), List.of(StepTypeService.Complete)))
-//            taskDao.openTask(taskAction.getTaskId());
     }
 
     @Transactional(readOnly = true)
