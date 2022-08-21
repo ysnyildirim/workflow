@@ -1,18 +1,19 @@
 package com.yil.workflow.model;
 
-import com.yil.workflow.base.AbstractEntity;
+import com.yil.workflow.base.IEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @EqualsAndHashCode
 @Entity
 @Data
 @Table(schema = "WFS", name = "FLOW")
-public class Flow extends AbstractEntity {
+public class Flow implements IEntity {
     @Id
     @SequenceGenerator(name = "FLOW_SEQUENCE_GENERATOR",
             sequenceName = "SEQ_FLOW_ID", schema = "WFS",
@@ -25,7 +26,12 @@ public class Flow extends AbstractEntity {
     @Column(name = "DESCRIPTION", nullable = false, length = 1000)
     private String description;
     @Type(type = "org.hibernate.type.NumericBooleanType")
-    @ColumnDefault(value = "1")
+    @ColumnDefault(value = "0")
     @Column(name = "ENABLED", nullable = false)
     private boolean enabled;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "CREATED_TIME", nullable = false)
+    private Date createdTime;
+    @Column(name = "CREATED_USER_ID", nullable = false)
+    private Long createdUserId;
 }

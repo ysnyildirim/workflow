@@ -43,18 +43,4 @@ public class Task implements IEntity {
     @ColumnDefault(value = "0")
     @Column(name = "CLOSED", nullable = false)
     private boolean closed;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "CREATED_TIME", nullable = false)
-    private Date createdTime;
-    @Column(name = "CREATED_USER_ID", nullable = false)
-    private Long createdUserId;
-    @Column(name = "ASSIGNED_USER_ID", nullable = false)
-    private Long assignedUserId;
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "ASSIGNED_TIME", nullable = false)
-    private Date assignedTime;
-    @Column(name = "LAST_ACTION_ID", nullable = false)
-    private Long lastActionId;
-
 }

@@ -10,12 +10,6 @@ import java.util.Optional;
 @Repository
 public interface FlowDao extends JpaRepository<Flow, Long> {
 
-    List<Flow> findAllByDeletedTimeIsNull();
-
-    List<Flow> findAllByDeletedTimeIsNullAndEnabledTrue();
-
-    Optional<Flow> findByIdAndDeletedTimeIsNull(Long id);
-
-    boolean existsByIdAndEnabledTrueAndDeletedTimeIsNull(Long id);
+    List<Flow> findAllByEnabledTrue();
 
 }

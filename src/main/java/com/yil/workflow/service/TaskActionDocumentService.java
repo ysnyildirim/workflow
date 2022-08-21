@@ -5,7 +5,6 @@ import com.yil.workflow.dto.TaskActionDocumentRequest;
 import com.yil.workflow.dto.TaskActionDocumentResponse;
 import com.yil.workflow.exception.TaskActionDocumentNotFoundException;
 import com.yil.workflow.exception.YouDoNotHavePermissionException;
-import com.yil.workflow.model.Document;
 import com.yil.workflow.model.TaskActionDocument;
 import com.yil.workflow.repository.TaskActionDocumentDao;
 import lombok.RequiredArgsConstructor;
@@ -18,17 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class TaskActionDocumentService {
 
-    private final DocumentService documentService;
     private final TaskActionDocumentDao taskActionDocumentDao;
 
     public static TaskActionDocumentDto convert(TaskActionDocument taskActionDocument) {
         TaskActionDocumentDto dto = new TaskActionDocumentDto();
         dto.setId(taskActionDocument.getId());
         dto.setTaskActionId(taskActionDocument.getTaskActionId());
-        dto.setDocumentId(taskActionDocument.getDocumentId());
         dto.setExtension(taskActionDocument.getExtension());
         dto.setName(taskActionDocument.getName());
-        dto.setUploadedDate(taskActionDocument.getUploadedDate());
         return dto;
     }
 
@@ -50,23 +46,16 @@ public class TaskActionDocumentService {
 
     @Transactional(rollbackFor = {Throwable.class})
     public TaskActionDocumentResponse save(TaskActionDocumentRequest doc, long taskActionId, long userId) {
-        Document document = new Document();
-        document.setContent(doc.getContent());
-        document = documentService.save(document);
-
         TaskActionDocument taskActionDocument = new TaskActionDocument();
         taskActionDocument.setTaskActionId(taskActionId);
         taskActionDocument.setName(doc.getName());
         taskActionDocument.setExtension(doc.getExtension());
-        taskActionDocument.setUploadedDate(doc.getUploadedDate());
-        taskActionDocument.setDocumentId(document.getId());
+        taskActionDocument.setContent(doc.getContent());
         taskActionDocument = taskActionDocumentDao.save(taskActionDocument);
 
         return TaskActionDocumentResponse
                 .builder()
-                .documentId(taskActionDocument.getDocumentId())
                 .id(taskActionDocument.getId())
-                .taskActionId(taskActionDocument.getTaskActionId())
                 .build();
     }
 

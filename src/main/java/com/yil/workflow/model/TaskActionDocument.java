@@ -4,7 +4,6 @@ import com.yil.workflow.base.IEntity;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Data
 @Entity
@@ -21,13 +20,12 @@ public class TaskActionDocument implements IEntity {
     private Long id;
     @Column(name = "TASK_ACTION_ID", nullable = false)
     private Long taskActionId;
-    @Column(name = "DOCUMENT_ID", nullable = false)
-    private Long documentId;
     @Column(name = "NAME", nullable = false, length = 100)
     private String name;
     @Column(name = "EXTENSION", nullable = false, length = 10)
     private String extension;
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "UPLOADED_DATE", nullable = false)
-    private Date uploadedDate;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "CONTENT", nullable = false)
+    private Byte[] content;
 }

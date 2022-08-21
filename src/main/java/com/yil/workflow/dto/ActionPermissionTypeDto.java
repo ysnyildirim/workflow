@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
+ */
+
 package com.yil.workflow.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,14 +17,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class StepDto implements Serializable {
-    private Long id;
+public class ActionPermissionTypeDto implements Serializable {
+    private Integer id;
     private String name;
-    private String description;
-    private Boolean enabled;
-    private Long flowId;
-    private Integer statusId;
-    private Integer stepTypeId;
-    private Boolean canAddDocument;
-    private Boolean canAddMessage;
 }

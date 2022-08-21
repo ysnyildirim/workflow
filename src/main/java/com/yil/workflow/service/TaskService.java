@@ -45,15 +45,24 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Task> findAllByAssignedUserId(Pageable pageable, long userId) {
+    public Page<Task> findAllByActionCreatedUserIdAndClosed(Pageable pageable, long userId, boolean closed) {
+        return taskDao.findAllByActionCreatedUserIdAndClosed(pageable, userId, (closed ? 1 : 0));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Task> findAllByAssignedUserIdAndClosedFalse(Pageable pageable, long userId) {
         return taskDao.findAllByAssignedUserIdAndClosedFalse(pageable, userId);
-//        return taskDao.findAllByAssignedUserId(pageable, userId);
     }
 
     @Transactional(readOnly = true)
     public Page<Task> findAllByCreatedUserId(Pageable pageable, long userId) {
-        return taskDao.findAllByCreatedUserIdAndClosedFalse(pageable, userId);
-//        return taskDao.findAllByCreatedUserId(pageable, userId);
+        return taskDao.findAllByCreatedUserId(pageable, userId);
+    }
+
+
+    @Transactional(readOnly = true)
+    public Page<Task> findAllByCreatedUserIdAndClosed(Pageable pageable, long userId, boolean closed) {
+        return taskDao.findAllByCreatedUserIdAndClosed(pageable, userId, (closed ? 1 : 0));
     }
 
     @Transactional(rollbackFor = {Throwable.class})
@@ -79,7 +88,7 @@ public class TaskService {
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskResponse save(TaskRequest request, long userId) throws ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, StartUpActionException, NotNextActionException, StepNotFoundException {
+    public TaskResponse save(TaskRequest request, long userId) throws ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, StartUpActionException, NotNextActionException, StepNotFoundException, TaskActionNotFoundException {
         if (!priorityTypeService.existsByIdAndDeletedTimeIsNull(request.getPriorityTypeId()))
             throw new PriorityNotFoundException();
         Task task = new Task();

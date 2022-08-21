@@ -26,4 +26,8 @@ public class StepRequest {
     private Integer statusId;
     @NotNull
     private Integer stepTypeId;
+    @NotNull
+    private Boolean canAddDocument;
+    @NotNull
+    private Boolean canAddMessage;
 }

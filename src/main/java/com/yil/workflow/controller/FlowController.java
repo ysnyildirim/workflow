@@ -26,14 +26,14 @@ public class FlowController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<FlowDto[]> findAll() {
-        FlowDto[] dto = mapper.map(flowService.findAllByDeletedTimeIsNull()).toArray(FlowDto[]::new);
+        FlowDto[] dto = mapper.map(flowService.findAll()).toArray(FlowDto[]::new);
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<FlowDto> findById(@PathVariable Long id) throws FlowNotFoundException {
-        FlowDto dto = mapper.map(flowService.findByIdAndDeletedTimeIsNull(id));
+        FlowDto dto = mapper.map(flowService.findById(id));
         return ResponseEntity.ok(dto);
     }
 
@@ -67,7 +67,7 @@ public class FlowController {
     @GetMapping(value = "/start")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<FlowDto[]> getStartUpFlows() {
-        FlowDto[] dto = mapper.map(flowService.findAllByDeletedTimeIsNullAndEnabledTrue()).toArray(FlowDto[]::new);
+        FlowDto[] dto = mapper.map(flowService.findAllByEnabledTrue()).toArray(FlowDto[]::new);
         return ResponseEntity.ok(dto);
     }
 

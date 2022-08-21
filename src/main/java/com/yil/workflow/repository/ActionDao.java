@@ -11,37 +11,30 @@ import java.util.Optional;
 
 @Repository
 public interface ActionDao extends JpaRepository<Action, Long> {
-    List<Action> findAllByStepIdAndDeletedTimeIsNull(Long stepId);
+    List<Action> findAllByStepId(Long stepId);
 
     Optional<Action> findByIdAndStepId(Long id, Long stepId);
 
-    Optional<Action> findByIdAndEnabledTrueAndDeletedTimeIsNull(Long id);
+    Optional<Action> findByIdAndEnabledTrue(Long id);
 
-    Optional<Action> findByIdAndDeletedTimeIsNull(Long id);
-
-    List<Action> findAllByStepIdAndEnabledTrueAndDeletedTimeIsNull(long stepId);
+    List<Action> findAllByStepIdAndEnabledTrue(long stepId);
 
     boolean existsByIdAndNextStepId(long id, long nextStepId);
-
-    long countByIdAndEnabledTrueAndDeletedTimeIsNull(long id);
 
     @Query(nativeQuery = true,
             value = """
                     SELECT *
                     FROM WFS.ACTION A
-                    WHERE A.DELETED_TIME IS NULL
-                    	AND A.ENABLED = 1
+                    WHERE A.ENABLED = 1
                     	AND EXISTS
                     		(SELECT 1
                     			FROM WFS.STEP S
                     			WHERE S.ENABLED = 1
                     				AND A.STEP_ID = S.ID
-                    				AND S.DELETED_TIME IS NULL
                     				AND EXISTS
                     					(SELECT 1
                     						FROM WFS.FLOW F
                     						WHERE F.ENABLED = 1
-                    							AND F.DELETED_TIME IS NULL
                     							AND F.ID = S.FLOW_ID)
                     				AND EXISTS
                     					(SELECT 1

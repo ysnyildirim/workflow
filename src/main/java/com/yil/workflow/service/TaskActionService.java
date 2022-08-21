@@ -5,9 +5,7 @@ import com.yil.workflow.dto.TaskActionDto;
 import com.yil.workflow.dto.TaskActionMessageRequest;
 import com.yil.workflow.dto.TaskActionRequest;
 import com.yil.workflow.exception.*;
-import com.yil.workflow.model.Action;
-import com.yil.workflow.model.Step;
-import com.yil.workflow.model.TaskAction;
+import com.yil.workflow.model.*;
 import com.yil.workflow.repository.TaskActionDao;
 import com.yil.workflow.repository.TaskDao;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +27,9 @@ public class TaskActionService {
     private final TaskActionDocumentService taskActionDocumentService;
     private final TaskActionMessageService taskActionMessageService;
     private final StepService stepService;
-    private final FlowService flowService;
     private final TaskDao taskDao;
     private final AccountService accountService;
+    private final ActionPermissionService actionPermissionService;
 
     public static TaskActionDto convert(TaskAction taskAction) {
         TaskActionDto dto = new TaskActionDto();
@@ -42,40 +40,90 @@ public class TaskActionService {
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskAction save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, YouDoNotHavePermissionException, StartUpActionException, NotNextActionException, StepNotFoundException {
-        Action action = actionService.findByIdAndEnabledTrueAndDeletedTimeIsNull(request.getActionId());
-        if (action.getPermissionId() != null && !accountService.existsPermission(action.getPermissionId(), userId))
-            throw new YouDoNotHavePermissionException();
+    public TaskAction save(TaskActionRequest request, long taskId, long userId) throws ActionNotFoundException, YouDoNotHavePermissionException,
+            StartUpActionException, NotNextActionException, StepNotFoundException, TaskActionNotFoundException {
+        Action action = actionService.findByIdAndEnabledTrue(request.getActionId());
         TaskAction lastTaskAction = taskActionDao.getLastAction(taskId).orElse(null);
-        Step step = stepService.findByIdAndEnabledTrueAndDeletedTimeIsNull(action.getStepId());
+        Step step = stepService.findByIdAndEnabledTrue(action.getStepId());
         if (lastTaskAction == null) { // yeni ise başlangıç adımı mı ?
-            if (!step.getStepTypeId().equals(1))
+            if (!step.getStepTypeId().equals(StepTypeService.Start.getId()))
                 throw new StartUpActionException();
         } else {
             if (!actionService.existsByIdAndNextStepId(lastTaskAction.getActionId(), step.getId()))
                 throw new NotNextActionException();
         }
+        if (!hasPermission(taskId, userId, lastTaskAction, action))
+            throw new YouDoNotHavePermissionException();
+
         TaskAction taskAction = new TaskAction();
         taskAction.setTaskId(taskId);
         taskAction.setActionId(request.getActionId());
         taskAction.setParentId(lastTaskAction != null ? lastTaskAction.getId() : null);
-        taskAction.setAssignedUserId(request.getAssignedUserId());
+
+        if (ActionTargetTypeService.Ozel.getId().equals(action.getActionTargetTypeId())) {
+            taskAction.setAssignedUserId(request.getAssignedUserId());
+        } else if (ActionTargetTypeService.BelirliBiri.getId().equals(action.getActionTargetTypeId())) {
+            taskAction.setAssignedUserId(action.getNextUserId());
+        } else if (ActionTargetTypeService.SonIslemYapan.getId().equals(action.getActionTargetTypeId())) {
+            if (lastTaskAction == null)
+                throw new TaskActionNotFoundException();
+            taskAction.setAssignedUserId(lastTaskAction.getAssignedUserId());
+        } else if (ActionTargetTypeService.IslemYapan.getId().equals(action.getActionTargetTypeId())) {
+            taskAction.setAssignedUserId(userId);
+        } else if (ActionTargetTypeService.Olusturan.getId().equals(action.getActionTargetTypeId())) {
+            TaskAction firstAction = taskActionDao.getFirstAction(taskId).orElseThrow(TaskActionNotFoundException::new);
+            taskAction.setAssignedUserId(firstAction.getCreatedUserId());
+        } else if (ActionTargetTypeService.IslemYapanFarkliSonKisi.getId().equals(action.getActionTargetTypeId())) {
+            TaskAction item = taskActionDao.getActionCreatedLastDifferentUser(taskId, userId).orElse(null);
+            taskAction.setAssignedUserId(item.getCreatedUserId());
+        }
+
         taskAction.setCreatedUserId(userId);
         taskAction.setCreatedTime(new Date());
         taskAction = taskActionDao.save(taskAction);
 
-        if (request.getDocuments() != null)
-            for (TaskActionDocumentRequest doc : request.getDocuments()) {
+        if (step.isCanAddDocument() && request.getDocuments() != null)
+            for (TaskActionDocumentRequest doc : request.getDocuments())
                 taskActionDocumentService.save(doc, taskAction.getId(), userId);
-            }
 
-        if (request.getMessages() != null)
-            for (TaskActionMessageRequest message : request.getMessages()) {
+        if (step.isCanAddMessage() && request.getMessages() != null)
+            for (TaskActionMessageRequest message : request.getMessages())
                 taskActionMessageService.save(message, taskAction.getId(), userId);
+
+        //Tamamlanma adımında kapatalım
+        if (stepService.existsByIdAndStepTypeId(action.getNextStepId(), StepTypeService.Complete.getId())) {
+            Task task = taskDao.findById(taskId).orElse(null);
+            if (task != null) {
+                task.setClosed(true);
+                taskDao.save(task);
             }
-//        if (stepService.existsByIdAndStepTypeIdIn(action.getNextStepId(), List.of(StepTypeService.Complete)))
-//            taskDao.closedTask(taskId);
+        }
         return taskAction;
+    }
+
+    private boolean hasPermission(long taskId, long userId, TaskAction lastTaskAction, Action action) {
+        if (lastTaskAction != null &&
+            lastTaskAction.getAssignedUserId().equals(userId) &&
+            actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.Atanan.getId()).build())) {
+            return true;
+        } else if (lastTaskAction != null &&
+                   lastTaskAction.getCreatedUserId().equals(userId) &&
+                   actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.SonIslemYapan.getId()).build())) {
+            return true;
+        } else if (actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.Herkes.getId()).build())) {
+            return true;
+        } else if (actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.Olusturan.getId()).build()) &&
+                   taskActionDao.isTaskCreatedUser(taskId, userId)) {
+            return true;
+        } else if (actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.IslemYapanlar.getId()).build()) &&
+                   taskActionDao.existsByTaskIdAndCreatedUserId(taskId, userId)) {
+            return true;
+        } else if (action.getPermissionId() != null &&
+                   actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.YetkisiOlan.getId()).build()) &&
+                   accountService.existsPermission(action.getPermissionId(), userId)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -113,17 +161,16 @@ public class TaskActionService {
     @Transactional(readOnly = true)
     public List<Action> getNextActions(long taskId, long userId) throws TaskNotFoundException {
         List<Action> nextActions = new ArrayList<>();
-        TaskAction lastAction = null;
+        TaskAction lastTaskAction = null;
         try {
-            lastAction = getLastAction(taskId);
+            lastTaskAction = getLastAction(taskId);
         } catch (TaskActionNotFoundException e) {
             throw new TaskNotFoundException();
         }
-        List<Action> actions = actionService.getNextActions(lastAction.getActionId());
-        for (Action item : actions) {
-            if (item.getPermissionId() != null && !accountService.existsPermission(item.getPermissionId(), userId))
-                continue;
-            nextActions.add(item);
+        List<Action> actions = actionService.getNextActions(lastTaskAction.getActionId());
+        for (Action action : actions) {
+            if (hasPermission(taskId, userId, lastTaskAction, action))
+                nextActions.add(action);
         }
         return nextActions;
     }
@@ -137,5 +184,4 @@ public class TaskActionService {
     public TaskAction getFirstAction(long taskId) throws TaskActionNotFoundException {
         return taskActionDao.getFirstAction(taskId).orElseThrow(() -> new TaskActionNotFoundException());
     }
-
 }

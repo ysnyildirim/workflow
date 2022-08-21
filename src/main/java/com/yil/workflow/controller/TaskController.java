@@ -46,24 +46,31 @@ public class TaskController {
         return ResponseEntity.ok(pageDto);
     }
 
+    @Operation(summary = "Aksiyon gerçekleştirilen işleri getirir.")
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(value = "/action-created={userId}")
     public ResponseEntity<PageDto<TaskDto>> findAllByActionCreatedUserId(
             @PathVariable Long userId,
             @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
-            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size,
+            @RequestParam(required = false) Boolean closed) {
         if (page < 0)
             page = 0;
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-        PageDto<TaskDto> pageDto = mapper.map(taskService.findAllByActionCreatedUserId(pageable, userId));
+        PageDto<TaskDto> pageDto;
+        if (closed != null)
+            pageDto = mapper.map(taskService.findAllByActionCreatedUserIdAndClosed(pageable, userId, closed));
+        else
+            pageDto = mapper.map(taskService.findAllByActionCreatedUserId(pageable, userId));
         return ResponseEntity.ok(pageDto);
     }
 
+    @Operation(summary = "Userin atandığı taskları getirir..")
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(value = "/assigned={userId}")
-    public ResponseEntity<PageDto<TaskDto>> findAllByAssignedUserId(
+    public ResponseEntity<PageDto<TaskDto>> findAllByAssignedUserIdAndClosedFalse(
             @PathVariable Long userId,
             @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
             @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
@@ -72,28 +79,36 @@ public class TaskController {
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-        PageDto<TaskDto> pageDto = mapper.map(taskService.findAllByAssignedUserId(pageable, userId));
+        PageDto<TaskDto> pageDto = mapper.map(taskService.findAllByAssignedUserIdAndClosedFalse(pageable, userId));
         return ResponseEntity.ok(pageDto);
     }
 
+
+    @Operation(summary = "User oluşturduğu taskları getirir..")
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(value = "/created={userId}")
     public ResponseEntity<PageDto<TaskDto>> findAllByCreatedUserId(
             @PathVariable Long userId,
             @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
-            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size) {
+            @RequestParam(required = false, defaultValue = ApiConstant.PAGE_SIZE) int size,
+            @RequestParam(required = false) Boolean closed) {
         if (page < 0)
             page = 0;
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-        PageDto<TaskDto> pageDto = mapper.map(taskService.findAllByCreatedUserId(pageable, userId));
+
+        PageDto<TaskDto> pageDto;
+        if (closed != null)
+            pageDto = mapper.map(taskService.findAllByCreatedUserIdAndClosed(pageable, userId, closed));
+        else
+            pageDto = mapper.map(taskService.findAllByCreatedUserId(pageable, userId));
         return ResponseEntity.ok(pageDto);
     }
 
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(value = "/{id}")
-    public ResponseEntity<TaskDto> findByIdAndDeletedTimeIsNull(@PathVariable Long id) throws TaskNotFoundException {
+    public ResponseEntity<TaskDto> findById(@PathVariable Long id) throws TaskNotFoundException {
         TaskDto dto = mapper.map(taskService.findById(id));
         return ResponseEntity.ok(dto);
     }
@@ -101,13 +116,13 @@ public class TaskController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<TaskResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
-                                               @Valid @RequestBody TaskRequest request) throws ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, StepNotFoundException, NotNextActionException, StartUpActionException {
+                                               @Valid @RequestBody TaskRequest request) throws ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, StepNotFoundException, NotNextActionException, StartUpActionException, TaskActionNotFoundException {
         TaskResponse responce = taskService.save(request, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }
 
     @Operation(summary = "Task bilgilerini değiştirmek için kullanılır. " +
-            "Bilgileri sadece son aksiyondaki grup yöneticisi veya grup admini değiştirebilir.")
+                         "Bilgileri sadece son aksiyondaki grup yöneticisi veya grup admini değiştirebilir.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Task bilgilerini güncelendi",

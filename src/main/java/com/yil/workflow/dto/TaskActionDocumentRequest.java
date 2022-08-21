@@ -20,6 +20,4 @@ public class TaskActionDocumentRequest {
     private String name;
     @NotBlank
     private String extension;
-    @NotNull
-    private Date uploadedDate;
 }

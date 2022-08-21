@@ -3,17 +3,13 @@ package com.yil.workflow.controller;
 import com.yil.workflow.base.ApiConstant;
 import com.yil.workflow.base.Mapper;
 import com.yil.workflow.base.PageDto;
-import com.yil.workflow.dto.TaskActionDocumentDetailDto;
 import com.yil.workflow.dto.TaskActionDocumentDto;
 import com.yil.workflow.dto.TaskActionDocumentRequest;
 import com.yil.workflow.dto.TaskActionDocumentResponse;
-import com.yil.workflow.exception.DocumentNotFoundException;
 import com.yil.workflow.exception.TaskActionDocumentNotFoundException;
 import com.yil.workflow.exception.TaskActionNotFoundException;
-import com.yil.workflow.model.Document;
 import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.model.TaskActionDocument;
-import com.yil.workflow.service.DocumentService;
 import com.yil.workflow.service.TaskActionDocumentService;
 import com.yil.workflow.service.TaskActionService;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +27,6 @@ import javax.validation.Valid;
 public class TaskActionDocumentController {
 
     private final TaskActionDocumentService taskActionDocumentService;
-    private final DocumentService documentService;
     private final TaskActionService taskActionService;
     private final Mapper<TaskActionDocument, TaskActionDocumentDto> mapper = new Mapper<>(TaskActionDocumentService::convert);
 
@@ -50,17 +45,15 @@ public class TaskActionDocumentController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<TaskActionDocumentDetailDto> findByIdAndTaskActionIdAndDeletedTimeIsNull(
+    public ResponseEntity<TaskActionDocumentDto> findByIdAndTaskActionIdAndDeletedTimeIsNull(
             @PathVariable Long taskActionId,
-            @PathVariable Long id) throws TaskActionDocumentNotFoundException, DocumentNotFoundException {
+            @PathVariable Long id) throws TaskActionDocumentNotFoundException {
         TaskActionDocument task = taskActionDocumentService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
-        Document document = documentService.findById(task.getDocumentId());
-        TaskActionDocumentDetailDto dto = new TaskActionDocumentDetailDto();
-        dto.setContent(document.getContent());
+        TaskActionDocumentDto dto = new TaskActionDocumentDto();
+        dto.setContent(task.getContent());
         dto.setTaskActionId(task.getTaskActionId());
         dto.setExtension(task.getExtension());
         dto.setName(task.getName());
-        dto.setUploadedDate(task.getUploadedDate());
         dto.setId(task.getId());
         return ResponseEntity.ok(dto);
     }

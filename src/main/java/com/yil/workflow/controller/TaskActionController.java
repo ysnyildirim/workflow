@@ -67,7 +67,7 @@ public class TaskActionController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<TaskActionDto> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                 @PathVariable Long taskId,
-                                                @Valid @RequestBody TaskActionRequest request) throws ActionNotFoundException, YouDoNotHavePermissionException, TaskNotFoundException, StartUpActionException, NotNextActionException, StepNotFoundException {
+                                                @Valid @RequestBody TaskActionRequest request) throws ActionNotFoundException, YouDoNotHavePermissionException, TaskNotFoundException, StartUpActionException, NotNextActionException, StepNotFoundException, TaskActionNotFoundException {
         if (!taskService.existsById(taskId))
             throw new TaskNotFoundException();
         TaskActionDto responce = mapper.map(taskActionService.save(request, taskId, authenticatedUserId));

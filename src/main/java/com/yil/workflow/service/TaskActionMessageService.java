@@ -48,7 +48,6 @@ public class TaskActionMessageService {
         return TaskActionMessageResponse
                 .builder()
                 .id(taskActionMessage.getId())
-                .taskActionId(taskActionMessage.getTaskActionId())
                 .build();
     }
 

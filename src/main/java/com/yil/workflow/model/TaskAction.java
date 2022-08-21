@@ -35,6 +35,6 @@ public class TaskAction implements IEntity {
     private Date createdTime;
     @Column(name = "CREATED_USER_ID", nullable = false)
     private Long createdUserId;
-    @Column(name = "ASSIGNED_USER_ID")
+    @Column(name = "ASSIGNED_USER_ID", nullable = false)
     private Long assignedUserId;
 }

@@ -8,6 +8,8 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+    ActionTargetTypeNotFound(7000021, "Bu aksiyon hedef türü bulunamadı!"),
+    ActionPermissionTypeNotFound(7000020, "Bu aksiyon yetki türü bulunamadı!"),
     CannotBeAddedToThisStep(7000019, "Bu aksiyon bu adıma eklenemez"),
     NotNextAction(7000018, "Not next action"),
     StartUpAction(7000017, "Not in action initialization step"),
@@ -21,7 +23,6 @@ public enum ErrorCode {
     StatusNotFound(7000004, "Status not found"),
     PriorityNotFound(7000003, "Priority not found"),
     FlowNotFound(7000002, "Flow not found"),
-    DocumentNotFound(7000001, "Document not found"),
     ActionNotFound(7000000, "Action not found");
 
     private final int code;

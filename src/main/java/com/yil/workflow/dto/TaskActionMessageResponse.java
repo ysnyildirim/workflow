@@ -15,5 +15,4 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TaskActionMessageResponse {
     private Long id;
-    private Long taskActionId;
 }

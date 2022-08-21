@@ -11,6 +11,7 @@ import com.yil.workflow.model.Properties;
 import com.yil.workflow.repository.PropertiesDao;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -28,6 +29,7 @@ import java.util.*;
 public class TaskJob {
 
     public static final String upper = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static boolean stopped = false;
     final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS");
     private final PropertiesDao propertiesDao;
     private FlowDto[] startupFlows = null;
@@ -45,7 +47,13 @@ public class TaskJob {
         }
     }
 
-    @Scheduled(fixedDelay = 1, initialDelay = 1 * 1000)
+    @Scheduled(fixedDelay = 15*1000, initialDelay = 1 * 500)
+    public void controlClosed() {
+        Properties properties = propertiesDao.findById(1).orElse(null);
+        stopped = properties.getValue().equals("0");
+    }
+
+    //@Scheduled(fixedDelay = 1, initialDelay = 1 * 1000)
     public void generate() {
         if (isClosed())
             return;
@@ -61,28 +69,28 @@ public class TaskJob {
         createTask(new Random().nextLong(2, 1001));
     }
 
-    @Scheduled(fixedDelay = 1, initialDelay = 5* 1000)
+    //  @Scheduled(fixedDelay = 1, initialDelay = 5 * 1000)
     public void generate2() {
         if (isClosed())
             return;
         createTask(new Random().nextLong(2, 1001));
     }
 
-      @Scheduled(fixedDelay = 1, initialDelay = 5* 1000)
+    //  @Scheduled(fixedDelay = 1, initialDelay = 5 * 1000)
     public void generate3() {
         if (isClosed())
             return;
         createTask(new Random().nextLong(2, 1001));
     }
 
-    @Scheduled(fixedDelay = 1, initialDelay = 5* 1000)
+    //   @Scheduled(fixedDelay = 1, initialDelay = 5 * 1000)
     public void generate4() {
         if (isClosed())
             return;
         createTask(new Random().nextLong(2, 1001));
     }
 
-      @Scheduled(fixedDelay = 1, initialDelay = 5* 1000)
+    // @Scheduled(fixedDelay = 1, initialDelay = 5 * 1000)
     public void generate5() {
         if (isClosed())
             return;
@@ -90,9 +98,7 @@ public class TaskJob {
     }
 
     private boolean isClosed() {
-        Properties properties = propertiesDao.findById(1).orElse(null);
-        int value = Integer.parseInt(properties.getValue());
-        return value <= 0 || value > 5;
+        return stopped;
     }
 
     private void finishTask(long uId) {
@@ -122,7 +128,9 @@ public class TaskJob {
         }
         if (pageActionDtoResponseEntity.getBody().length == 0)
             return;
+
         ActionDto action = pageActionDtoResponseEntity.getBody()[(new Random().nextInt(0, pageActionDtoResponseEntity.getBody().length))];
+
         TaskActionRequest request = generateTaskAction(action);
         Map<String, String> map2 = new HashMap<>();
         map2.put("taskId", String.valueOf(taskId));
@@ -169,9 +177,9 @@ public class TaskJob {
     private TaskRequest generateTaskRequest(long flowId, ActionDto action) {
         TaskRequest request = new TaskRequest();
         request.setStartDate(new Date());
-        request.setFinishDate(new Date());
-        request.setEstimatedFinishDate(new Date());
-        request.setPriorityTypeId(new Random().nextInt(1, 6));
+        request.setEstimatedFinishDate(DateUtils.addHours(request.getStartDate(), new Random().nextInt(10, 24 * 10)));
+        request.setFinishDate(DateUtils.addHours(request.getStartDate(), new Random().nextInt(1, 24 * 10)));
+        request.setPriorityTypeId(new Random().nextInt(1, 5));
         request.setActionRequest(generateTaskAction(action));
         return request;
     }
@@ -221,7 +229,6 @@ public class TaskJob {
         new Random().nextBytes(array);
         Byte[] byteObject = ArrayUtils.toObject(array);
         return TaskActionDocumentRequest.builder()
-                .uploadedDate(new Date())
                 .name(randomString(15))
                 .content(byteObject)
                 .extension(randomString(3))

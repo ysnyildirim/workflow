@@ -11,21 +11,14 @@ import java.util.Optional;
 @Repository
 public interface StepDao extends JpaRepository<Step, Long> {
 
-    List<Step> findAllByFlowIdAndDeletedTimeIsNull(Long flowId);
+    List<Step> findAllByFlowId(Long flowId);
 
-    Optional<Step> findByIdAndDeletedTimeIsNull(Long id);
+    List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrue(long flowId, int stepTypeId);
 
-    Optional<Step> findByIdAndStepTypeIdAndDeletedTimeIsNull(Long id, Integer stepTypeId);
+    Optional<Step> findByIdAndFlowId(Long id, Long flowId);
 
-    List<Step> findByStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(int stepTypeId);
+    Optional<Step> findByIdAndEnabledTrue(long id);
 
-    List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long flowId, int stepTypeId);
+    Boolean existsByIdAndStepTypeId(long id, int stepTypeId);
 
-    boolean existsByIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long id, int stepTypeId);
-
-    Optional<Step> findByIdAndFlowIdAndDeletedTimeIsNull(Long id, Long flowId);
-
-    Optional<Step> findByIdAndEnabledTrueAndDeletedTimeIsNull(long id);
-
-    boolean existsByIdAndStepTypeIdIn(long id, List<Integer> stepTypeIds);
 }

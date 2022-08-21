@@ -17,9 +17,8 @@ import java.util.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskActionDocumentDto implements Serializable {
     private Long id;
-    private Long documentId;
     private Long taskActionId;
     private String name;
     private String extension;
-    private Date uploadedDate;
+    private Byte[] content;
 }

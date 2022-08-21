@@ -14,6 +14,11 @@ import java.util.List;
 @Service
 public class PriorityTypeService {
 
+    public static PriorityType Yuksek;
+    public static PriorityType Orta;
+    public static PriorityType Dusuk;
+    public static PriorityType Kritik;
+
     private final PriorityTypeDao priorityTypeDao;
 
     public static PriorityTypeDto convert(PriorityType priorityType) {

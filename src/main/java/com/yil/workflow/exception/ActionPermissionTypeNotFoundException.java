@@ -10,6 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-@ApiException(code = ErrorCode.DocumentNotFound)
-public class DocumentNotFoundException extends Exception {
+@ApiException(code = ErrorCode.ActionPermissionTypeNotFound)
+public class ActionPermissionTypeNotFoundException extends Exception{
 }

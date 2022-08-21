@@ -19,11 +19,10 @@ import java.util.List;
 @Service
 public class StepTypeService {
 
-    public static final Integer Start = 1;
-    public static final Integer Normal = 2;
-    public static final Integer Complete = 3;
-    public static final Integer Denied = 4;
-    public static final Integer Cancelled = 5;
+    public static StepType Start;
+    public static StepType Normal;
+    public static StepType Complete;
+
     private final StepTypeDao stepTypeDao;
 
     public static StepTypeDto convert(StepType stepType) {
