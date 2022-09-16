@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskActionMessageResponse  {
+public class ActionNotificationResponse {
     private Long id;
 }

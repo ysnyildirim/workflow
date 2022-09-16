@@ -143,6 +143,11 @@ public class TaskActionService {
     }
 
     @Transactional(readOnly = true)
+    public boolean existsById(long id) {
+        return taskActionDao.existsById(id);
+    }
+
+    @Transactional(readOnly = true)
     public Page<TaskAction> findAllByTaskId(Pageable pageable, Long taskId) {
         return taskActionDao.findAllByTaskId(pageable, taskId);
     }

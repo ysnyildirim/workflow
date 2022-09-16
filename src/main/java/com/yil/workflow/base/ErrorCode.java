@@ -8,6 +8,7 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+    ActionNotificationTargetTypeNotFound(7000022, "Bu bildirim türü bulunamadı!"),
     ActionTargetTypeNotFound(7000021, "Bu aksiyon hedef türü bulunamadı!"),
     ActionPermissionTypeNotFound(7000020, "Bu aksiyon yetki türü bulunamadı!"),
     CannotBeAddedToThisStep(7000019, "Bu aksiyon bu adıma eklenemez"),

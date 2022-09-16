@@ -8,7 +8,6 @@ import com.yil.workflow.dto.TaskActionDocumentRequest;
 import com.yil.workflow.dto.TaskActionDocumentResponse;
 import com.yil.workflow.exception.TaskActionDocumentNotFoundException;
 import com.yil.workflow.exception.TaskActionNotFoundException;
-import com.yil.workflow.model.TaskAction;
 import com.yil.workflow.model.TaskActionDocument;
 import com.yil.workflow.service.TaskActionDocumentService;
 import com.yil.workflow.service.TaskActionService;
@@ -31,6 +30,7 @@ public class TaskActionDocumentController {
     private final Mapper<TaskActionDocument, TaskActionDocumentDto> mapper = new Mapper<>(TaskActionDocumentService::convert);
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PageDto<TaskActionDocumentDto>> findAll(
             @PathVariable Long taskActionId,
             @RequestParam(required = false, defaultValue = ApiConstant.PAGE) int page,
@@ -40,22 +40,16 @@ public class TaskActionDocumentController {
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-        PageDto<TaskActionDocumentDto> pageDto = mapper.map(taskActionDocumentService.findAllByTaskActionIdAndDeletedTimeIsNull(pageable, taskActionId));
+        PageDto<TaskActionDocumentDto> pageDto = mapper.map(taskActionDocumentService.findAllByTaskActionId(pageable, taskActionId));
         return ResponseEntity.ok(pageDto);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<TaskActionDocumentDto> findByIdAndTaskActionIdAndDeletedTimeIsNull(
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<TaskActionDocumentDto> findByIdAndTaskActionId(
             @PathVariable Long taskActionId,
             @PathVariable Long id) throws TaskActionDocumentNotFoundException {
-        TaskActionDocument task = taskActionDocumentService.findByIdAndTaskActionIdAndDeletedTimeIsNull(id, taskActionId);
-        TaskActionDocumentDto dto = new TaskActionDocumentDto();
-        dto.setContent(task.getContent());
-        dto.setTaskActionId(task.getTaskActionId());
-        dto.setExtension(task.getExtension());
-        dto.setName(task.getName());
-        dto.setId(task.getId());
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(mapper.map(taskActionDocumentService.findByIdAndTaskActionId(id, taskActionId)));
     }
 
     @PostMapping
@@ -63,8 +57,9 @@ public class TaskActionDocumentController {
     public ResponseEntity<TaskActionDocumentResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                              @PathVariable Long taskActionId,
                                                              @Valid @RequestBody TaskActionDocumentRequest request) throws TaskActionNotFoundException {
-        TaskAction taskAction = taskActionService.findById(taskActionId);
-        TaskActionDocumentResponse responce = taskActionDocumentService.save(request, taskAction.getId(), authenticatedUserId);
+        if (!taskActionService.existsById(taskActionId))
+            throw new TaskActionNotFoundException();
+        TaskActionDocumentResponse responce = taskActionDocumentService.save(request, taskActionId, authenticatedUserId);
         return ResponseEntity.created(null).body(responce);
     }
 

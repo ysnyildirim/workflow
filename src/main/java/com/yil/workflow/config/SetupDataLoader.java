@@ -42,6 +42,11 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     @Autowired
     private ActionTargetTypeDao actionTargetTypeDao;
 
+    @Autowired
+    private ActionNotificationTargetTypeDao actionNotificationTargetTypeDao;
+    @Autowired
+    private ActionNotificationDao actionNotificationDao;
+
     @Override
     public void onApplicationEvent(ContextStartedEvent event) {
         System.out.println("Start Up Events");
@@ -52,12 +57,13 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         initStepType();
         initActionPermissionTypes();
         initActionTargetTypes();
+        initActionNotificationTargetType();
         initProperties();
 
         try {
             //initSikayetFlow();
 
-            //  for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
+            for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -185,9 +191,38 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         actionTargetTypeDao.save(ActionTargetTypeService.IslemYapanFarkliSonKisi);
     }
 
+    private void initActionNotificationTargetType() {
+        ActionNotificationTargetTypeService.BelirliBiri = ActionNotificationTargetType.builder()
+                .id(1)
+                .name("Seçilen belirli biri")
+                .build();
+        actionNotificationTargetTypeDao.save(ActionNotificationTargetTypeService.BelirliBiri);
+        ActionNotificationTargetTypeService.IsiOlusturan = ActionNotificationTargetType.builder()
+                .id(2)
+                .name("İşi oluşturan kişi")
+                .build();
+        actionNotificationTargetTypeDao.save(ActionNotificationTargetTypeService.IsiOlusturan);
+        ActionNotificationTargetTypeService.SonIslemYapan = ActionNotificationTargetType.builder()
+                .id(3)
+                .name("Son işlem yapan kişi")
+                .build();
+        actionNotificationTargetTypeDao.save(ActionNotificationTargetTypeService.SonIslemYapan);
+        ActionNotificationTargetTypeService.IslemYapan = ActionNotificationTargetType.builder()
+                .id(4)
+                .name("İşlem yapan kişi")
+                .build();
+        actionNotificationTargetTypeDao.save(ActionNotificationTargetTypeService.IslemYapan);
+        ActionNotificationTargetTypeService.IslemYapanFarkliSonKisi = ActionNotificationTargetType.builder()
+                .id(5)
+                .name("İşlem yapan farklı son kişi")
+                .build();
+        actionNotificationTargetTypeDao.save(ActionNotificationTargetTypeService.IslemYapanFarkliSonKisi);
+    }
+
     private void initProperties() {
         addProperties(Properties.builder().id(1).description("Auto task generator").value("0").build());
     }
+
     @Transactional(rollbackFor = {Throwable.class})
     public void generateFlow(long userId) throws Exception {
         FlowRequest request = new FlowRequest();
@@ -235,7 +270,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         actionRequest.setActionTargetTypeId(new Random().nextInt(3, 7));
                     }
                 }
-                ActionResponse response = actionService.save(actionRequest, step.getId(), userId);
+                ActionResponse actionResponse = actionService.save(actionRequest, step.getId(), userId);
 
                 List<Integer> targetTypes = new ArrayList<>();
                 int targetTypeId;
@@ -260,7 +295,35 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         targetTypes.add(ActionPermissionTypeService.Atanan.getId());
                 }
                 for (Integer item : targetTypes)
-                    actionPermissionDao.save(ActionPermission.builder().id(ActionPermission.Pk.builder().actionId(response.getId()).actionPermissionTypeId(item).build()).build());
+                    actionPermissionDao.save(ActionPermission.builder().id(ActionPermission.Pk.builder().actionId(actionResponse.getId()).actionPermissionTypeId(item).build()).build());
+
+                for (int m = 0; m < new Random().nextInt(1, 6); m++) {
+                    ActionNotification actionNotification = ActionNotification
+                            .builder()
+                            .actionId(actionResponse.getId())
+                            .message(randomString(100))
+                            .subject(randomString(20))
+                            .build();
+                    actionNotification = actionNotificationDao.save(actionNotification);
+
+                    for (int n = 0; n < new Random().nextInt(1, 10); n++) {
+
+                        if (n == ActionNotificationTargetTypeService.IsiOlusturan.getId()) {
+
+                        } else if (n == ActionNotificationTargetTypeService.IslemYapan.getId()) {
+
+                        }
+
+                        ActionNotificationTarget actionNotificationTarget = ActionNotificationTarget
+                                .builder()
+                                .actionNotificationTargetTypeId(ActionNotificationTargetTypeService.BelirliBiri.getId())
+                                .actionNotificationId(actionNotification.getId())
+                                .userId(0L)
+                                .build();
+                    }
+
+
+                }
             }
         }
     }

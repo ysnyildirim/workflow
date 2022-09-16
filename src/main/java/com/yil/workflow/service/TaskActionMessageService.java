@@ -39,16 +39,15 @@ public class TaskActionMessageService {
     }
 
     @Transactional(rollbackFor = {Throwable.class})
-    public TaskActionMessageResponse save(TaskActionMessageRequest message, long taskActionId, long userId) {
+    public TaskActionMessageResponse save(TaskActionMessageRequest messageRequest, long taskActionId, long userId) {
         TaskActionMessage taskActionMessage = new TaskActionMessage();
+        taskActionMessage.setContent(messageRequest.getContent());
         taskActionMessage.setTaskActionId(taskActionId);
-        taskActionMessage.setSubject(message.getSubject());
-        taskActionMessage.setContent(message.getContent());
+        taskActionMessage.setSubject(messageRequest.getSubject());
         taskActionMessage = taskActionMessageDao.save(taskActionMessage);
-        return TaskActionMessageResponse
-                .builder()
-                .id(taskActionMessage.getId())
-                .build();
+        TaskActionMessageResponse response = new TaskActionMessageResponse();
+        response.setId(taskActionMessage.getId());
+        return response;
     }
 
     @Transactional(rollbackFor = {Throwable.class})

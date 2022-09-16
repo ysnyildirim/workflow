@@ -13,9 +13,10 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskActionMessageRequest {
+
+    @NotBlank
+    private String content;
     @NotBlank
     @Length(min = 1, max = 100)
     private String subject;
-    @NotBlank
-    private String content;
 }

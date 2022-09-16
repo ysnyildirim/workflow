@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Date;
 
 @Data
 @Builder
@@ -20,5 +19,5 @@ public class TaskActionDocumentDto implements Serializable {
     private Long taskActionId;
     private String name;
     private String extension;
-    private Byte[] content;
+    private String documentId;
 }

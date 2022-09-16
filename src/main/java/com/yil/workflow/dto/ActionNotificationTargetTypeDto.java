@@ -17,7 +17,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DocumentDto implements Serializable {
-    private Long id;
-    private Byte[] content;
+public class ActionNotificationTargetTypeDto implements Serializable {
+    private Integer id;
+    private String name;
 }
