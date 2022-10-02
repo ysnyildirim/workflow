@@ -53,7 +53,7 @@ public class ActionTargetController {
         ActionPermission.Pk id = ActionPermission.Pk.builder().actionPermissionTypeId(dto.getTargetTypeId()).actionId(actionId).build();
         ActionPermission actionPermission = ActionPermission.builder().id(id).build();
         actionPermissionService.save(actionPermission);
-        return ResponseEntity.created(null).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping(value = "/{id}")

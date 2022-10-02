@@ -47,7 +47,7 @@ public class StepController {
                                                @PathVariable Long flowId,
                                                @Valid @RequestBody StepRequest request) throws FlowNotFoundException, StatusNotFoundException, StepTypeNotFoundException {
         StepResponse responce = stepService.save(request, flowId, authenticatedUserId);
-        return ResponseEntity.created(null).body(responce);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responce);
     }
 
 

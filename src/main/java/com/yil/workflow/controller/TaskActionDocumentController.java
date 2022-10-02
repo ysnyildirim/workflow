@@ -60,7 +60,7 @@ public class TaskActionDocumentController {
         if (!taskActionService.existsById(taskActionId))
             throw new TaskActionNotFoundException();
         TaskActionDocumentResponse responce = taskActionDocumentService.save(request, taskActionId, authenticatedUserId);
-        return ResponseEntity.created(null).body(responce);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responce);
     }
 
 

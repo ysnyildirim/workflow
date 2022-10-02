@@ -59,7 +59,7 @@ public class TaskActionMessageController {
                                                             @Valid @RequestBody TaskActionMessageRequest request) throws TaskActionNotFoundException {
         TaskAction taskAction = taskActionService.findById(taskActionId);
         TaskActionMessageResponse taskActionMessageResponce = taskActionMessageService.save(request, taskAction.getId(), authenticatedUserId);
-        return ResponseEntity.created(null).body(taskActionMessageResponce);
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskActionMessageResponce);
     }
 
 }

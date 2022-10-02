@@ -44,7 +44,7 @@ public class ActionController {
                                                  @PathVariable Long stepId,
                                                  @Valid @RequestBody ActionRequest request) throws StepNotFoundException, CannotBeAddedToThisStepException, ActionPermissionTypeNotFoundException, ActionTargetTypeNotFoundException {
         ActionResponse responce = actionService.save(request, stepId, authenticatedUserId);
-        return ResponseEntity.created(null).body(responce);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responce);
     }
 
 

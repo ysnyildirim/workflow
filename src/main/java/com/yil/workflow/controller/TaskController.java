@@ -118,7 +118,7 @@ public class TaskController {
     public ResponseEntity<TaskResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                                @Valid @RequestBody TaskRequest request) throws ActionNotFoundException, PriorityNotFoundException, YouDoNotHavePermissionException, StepNotFoundException, NotNextActionException, StartUpActionException, TaskActionNotFoundException {
         TaskResponse responce = taskService.save(request, authenticatedUserId);
-        return ResponseEntity.created(null).body(responce);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responce);
     }
 
     @Operation(summary = "Task bilgilerini değiştirmek için kullanılır. " +

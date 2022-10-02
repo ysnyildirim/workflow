@@ -71,7 +71,7 @@ public class TaskActionController {
         if (!taskService.existsById(taskId))
             throw new TaskNotFoundException();
         TaskActionDto responce = mapper.map(taskActionService.save(request, taskId, authenticatedUserId));
-        return ResponseEntity.created(null).body(responce);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responce);
     }
 
 
