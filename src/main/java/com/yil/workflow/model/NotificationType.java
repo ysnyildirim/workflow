@@ -18,8 +18,7 @@ public class NotificationType implements IEntity {
     @Id
     @SequenceGenerator(name = "NOTIFICATION_TYPE_SEQUENCE_GENERATOR",
             sequenceName = "SEQ_NOTIFICATION_TYPE_ID",
-            schema = "WFS",
-            allocationSize = 1)
+            schema = "WFS")
     @GeneratedValue(generator = "NOTIFICATION_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID", nullable = false, unique = true)
     private Integer id;

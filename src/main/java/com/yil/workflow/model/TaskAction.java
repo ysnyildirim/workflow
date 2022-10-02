@@ -19,8 +19,7 @@ import java.util.Date;
 public class TaskAction implements IEntity {
     @Id
     @SequenceGenerator(name = "TASK_ACTION_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_TASK_ACTION_ID", schema = "WFS",
-            allocationSize = 1)
+            sequenceName = "SEQ_TASK_ACTION_ID", schema = "WFS")
     @GeneratedValue(generator = "TASK_ACTION_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Long id;

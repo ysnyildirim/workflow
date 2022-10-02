@@ -30,8 +30,7 @@ public class StepType implements IEntity {
     @Id
     @SequenceGenerator(name = "STEP_TYPE_SEQUENCE_GENERATOR",
             sequenceName = "SEQ_STEP_TYPE_ID",
-            schema = "WFS",
-            allocationSize = 1)
+            schema = "WFS")
     @GeneratedValue(generator = "STEP_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Integer id;

@@ -22,8 +22,7 @@ public class ActionTargetType implements IEntity {
     @Id
     @SequenceGenerator(name = "ACTION_TARGET_TYPE_SEQUENCE_GENERATOR",
             sequenceName = "SEQ_ACTION_TARGET_TYPE_ID",
-            schema = "WFS",
-            allocationSize = 1)
+            schema = "WFS")
     @GeneratedValue(generator = "ACTION_TARGET_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Integer id;

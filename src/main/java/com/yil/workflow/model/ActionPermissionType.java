@@ -22,8 +22,7 @@ public class ActionPermissionType implements IEntity {
     @Id
     @SequenceGenerator(name = "ACTION_PERMISSION_TYPE_SEQUENCE_GENERATOR",
             sequenceName = "SEQ_ACTION_PERMISSION_TYPE_ID",
-            schema = "WFS",
-            allocationSize = 1)
+            schema = "WFS")
     @GeneratedValue(generator = "ACTION_PERMISSION_TYPE_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Integer id;

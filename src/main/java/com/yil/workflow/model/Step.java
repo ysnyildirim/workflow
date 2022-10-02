@@ -24,8 +24,7 @@ public class Step implements IEntity {
     @Id
     @SequenceGenerator(name = "STEP_SEQUENCE_GENERATOR",
             sequenceName = "SEQ_STEP_ID",
-            schema = "WFS",
-            allocationSize = 1)
+            schema = "WFS")
     @GeneratedValue(generator = "STEP_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Long id;

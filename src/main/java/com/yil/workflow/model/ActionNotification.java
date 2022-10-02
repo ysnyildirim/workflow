@@ -26,8 +26,7 @@ public class ActionNotification implements IEntity {
     @Id
     @SequenceGenerator(name = "ACTION_NOTIFICATION_SEQUENCE_GENERATOR",
             sequenceName = "SEQ_ACTION_NOTIFICATION_ID",
-            schema = "WFS",
-            allocationSize = 1)
+            schema = "WFS")
     @GeneratedValue(generator = "ACTION_NOTIFICATION_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Long id;

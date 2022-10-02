@@ -12,8 +12,7 @@ import javax.persistence.*;
 public class TaskActionMessage implements IEntity {
     @Id
     @SequenceGenerator(name = "TASK_ACTION_MESSAGE_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_TASK_ACTION_MESSAGET_ID", schema = "WFS",
-            allocationSize = 1)
+            sequenceName = "SEQ_TASK_ACTION_MESSAGET_ID", schema = "WFS")
     @GeneratedValue(generator = "TASK_ACTION_MESSAGE_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Long id;

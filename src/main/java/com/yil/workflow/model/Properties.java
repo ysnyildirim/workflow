@@ -21,8 +21,7 @@ import javax.persistence.*;
 public class Properties implements IEntity {
     @Id
     @SequenceGenerator(name = "PROPERTIES_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_PROPERTIES_ID", schema = "WFS",
-            allocationSize = 1)
+            sequenceName = "SEQ_PROPERTIES_ID", schema = "WFS")
     @GeneratedValue(generator = "PROPERTIES_SEQUENCE_GENERATOR")
     @Column(name = "ID", nullable = false, unique = true)
     private Integer id;

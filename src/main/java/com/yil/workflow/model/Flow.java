@@ -16,8 +16,7 @@ import java.util.Date;
 public class Flow implements IEntity {
     @Id
     @SequenceGenerator(name = "FLOW_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_FLOW_ID", schema = "WFS",
-            allocationSize = 1)
+            sequenceName = "SEQ_FLOW_ID", schema = "WFS")
     @GeneratedValue(generator = "FLOW_SEQUENCE_GENERATOR")
     @Column(name = "ID")
     private Long id;

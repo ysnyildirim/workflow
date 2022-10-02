@@ -21,8 +21,7 @@ import javax.persistence.*;
 public class Status implements IEntity {
     @Id
     @SequenceGenerator(name = "STATUS_SEQUENCE_GENERATOR",
-            sequenceName = "SEQ_STATUS_ID", schema = "WFS",
-            allocationSize = 1)
+            sequenceName = "SEQ_STATUS_ID", schema = "WFS")
     @GeneratedValue(generator = "STATUS_SEQUENCE_GENERATOR")
     @Column(name = "ID", nullable = false, unique = true)
     private Integer id;
