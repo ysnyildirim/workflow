@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.exception;
 
 import com.yil.workflow.base.ApiException;
@@ -12,5 +11,4 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.FORBIDDEN)
 @ApiException(code = ErrorCode.YouDoNotHavePermission)
 public class YouDoNotHavePermissionException extends Exception {
-
 }

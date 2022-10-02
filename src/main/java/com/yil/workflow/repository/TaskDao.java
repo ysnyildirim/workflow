@@ -8,10 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-
 @Repository
 public interface TaskDao extends JpaRepository<Task, Long> {
-
     @Query(nativeQuery = true,
             value = """
                     SELECT *
@@ -146,5 +144,4 @@ public interface TaskDao extends JpaRepository<Task, Long> {
                     				AND TA.CREATED_USER_ID = :userId )
                     """)
     Page<Task> findAllByActionCreatedUserIdAndClosed(Pageable pageable, @Param(value = "userId") long userId, @Param(value = "closed") int closed);
-
 }

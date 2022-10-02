@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.StepTypeDto;
@@ -14,15 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
 @RequiredArgsConstructor
 @Service
 public class StepTypeService {
-
     public static StepType Start;
     public static StepType Normal;
     public static StepType Complete;
-
     private final StepTypeDao stepTypeDao;
 
     public static StepTypeDto convert(StepType stepType) {

@@ -25,7 +25,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(value = "/api/wf/v1/tasks/{taskId}/actions")
 public class TaskActionController {
-
     private final TaskActionService taskActionService;
     private final TaskService taskService;
     private final Mapper<TaskAction, TaskActionDto> mapper = new Mapper<>(TaskActionService::convert);
@@ -53,7 +52,6 @@ public class TaskActionController {
         return ResponseEntity.ok(pageDto);
     }
 
-
     @GetMapping(value = "/{id}")
     public ResponseEntity<TaskActionDto> findByIdAndTaskIdAndDeletedTimeIsNull(
             @PathVariable Long taskId,
@@ -61,7 +59,6 @@ public class TaskActionController {
         TaskActionDto dto = mapper.map(taskActionService.findByIdAndTaskId(id, taskId));
         return ResponseEntity.ok(dto);
     }
-
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -73,6 +70,4 @@ public class TaskActionController {
         TaskActionDto responce = mapper.map(taskActionService.save(request, taskId, authenticatedUserId));
         return ResponseEntity.status(HttpStatus.CREATED).body(responce);
     }
-
-
 }

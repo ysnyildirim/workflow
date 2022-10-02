@@ -23,7 +23,6 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api/account/v1/action/{actionId}/targets")
 public class ActionTargetController {
-
     private final ActionPermissionService actionPermissionService;
     private final ActionPermissionTypeService actionPermissionTypeService;
     private final ActionService actionService;
@@ -45,7 +44,6 @@ public class ActionTargetController {
     public ResponseEntity create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
                                  @PathVariable Long actionId,
                                  @Valid @RequestBody ActionTargetDtoRequest dto) throws ActionNotFoundException, ActionPermissionTypeNotFoundException {
-
         if (!actionService.existsById(actionId))
             throw new ActionNotFoundException();
         if (!actionPermissionTypeService.existsById(dto.getTargetTypeId()))
@@ -65,5 +63,4 @@ public class ActionTargetController {
         actionPermissionService.delete(pk);
         return ResponseEntity.ok().build();
     }
-
 }

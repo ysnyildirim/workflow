@@ -13,10 +13,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication
 @EnableTransactionManagement
 public class WorkflowApplication {
-
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(WorkflowApplication.class, args);
         context.start();
     }
-
 }

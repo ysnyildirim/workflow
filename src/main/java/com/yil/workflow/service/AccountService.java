@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.service;
 
 import com.yil.workflow.base.ApiConstant;
@@ -16,7 +15,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AccountService {
-
     public boolean existsPermission(long permissionId, long userId) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders h2 = new HttpHeaders();
@@ -26,5 +24,4 @@ public class AccountService {
         ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(h2), String.class, Map.of("id", userId, "permissionId", permissionId));
         return responseEntity.getStatusCode().equals(HttpStatus.OK);
     }
-
 }

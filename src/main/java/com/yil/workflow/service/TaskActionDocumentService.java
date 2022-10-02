@@ -20,7 +20,6 @@ import org.springframework.util.DigestUtils;
 @RequiredArgsConstructor
 @Service
 public class TaskActionDocumentService {
-
     private final TaskActionDocumentDao taskActionDocumentDao;
     private final DocumentDao documentDao;
 
@@ -42,7 +41,6 @@ public class TaskActionDocumentService {
     @Transactional(readOnly = true)
     public TaskActionDocument findByIdAndTaskActionId(Long id, Long taskActionId) throws TaskActionDocumentNotFoundException {
         return taskActionDocumentDao.findByIdAndTaskActionId(id, taskActionId).orElseThrow(TaskActionDocumentNotFoundException::new);
-
     }
 
     @Transactional(readOnly = true)
@@ -54,21 +52,18 @@ public class TaskActionDocumentService {
     public TaskActionDocumentResponse save(TaskActionDocumentRequest doc, long taskActionId, long userId) {
         byte[] bytes = ArrayUtils.toPrimitive(doc.getContent());
         String hashValue = DigestUtils.md5DigestAsHex(bytes);
-
         if (!documentDao.existsById(hashValue)) {
             Document document = new Document();
             document.setContent(doc.getContent());
             document.setHashValue(hashValue);
             documentDao.save(document);
         }
-
         TaskActionDocument taskActionDocument = new TaskActionDocument();
         taskActionDocument.setDocumentId(hashValue);
         taskActionDocument.setTaskActionId(taskActionId);
         taskActionDocument.setName(doc.getName());
         taskActionDocument.setExtension(doc.getExtension());
         taskActionDocument = taskActionDocumentDao.save(taskActionDocument);
-
         TaskActionDocumentResponse response = new TaskActionDocumentResponse();
         response.setId(taskActionDocument.getId());
         return response;

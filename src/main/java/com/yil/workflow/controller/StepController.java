@@ -22,7 +22,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(value = "/api/wf/v1/flows/{flowId}/steps")
 public class StepController {
-
     private final StepService stepService;
     private final Mapper<Step, StepDto> mapper = new Mapper<>(StepService::convert);
 
@@ -32,14 +31,12 @@ public class StepController {
         return ResponseEntity.ok(stepDtos);
     }
 
-
     @GetMapping(value = "/{id}")
     public ResponseEntity<StepDto> findByIdAndFlowIdAndDeletedTimeIsNull(@PathVariable Long flowId,
                                                                          @PathVariable Long id) throws StepNotFoundException {
         StepDto dto = mapper.map(stepService.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId));
         return ResponseEntity.ok(dto);
     }
-
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -49,7 +46,6 @@ public class StepController {
         StepResponse responce = stepService.save(request, flowId, authenticatedUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(responce);
     }
-
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -69,6 +65,4 @@ public class StepController {
         stepService.delete(id, authenticatedUserId);
         return ResponseEntity.ok("Step deleted.");
     }
-
-
 }

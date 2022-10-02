@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskActionDocumentRequest   {
+public class TaskActionDocumentRequest {
     @NotNull
     private Byte[] content;
     @NotBlank

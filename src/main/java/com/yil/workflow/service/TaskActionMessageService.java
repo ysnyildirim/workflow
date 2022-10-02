@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class TaskActionMessageService {
-
     private final TaskActionMessageDao taskActionMessageDao;
 
     public static TaskActionMessageDto convert(TaskActionMessage taskActionMessage) {

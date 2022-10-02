@@ -13,12 +13,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class PriorityTypeService {
-
     public static PriorityType Yuksek;
     public static PriorityType Orta;
     public static PriorityType Dusuk;
     public static PriorityType Kritik;
-
     private final PriorityTypeDao priorityTypeDao;
 
     public static PriorityTypeDto convert(PriorityType priorityType) {
@@ -43,5 +41,4 @@ public class PriorityTypeService {
     public List<PriorityType> findAll() {
         return priorityTypeDao.findAll();
     }
-
 }

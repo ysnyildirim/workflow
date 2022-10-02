@@ -10,10 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-
 @Repository
 public interface TaskActionDao extends JpaRepository<TaskAction, Long> {
-
     Page<TaskAction> findAllByTaskId(Pageable pageable, Long taskId);
 
     Boolean existsByIdNotAndTaskId(Long id, Long taskId);

@@ -15,4 +15,3 @@ public class TaskRequest extends TaskBaseRequest {
     @NotNull
     private TaskActionRequest actionRequest;
 }
-

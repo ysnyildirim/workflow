@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class StepService {
-
     private final StepDao stepDao;
     private final FlowDao flowDao;
     private final StepTypeService stepTypeService;
@@ -37,7 +36,6 @@ public class StepService {
         dto.setStatusId(step.getStatusId());
         return dto;
     }
-
 
     @Transactional(readOnly = true)
     public List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long flowId, int stepTypeId) {
@@ -110,5 +108,4 @@ public class StepService {
     public Boolean existsByIdAndStepTypeId(long id, int stepTypeId) {
         return stepDao.existsByIdAndStepTypeId(id, stepTypeId);
     }
-
 }

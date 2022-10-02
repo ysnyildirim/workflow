@@ -21,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class TaskActionService {
-
     private final TaskActionDao taskActionDao;
     private final ActionService actionService;
     private final TaskActionDocumentService taskActionDocumentService;
@@ -54,12 +53,10 @@ public class TaskActionService {
         }
         if (!hasPermission(taskId, userId, lastTaskAction, action))
             throw new YouDoNotHavePermissionException();
-
         TaskAction taskAction = new TaskAction();
         taskAction.setTaskId(taskId);
         taskAction.setActionId(request.getActionId());
         taskAction.setParentId(lastTaskAction != null ? lastTaskAction.getId() : null);
-
         if (ActionTargetTypeService.Ozel.getId().equals(action.getActionTargetTypeId())) {
             taskAction.setAssignedUserId(request.getAssignedUserId());
         } else if (ActionTargetTypeService.BelirliBiri.getId().equals(action.getActionTargetTypeId())) {
@@ -77,19 +74,15 @@ public class TaskActionService {
             TaskAction item = taskActionDao.getActionCreatedLastDifferentUser(taskId, userId).orElseThrow(TaskActionNotFoundException::new);
             taskAction.setAssignedUserId(item.getCreatedUserId());
         }
-
         taskAction.setCreatedUserId(userId);
         taskAction.setCreatedTime(new Date());
         taskAction = taskActionDao.save(taskAction);
-
         if (step.isCanAddDocument() && request.getDocuments() != null)
             for (TaskActionDocumentRequest doc : request.getDocuments())
                 taskActionDocumentService.save(doc, taskAction.getId(), userId);
-
         if (step.isCanAddMessage() && request.getMessages() != null)
             for (TaskActionMessageRequest message : request.getMessages())
                 taskActionMessageService.save(message, taskAction.getId(), userId);
-
         //Tamamlanma adımında kapatalım
         if (stepService.existsByIdAndStepTypeId(action.getNextStepId(), StepTypeService.Complete.getId())) {
             Task task = taskDao.findById(taskId).orElse(null);

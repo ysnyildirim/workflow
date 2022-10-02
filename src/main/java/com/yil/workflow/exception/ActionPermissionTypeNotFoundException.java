@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.exception;
 
 import com.yil.workflow.base.ApiException;
@@ -11,5 +10,5 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 @ApiException(code = ErrorCode.ActionPermissionTypeNotFound)
-public class ActionPermissionTypeNotFoundException extends Exception{
+public class ActionPermissionTypeNotFoundException extends Exception {
 }

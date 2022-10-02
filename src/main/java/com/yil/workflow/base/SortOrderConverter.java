@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SortOrderConverter implements Converter<String[], List<Sort.Order>> {
-
     private final String[] avaiableNames;
 
     public SortOrderConverter(String[] avaiableNames) {
@@ -35,5 +34,4 @@ public class SortOrderConverter implements Converter<String[], List<Sort.Order>>
         }
         return orders;
     }
-
 }

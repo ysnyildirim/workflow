@@ -7,10 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-
 @Repository
 public interface StepDao extends JpaRepository<Step, Long> {
-
     List<Step> findAllByFlowId(Long flowId);
 
     List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrue(long flowId, int stepTypeId);
@@ -20,5 +18,4 @@ public interface StepDao extends JpaRepository<Step, Long> {
     Optional<Step> findByIdAndEnabledTrue(long id);
 
     Boolean existsByIdAndStepTypeId(long id, int stepTypeId);
-
 }

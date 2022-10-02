@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/api/wf/v1/status")
 public class StatusController {
-
     private final StatusService statusService;
     private final Mapper<Status, StatusDto> mapper = new Mapper<>(StatusService::convert);
 
@@ -39,5 +38,4 @@ public class StatusController {
         StatusDto dto = mapper.map(statusService.findById(id));
         return ResponseEntity.ok(dto);
     }
-
 }

@@ -1,11 +1,14 @@
 package com.yil.workflow.model;
+
 import com.yil.workflow.base.IEntity;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import java.util.Date;
+
 @Entity
 @Data
 @Table(schema = "WFS",

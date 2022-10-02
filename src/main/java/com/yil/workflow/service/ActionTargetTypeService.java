@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.ActionTargetTypeDto;
@@ -14,18 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
 @RequiredArgsConstructor
 @Service
 public class ActionTargetTypeService {
-
     public static ActionTargetType Ozel;
     public static ActionTargetType BelirliBiri;
     public static ActionTargetType Olusturan;
     public static ActionTargetType SonIslemYapan;
     public static ActionTargetType IslemYapan;
     public static ActionTargetType IslemYapanFarkliSonKisi;
-
     private final ActionTargetTypeDao actionTargetTypeDao;
 
     public static ActionTargetTypeDto convert(ActionTargetType actionTargetType) {

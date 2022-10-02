@@ -25,7 +25,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(value = "/api/wf/v1/task-actions/{taskActionId}/messages")
 public class TaskActionMessageController {
-
     private final TaskActionMessageService taskActionMessageService;
     private final TaskActionService taskActionService;
     private final Mapper<TaskActionMessage, TaskActionMessageDto> mapper = new Mapper<>(TaskActionMessageService::convert);
@@ -61,5 +60,4 @@ public class TaskActionMessageController {
         TaskActionMessageResponse taskActionMessageResponce = taskActionMessageService.save(request, taskAction.getId(), authenticatedUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(taskActionMessageResponce);
     }
-
 }

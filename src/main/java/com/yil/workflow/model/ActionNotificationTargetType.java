@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.model;
 
 import com.yil.workflow.base.IEntity;
@@ -11,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+
 /*
  * Belirli biri
  * İşi oluşturan kişi
@@ -19,7 +19,6 @@ import javax.persistence.*;
  * İşlem yapan son farklı kişi
  *
  * */
-
 @Data
 @Entity
 @AllArgsConstructor

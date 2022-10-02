@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class StatusService {
-
     private final StatusDao statusDao;
 
     public static StatusDto convert(Status status) {

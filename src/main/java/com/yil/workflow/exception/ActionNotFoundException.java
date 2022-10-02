@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.exception;
 
 import com.yil.workflow.base.ApiException;
@@ -13,4 +12,3 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ApiException(code = ErrorCode.ActionNotFound)
 public class ActionNotFoundException extends Exception {
 }
-

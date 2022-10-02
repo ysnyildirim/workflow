@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.model;
 
 import lombok.AllArgsConstructor;
@@ -19,7 +18,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(schema = "WFS", name = "ACTION_PERMISSION")
 public class ActionPermission {
-
     @EmbeddedId
     private Pk id;
 
@@ -34,5 +32,4 @@ public class ActionPermission {
         @Column(name = "ACTION_PERMISSION_TYPE_ID", nullable = false)
         private Integer actionPermissionTypeId;
     }
-
 }

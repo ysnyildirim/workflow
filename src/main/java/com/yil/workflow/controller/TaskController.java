@@ -28,7 +28,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(value = "/api/wf/v1/tasks")
 public class TaskController {
-
     private final TaskService taskService;
     private final Mapper<Task, TaskDto> mapper = new Mapper<>(TaskService::convert);
 
@@ -83,7 +82,6 @@ public class TaskController {
         return ResponseEntity.ok(pageDto);
     }
 
-
     @Operation(summary = "User oluşturduğu taskları getirir..")
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(value = "/created={userId}")
@@ -97,7 +95,6 @@ public class TaskController {
         if (size <= 0 || size > 1000)
             size = 1000;
         Pageable pageable = PageRequest.of(page, size);
-
         PageDto<TaskDto> pageDto;
         if (closed != null)
             pageDto = mapper.map(taskService.findAllByCreatedUserIdAndClosed(pageable, userId, closed));
@@ -143,6 +140,4 @@ public class TaskController {
         TaskResponse responce = taskService.replace(request, id, authenticatedUserId);
         return ResponseEntity.ok(responce);
     }
-
-
 }

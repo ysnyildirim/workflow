@@ -19,7 +19,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(value = "/api/wf/v1/")
 public class ActionController {
-
     private final ActionService actionService;
     private final Mapper<Action, ActionDto> mapper = new Mapper<>(ActionService::convert);
 
@@ -29,14 +28,12 @@ public class ActionController {
         return ResponseEntity.ok(actions);
     }
 
-
     @GetMapping(value = "/steps/{stepId}/actions/{id}")
     public ResponseEntity<ActionDto> findByIdAndStepId(@PathVariable Long stepId,
                                                        @PathVariable Long id) throws ActionNotFoundException {
         ActionDto dto = mapper.map(actionService.findByIdAndStepId(id, stepId));
         return ResponseEntity.ok(dto);
     }
-
 
     @PostMapping(value = "/steps/{stepId}/actions")
     @ResponseStatus(HttpStatus.CREATED)
@@ -46,7 +43,6 @@ public class ActionController {
         ActionResponse responce = actionService.save(request, stepId, authenticatedUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(responce);
     }
-
 
     @PutMapping("/steps/{stepId}/actions/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -67,7 +63,6 @@ public class ActionController {
         return ResponseEntity.ok("Action deleted.");
     }
 
-
     @GetMapping(value = "/actions/starts/{flowId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ActionDto[]> getStartUpActions(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
@@ -75,5 +70,4 @@ public class ActionController {
         ActionDto[] dto = mapper.map(actionService.getStartActions(flowId, authenticatedUserId)).toArray(ActionDto[]::new);
         return ResponseEntity.ok(dto);
     }
-
 }

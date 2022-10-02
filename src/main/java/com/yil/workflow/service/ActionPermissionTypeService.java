@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.ActionPermissionTypeDto;
@@ -14,18 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
 @RequiredArgsConstructor
 @Service
 public class ActionPermissionTypeService {
-
     public static ActionPermissionType Herkes;
     public static ActionPermissionType Atanan;
     public static ActionPermissionType Olusturan;
     public static ActionPermissionType SonIslemYapan;
     public static ActionPermissionType IslemYapanlar;
     public static ActionPermissionType YetkisiOlan;
-
     private final ActionPermissionTypeDao actionPermissionTypeDao;
 
     public static ActionPermissionTypeDto convert(ActionPermissionType actionPermissionType) {

@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class TaskService {
-
     private final TaskDao taskDao;
     private final FlowService flowService;
     private final PriorityTypeService priorityTypeService;
@@ -58,7 +57,6 @@ public class TaskService {
     public Page<Task> findAllByCreatedUserId(Pageable pageable, long userId) {
         return taskDao.findAllByCreatedUserId(pageable, userId);
     }
-
 
     @Transactional(readOnly = true)
     public Page<Task> findAllByCreatedUserIdAndClosed(Pageable pageable, long userId, boolean closed) {
@@ -109,5 +107,4 @@ public class TaskService {
     public boolean existsById(Long taskId) {
         return taskDao.existsById(taskId);
     }
-
 }

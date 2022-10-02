@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @Component
 @EnableAsync
 public class SetupDataLoader implements ApplicationListener<ContextStartedEvent> {
-
     public static final String upper = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     @Autowired
     ActionPermissionDao actionPermissionDao;
@@ -38,10 +37,8 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     private PropertiesDao propertiesDao;
     @Autowired
     private ActionPermissionTypeDao actionPermissionTypeDao;
-
     @Autowired
     private ActionTargetTypeDao actionTargetTypeDao;
-
     @Autowired
     private ActionNotificationTargetTypeDao actionNotificationTargetTypeDao;
     @Autowired
@@ -59,16 +56,12 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         initActionTargetTypes();
         initActionNotificationTargetType();
         initProperties();
-
         try {
             //initSikayetFlow();
-
             for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
     private void initStatus() {
@@ -271,7 +264,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                     }
                 }
                 ActionResponse actionResponse = actionService.save(actionRequest, step.getId(), userId);
-
                 List<Integer> targetTypes = new ArrayList<>();
                 int targetTypeId;
                 if (step.getStepTypeId().equals(StepTypeService.Start.getId())) {
@@ -296,7 +288,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 }
                 for (Integer item : targetTypes)
                     actionPermissionDao.save(ActionPermission.builder().id(ActionPermission.Pk.builder().actionId(actionResponse.getId()).actionPermissionTypeId(item).build()).build());
-
                 for (int m = 0; m < new Random().nextInt(1, 6); m++) {
                     ActionNotification actionNotification = ActionNotification
                             .builder()
@@ -305,15 +296,10 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                             .subject(randomString(20))
                             .build();
                     actionNotification = actionNotificationDao.save(actionNotification);
-
                     for (int n = 0; n < new Random().nextInt(1, 10); n++) {
-
                         if (n == ActionNotificationTargetTypeService.IsiOlusturan.getId()) {
-
                         } else if (n == ActionNotificationTargetTypeService.IslemYapan.getId()) {
-
                         }
-
                         ActionNotificationTarget actionNotificationTarget = ActionNotificationTarget
                                 .builder()
                                 .actionNotificationTargetTypeId(ActionNotificationTargetTypeService.BelirliBiri.getId())
@@ -321,8 +307,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                                 .userId(0L)
                                 .build();
                     }
-
-
                 }
             }
         }
@@ -353,7 +337,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         request.setDescription("Tüketici şikayet iş akışı");
         request.setEnabled(true);
         FlowResponse flowResponse = flowService.save(request, 1L);
-
         StepRequest s1 = new StepRequest();
         s1.setName("Şikayet oluştur");
         s1.setDescription("Şikayet oluşturma");
@@ -361,7 +344,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         s1.setStatusId(1);
         s1.setStepTypeId(StepTypeService.Start.getId());
         StepResponse s1c = stepService.save(s1, flowResponse.getId(), 1l);
-
         StepRequest s2 = new StepRequest();
         s2.setName("İşletme Tarafından Cevaplama");
         s2.setDescription("Şikayetin işletme tarafından cevaplanması");
@@ -369,8 +351,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         s2.setStatusId(1);
         s2.setStepTypeId(StepTypeService.Normal.getId());
         StepResponse s2c = stepService.save(s2, flowResponse.getId(), 1l);
-
-
         StepResponse s21c = stepService.save(StepRequest
                 .builder()
                 .name("İşletme Bilgi,Belge Talebi")
@@ -379,8 +359,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 .statusId(1)
                 .stepTypeId(StepTypeService.Normal.getId())
                 .build(), flowResponse.getId(), 1l);
-
-
         StepRequest s3 = new StepRequest();
         s3.setName("Tüketici 1. İtiraz");
         s3.setDescription("Tüketici tarafından işletme tarafından cevaplanan şikayete 1. itirazı");
@@ -388,7 +366,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         s3.setStatusId(1);
         s3.setStepTypeId(StepTypeService.Normal.getId());
         StepResponse s3c = stepService.save(s3, flowResponse.getId(), 1l);
-
         StepRequest s4 = new StepRequest();
         s4.setName("İşletme Tarafından 1.İtirazın Cevaplanması");
         s4.setDescription("İşletme Tarafından 1.İtirazın Cevaplanması");
@@ -396,7 +373,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         s4.setStatusId(1);
         s4.setStepTypeId(StepTypeService.Normal.getId());
         StepResponse s4c = stepService.save(s4, flowResponse.getId(), 1l);
-
         StepResponse s41c = stepService.save(StepRequest
                 .builder()
                 .name("İşletme Bilgi,Belge Talebi")
@@ -405,7 +381,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 .statusId(1)
                 .stepTypeId(StepTypeService.Normal.getId())
                 .build(), flowResponse.getId(), 1l);
-
         StepRequest s5 = new StepRequest();
         s5.setName("Tüketici 2. İtiraz");
         s5.setDescription("Tüketici tarafından işletme tarafından cevaplanan şikayete 2. itirazı");
@@ -413,7 +388,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         s5.setStatusId(1);
         s5.setStepTypeId(StepTypeService.Normal.getId());
         StepResponse s5c = stepService.save(s5, flowResponse.getId(), 1l);
-
         StepRequest s6 = new StepRequest();
         s6.setName("İşletme Tarafından 2.İtirazın Cevaplanması");
         s6.setDescription("İşletme Tarafından 2.İtirazın Cevaplanması");
@@ -421,7 +395,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         s6.setStatusId(1);
         s6.setStepTypeId(StepTypeService.Normal.getId());
         StepResponse s6c = stepService.save(s6, flowResponse.getId(), 1l);
-
         StepResponse s61c = stepService.save(StepRequest
                 .builder()
                 .name("İşletme Bilgi,Belge Talebi")
@@ -430,7 +403,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 .statusId(1)
                 .stepTypeId(StepTypeService.Normal.getId())
                 .build(), flowResponse.getId(), 1l);
-
         StepRequest s7 = new StepRequest();
         s7.setName("Tüketici 3. İtiraz");
         s7.setDescription("Tüketici tarafından işletme tarafından cevaplanan şikayete 3. itirazı");
@@ -438,7 +410,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         s7.setStatusId(1);
         s7.setStepTypeId(StepTypeService.Normal.getId());
         StepResponse s7c = stepService.save(s7, flowResponse.getId(), 1l);
-
         StepRequest s8 = new StepRequest();
         s8.setName("Kurum incelemesi");
         s8.setDescription("Kurum tarafından şikayetin incelenmesi");
@@ -446,7 +417,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         s8.setStatusId(1);
         s8.setStepTypeId(StepTypeService.Normal.getId());
         StepResponse s8c = stepService.save(s8, flowResponse.getId(), 1l);
-
         StepRequest s9 = new StepRequest();
         s9.setName("İşletmeden bilgi, belge talebi");
         s9.setDescription("Kurum tarafından işletmeden bilgi, belge talep edilmesi");
@@ -454,7 +424,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         s9.setStatusId(1);
         s9.setStepTypeId(StepTypeService.Normal.getId());
         StepResponse s9c = stepService.save(s9, flowResponse.getId(), 1l);
-
         StepRequest s11 = new StepRequest();
         s11.setName("Şikayetin Kapatılması");
         s11.setDescription("Şikayetin kapatılması");
@@ -462,7 +431,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         s11.setStatusId(1);
         s11.setStepTypeId(StepTypeService.Complete.getId());
         StepResponse s11c = stepService.save(s11, flowResponse.getId(), 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Yeni")
@@ -473,7 +441,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s1c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Cevapla")
@@ -484,7 +451,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s2c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Bilgi, Belge Talebi")
@@ -495,7 +461,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s2c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Bilgi Ekle")
@@ -506,7 +471,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s21c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("İtiraz Et")
@@ -517,7 +481,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s3c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Kapat")
@@ -528,7 +491,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s3c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Cevapla")
@@ -539,8 +501,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s4c.getId(),
                 1l);
-
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Bilgi, Belge Talebi")
@@ -551,7 +511,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s4c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Bilgi Ekle")
@@ -562,7 +521,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s41c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("İtiraz Et")
@@ -573,7 +531,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s5c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Cevapla")
@@ -584,7 +541,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s6c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Bilgi, Belge Talebi")
@@ -595,7 +551,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s6c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Bilgi Ekle")
@@ -606,7 +561,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s61c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("İtiraz Et")
@@ -617,7 +571,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s7c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Cevapla")
@@ -628,7 +581,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s8c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Bilgi, Belge Talep Et")
@@ -639,7 +591,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s8c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Kapat")
@@ -650,7 +601,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s8c.getId(),
                 1l);
-
         actionService.save(ActionRequest
                         .builder()
                         .name("Bilgi, Belge Gönder")
@@ -661,7 +611,5 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                         .build(),
                 s9c.getId(),
                 1l);
-
     }
-
 }

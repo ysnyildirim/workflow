@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.repository;
 
 import com.yil.workflow.model.Notification;
@@ -10,5 +9,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NotificationDao extends JpaRepository<Notification, Long> {
-
 }

@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.job;
 
 import com.yil.workflow.base.ApiConstant;
@@ -27,7 +26,6 @@ import java.util.*;
 @EnableAsync
 @RequiredArgsConstructor
 public class TaskJob {
-
     public static final String upper = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static boolean stopped = false;
     final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS");
@@ -78,9 +76,7 @@ public class TaskJob {
         }
         if (pageActionDtoResponseEntity.getBody().length == 0)
             return;
-
         ActionDto action = pageActionDtoResponseEntity.getBody()[(new Random().nextInt(0, pageActionDtoResponseEntity.getBody().length))];
-
         TaskActionRequest request = generateTaskAction(action);
         Map<String, String> map2 = new HashMap<>();
         map2.put("taskId", String.valueOf(taskId));
@@ -114,7 +110,6 @@ public class TaskJob {
     }
 
     private TaskActionMessageRequest[] generateMessages() {
-
         List<TaskActionMessageRequest> lst = new ArrayList<>();
         int k = new Random().nextInt(5);
         for (int i = 0; i < k; i++)
@@ -213,5 +208,4 @@ public class TaskJob {
         public PageTaskResponce() {
         }
     }
-
 }

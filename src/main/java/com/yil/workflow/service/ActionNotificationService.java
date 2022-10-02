@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.service;
 
 import com.yil.workflow.dto.ActionNotificationDto;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ActionNotificationService {
-
     private ActionNotificationDao actionNotificationDao;
 
     public static ActionNotificationDto convert(ActionNotification actionNotification) {
@@ -41,5 +39,4 @@ public class ActionNotificationService {
         notification = actionNotificationDao.save(notification);
         return ActionNotificationResponse.builder().id(notification.getId()).build();
     }
-
 }

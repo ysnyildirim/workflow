@@ -16,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class FlowService {
-
     private final FlowDao flowDao;
 
     public static FlowDto convert(Flow flow) {
@@ -69,5 +68,4 @@ public class FlowService {
     public List<Flow> findAllByEnabledTrue() {
         return flowDao.findAllByEnabledTrue();
     }
-
 }

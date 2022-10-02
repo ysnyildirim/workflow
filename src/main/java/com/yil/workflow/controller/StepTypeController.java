@@ -16,10 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/api/wf/v1/step-types")
 public class StepTypeController {
-
     private final StepTypeService stepTypeService;
     private final Mapper<StepType, StepTypeDto> mapper = new Mapper<>(StepTypeService::convert);
-
 
     @GetMapping
     public ResponseEntity<StepTypeDto[]> findAll() {
@@ -32,5 +30,4 @@ public class StepTypeController {
         StepTypeDto dto = mapper.map(stepTypeService.findById(id));
         return ResponseEntity.ok(dto);
     }
-
 }

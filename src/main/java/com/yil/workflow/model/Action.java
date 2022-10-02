@@ -54,5 +54,4 @@ public class Action implements IEntity {
     @Comment(value = "Sonraki kullanıcı belirli bir kişi")
     @Column(name = "NEXT_USER_ID")
     private Long nextUserId;
-
 }

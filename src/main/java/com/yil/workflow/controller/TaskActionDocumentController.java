@@ -24,7 +24,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(value = "/api/wf/v1/task-actions/{taskActionId}/documents")
 public class TaskActionDocumentController {
-
     private final TaskActionDocumentService taskActionDocumentService;
     private final TaskActionService taskActionService;
     private final Mapper<TaskActionDocument, TaskActionDocumentDto> mapper = new Mapper<>(TaskActionDocumentService::convert);
@@ -62,6 +61,4 @@ public class TaskActionDocumentController {
         TaskActionDocumentResponse responce = taskActionDocumentService.save(request, taskActionId, authenticatedUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(responce);
     }
-
-
 }

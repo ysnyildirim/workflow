@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.model;
 
 import com.yil.workflow.base.IEntity;
@@ -32,5 +31,4 @@ public class ActionNotificationTarget implements IEntity {
     private Integer actionNotificationTargetTypeId;
     @Column(name = "USER_ID")
     private Long userId;
-
 }

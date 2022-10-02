@@ -19,7 +19,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(value = "/api/wf/v1/flows")
 public class FlowController {
-
     private final FlowService flowService;
     private final Mapper<Flow, FlowDto> mapper = new Mapper<>(FlowService::convert);
 
@@ -37,7 +36,6 @@ public class FlowController {
         return ResponseEntity.ok(dto);
     }
 
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<FlowResponse> create(@RequestHeader(value = ApiConstant.AUTHENTICATED_USER_ID) Long authenticatedUserId,
@@ -45,7 +43,6 @@ public class FlowController {
         FlowResponse responce = flowService.save(request, authenticatedUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(responce);
     }
-
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -70,5 +67,4 @@ public class FlowController {
         FlowDto[] dto = mapper.map(flowService.findAllByEnabledTrue()).toArray(FlowDto[]::new);
         return ResponseEntity.ok(dto);
     }
-
 }

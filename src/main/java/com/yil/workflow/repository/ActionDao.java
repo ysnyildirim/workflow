@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-
 @Repository
 public interface ActionDao extends JpaRepository<Action, Long> {
     List<Action> findAllByStepId(Long stepId);
@@ -43,6 +42,4 @@ public interface ActionDao extends JpaRepository<Action, Long> {
                     							AND A2.NEXT_STEP_ID = S.ID))
                     """)
     List<Action> getNextActions(long id);
-
-
 }

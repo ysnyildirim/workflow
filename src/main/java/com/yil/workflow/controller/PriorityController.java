@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/api/wf/v1/priorities")
 public class PriorityController {
-
     private final PriorityTypeService priorityTypeService;
     private final Mapper<PriorityType, PriorityTypeDto> mapper = new Mapper<>(PriorityTypeService::convert);
 
@@ -31,5 +30,4 @@ public class PriorityController {
         PriorityTypeDto dto = mapper.map(priorityTypeService.findById(id));
         return ResponseEntity.ok(dto);
     }
-
 }

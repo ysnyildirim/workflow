@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2022. Tüm hakları Yasin Yıldırım'a aittir.
  */
-
 package com.yil.workflow.controller;
 
 import com.yil.workflow.base.Mapper;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/api/wf/v1/action-target-types")
 public class ActionTargetTypeController {
-
     private final ActionPermissionTypeService actionPermissionTypeService;
     private final Mapper<ActionPermissionType, ActionPermissionTypeDto> mapper = new Mapper<>(ActionPermissionTypeService::convert);
 
