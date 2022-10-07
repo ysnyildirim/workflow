@@ -9,6 +9,7 @@ import com.yil.workflow.exception.ActionPermissionTypeNotFoundException;
 import com.yil.workflow.model.ActionPermissionType;
 import com.yil.workflow.service.ActionPermissionTypeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,11 +24,13 @@ public class ActionTargetTypeController {
     private final Mapper<ActionPermissionType, ActionPermissionTypeDto> mapper = new Mapper<>(ActionPermissionTypeService::convert);
 
     @GetMapping
+    @Cacheable("actionTargetTypes")
     public ResponseEntity<ActionPermissionTypeDto[]> findAll() {
         ActionPermissionTypeDto[] dto = mapper.map(actionPermissionTypeService.findAll()).toArray(ActionPermissionTypeDto[]::new);
         return ResponseEntity.ok(dto);
     }
 
+    @Cacheable(value = "actionTargetTypes", key = "#id")
     @GetMapping(value = "/{id}")
     public ResponseEntity<ActionPermissionTypeDto> findById(@PathVariable Integer id) throws ActionPermissionTypeNotFoundException {
         ActionPermissionTypeDto dto = mapper.map(actionPermissionTypeService.findById(id));
