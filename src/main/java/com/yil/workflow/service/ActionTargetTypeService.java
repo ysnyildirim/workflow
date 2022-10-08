@@ -25,7 +25,7 @@ public class ActionTargetTypeService {
     public static ActionTargetType IslemYapanFarkliSonKisi;
     private final ActionTargetTypeDao actionTargetTypeDao;
 
-    public static ActionTargetTypeDto convert(ActionTargetType actionTargetType) {
+    public static ActionTargetTypeDto toDto(ActionTargetType actionTargetType) {
         ActionTargetTypeDto dto = new ActionTargetTypeDto();
         dto.setId(actionTargetType.getId());
         dto.setName(actionTargetType.getName());
