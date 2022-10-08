@@ -26,12 +26,14 @@ public class StepController {
     private final Mapper<Step, StepDto> mapper = new Mapper<>(StepService::convert);
 
     @GetMapping
+    @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity<StepDto[]> findAll(@PathVariable Long flowId) {
         StepDto[] stepDtos = mapper.map(stepService.findAllByFlowIdAndDeletedTimeIsNull(flowId)).toArray(StepDto[]::new);
         return ResponseEntity.ok(stepDtos);
     }
 
     @GetMapping(value = "/{id}")
+    @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity<StepDto> findByIdAndFlowIdAndDeletedTimeIsNull(@PathVariable Long flowId,
                                                                          @PathVariable Long id) throws StepNotFoundException {
         StepDto dto = mapper.map(stepService.findByIdAndFlowIdAndDeletedTimeIsNull(id, flowId));

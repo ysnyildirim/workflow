@@ -43,6 +43,12 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     private ActionNotificationTargetTypeDao actionNotificationTargetTypeDao;
     @Autowired
     private ActionNotificationDao actionNotificationDao;
+    @Autowired
+    private ActionNotificationService actionNotificationService;
+    @Autowired
+    private ActionNotificationTargetService actionNotificationTargetService;
+    @Autowired
+    private ActionNotificationTargetDao actionNotificationTargetDao;
 
     @Override
     public void onApplicationEvent(ContextStartedEvent event) {
@@ -58,10 +64,12 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         initProperties();
         try {
             //initSikayetFlow();
-            for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
+           // for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
     }
 
     private void initStatus() {
@@ -297,15 +305,14 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                             .build();
                     actionNotification = actionNotificationDao.save(actionNotification);
                     for (int n = 0; n < new Random().nextInt(1, 10); n++) {
-                        if (n == ActionNotificationTargetTypeService.IsiOlusturan.getId()) {
-                        } else if (n == ActionNotificationTargetTypeService.IslemYapan.getId()) {
-                        }
                         ActionNotificationTarget actionNotificationTarget = ActionNotificationTarget
                                 .builder()
-                                .actionNotificationTargetTypeId(ActionNotificationTargetTypeService.BelirliBiri.getId())
+                                .actionNotificationTargetTypeId(new Random().nextInt(1, 6))
                                 .actionNotificationId(actionNotification.getId())
-                                .userId(0L)
                                 .build();
+                        if (actionNotificationTarget.getActionNotificationTargetTypeId().equals(ActionNotificationTargetTypeService.BelirliBiri.getId()))
+                            actionNotificationTarget.setUserId(0l);
+                        actionNotificationTarget = actionNotificationTargetDao.save(actionNotificationTarget);
                     }
                 }
             }
@@ -331,285 +338,111 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         return s;
     }
 
-    private void initSikayetFlow() throws Exception {
-        FlowRequest request = new FlowRequest();
-        request.setName("Tüketici Şikayet");
-        request.setDescription("Tüketici şikayet iş akışı");
-        request.setEnabled(true);
-        FlowResponse flowResponse = flowService.save(request, 1L);
-        StepRequest s1 = new StepRequest();
-        s1.setName("Şikayet oluştur");
-        s1.setDescription("Şikayet oluşturma");
-        s1.setEnabled(true);
-        s1.setStatusId(1);
-        s1.setStepTypeId(StepTypeService.Start.getId());
-        StepResponse s1c = stepService.save(s1, flowResponse.getId(), 1l);
-        StepRequest s2 = new StepRequest();
-        s2.setName("İşletme Tarafından Cevaplama");
-        s2.setDescription("Şikayetin işletme tarafından cevaplanması");
-        s2.setEnabled(true);
-        s2.setStatusId(1);
-        s2.setStepTypeId(StepTypeService.Normal.getId());
-        StepResponse s2c = stepService.save(s2, flowResponse.getId(), 1l);
-        StepResponse s21c = stepService.save(StepRequest
-                .builder()
-                .name("İşletme Bilgi,Belge Talebi")
-                .description("İşletme tarafından tüketiciden bilgi, belge talebi")
-                .enabled(true)
-                .statusId(1)
-                .stepTypeId(StepTypeService.Normal.getId())
-                .build(), flowResponse.getId(), 1l);
-        StepRequest s3 = new StepRequest();
-        s3.setName("Tüketici 1. İtiraz");
-        s3.setDescription("Tüketici tarafından işletme tarafından cevaplanan şikayete 1. itirazı");
-        s3.setEnabled(true);
-        s3.setStatusId(1);
-        s3.setStepTypeId(StepTypeService.Normal.getId());
-        StepResponse s3c = stepService.save(s3, flowResponse.getId(), 1l);
-        StepRequest s4 = new StepRequest();
-        s4.setName("İşletme Tarafından 1.İtirazın Cevaplanması");
-        s4.setDescription("İşletme Tarafından 1.İtirazın Cevaplanması");
-        s4.setEnabled(true);
-        s4.setStatusId(1);
-        s4.setStepTypeId(StepTypeService.Normal.getId());
-        StepResponse s4c = stepService.save(s4, flowResponse.getId(), 1l);
-        StepResponse s41c = stepService.save(StepRequest
-                .builder()
-                .name("İşletme Bilgi,Belge Talebi")
-                .description("İşletme tarafından tüketiciden bilgi, belge talebi")
-                .enabled(true)
-                .statusId(1)
-                .stepTypeId(StepTypeService.Normal.getId())
-                .build(), flowResponse.getId(), 1l);
-        StepRequest s5 = new StepRequest();
-        s5.setName("Tüketici 2. İtiraz");
-        s5.setDescription("Tüketici tarafından işletme tarafından cevaplanan şikayete 2. itirazı");
-        s5.setEnabled(true);
-        s5.setStatusId(1);
-        s5.setStepTypeId(StepTypeService.Normal.getId());
-        StepResponse s5c = stepService.save(s5, flowResponse.getId(), 1l);
-        StepRequest s6 = new StepRequest();
-        s6.setName("İşletme Tarafından 2.İtirazın Cevaplanması");
-        s6.setDescription("İşletme Tarafından 2.İtirazın Cevaplanması");
-        s6.setEnabled(true);
-        s6.setStatusId(1);
-        s6.setStepTypeId(StepTypeService.Normal.getId());
-        StepResponse s6c = stepService.save(s6, flowResponse.getId(), 1l);
-        StepResponse s61c = stepService.save(StepRequest
-                .builder()
-                .name("İşletme Bilgi,Belge Talebi")
-                .description("İşletme tarafından tüketiciden bilgi, belge talebi")
-                .enabled(true)
-                .statusId(1)
-                .stepTypeId(StepTypeService.Normal.getId())
-                .build(), flowResponse.getId(), 1l);
-        StepRequest s7 = new StepRequest();
-        s7.setName("Tüketici 3. İtiraz");
-        s7.setDescription("Tüketici tarafından işletme tarafından cevaplanan şikayete 3. itirazı");
-        s7.setEnabled(true);
-        s7.setStatusId(1);
-        s7.setStepTypeId(StepTypeService.Normal.getId());
-        StepResponse s7c = stepService.save(s7, flowResponse.getId(), 1l);
-        StepRequest s8 = new StepRequest();
-        s8.setName("Kurum incelemesi");
-        s8.setDescription("Kurum tarafından şikayetin incelenmesi");
-        s8.setEnabled(true);
-        s8.setStatusId(1);
-        s8.setStepTypeId(StepTypeService.Normal.getId());
-        StepResponse s8c = stepService.save(s8, flowResponse.getId(), 1l);
-        StepRequest s9 = new StepRequest();
-        s9.setName("İşletmeden bilgi, belge talebi");
-        s9.setDescription("Kurum tarafından işletmeden bilgi, belge talep edilmesi");
-        s9.setEnabled(true);
-        s9.setStatusId(1);
-        s9.setStepTypeId(StepTypeService.Normal.getId());
-        StepResponse s9c = stepService.save(s9, flowResponse.getId(), 1l);
-        StepRequest s11 = new StepRequest();
-        s11.setName("Şikayetin Kapatılması");
-        s11.setDescription("Şikayetin kapatılması");
-        s11.setEnabled(true);
-        s11.setStatusId(1);
-        s11.setStepTypeId(StepTypeService.Complete.getId());
-        StepResponse s11c = stepService.save(s11, flowResponse.getId(), 1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Yeni")
-                        .description("Yeni şikayet oluştur")
+    private void flowKullaniciOlusturma() throws Exception {
+        FlowRequest flowRequest = new FlowRequest();
+        flowRequest.setName("Kullanıcı Oluşturma");
+        flowRequest.setDescription("Kullanıcı oluşturma işlemi");
+        flowRequest.setEnabled(true);
+        FlowResponse flowResponse = flowService.save(flowRequest, 1l);
+
+        StepResponse sBasla = stepService.save(
+                StepRequest.builder()
+                        .name("Başla")
+                        .description("Kullanıcı oluşturma")
+                        .stepTypeId(StepTypeService.Start.getId())
+                        .statusId(0)
                         .enabled(true)
-                        .nextStepId(s2c.getId())
-                        .permissionId(2l)
+                        .canAddDocument(false)
+                        .canAddMessage(false)
                         .build(),
-                s1c.getId(),
+                flowResponse.getId(),
                 1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Cevapla")
-                        .description("İşletme tarafından şikayeti cevaplandır")
+
+        StepResponse sOnayla = stepService.save(
+                StepRequest.builder()
+                        .name("Aktivasyon")
+                        .description("Kullanıcı aktivasyonu")
+                        .stepTypeId(StepTypeService.Normal.getId())
+                        .statusId(0)
                         .enabled(true)
-                        .nextStepId(s3c.getId())
-                        .permissionId(4l)
+                        .canAddDocument(false)
+                        .canAddMessage(false)
                         .build(),
-                s2c.getId(),
+                flowResponse.getId(),
                 1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Bilgi, Belge Talebi")
-                        .description("İşletme tarafından tüketiciden bilgi, belge talebi")
+
+        StepResponse sBitir = stepService.save(
+                StepRequest.builder()
+                        .name("Bitir")
+                        .description("Kullanıcı oluşturuldu")
+                        .stepTypeId(StepTypeService.Complete.getId())
+                        .statusId(0)
                         .enabled(true)
-                        .nextStepId(s21c.getId())
-                        .permissionId(4l)
+                        .canAddDocument(false)
+                        .canAddMessage(false)
                         .build(),
-                s2c.getId(),
+                flowResponse.getId(),
                 1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Bilgi Ekle")
-                        .description("Tüketici tarafından bilgi eklenmesi")
+
+        ActionResponse aKaydol = actionService.save(
+                ActionRequest.builder()
+                        .name("Kayıt Ol")
+                        .description("Kayıt olmak için tıklayınız")
                         .enabled(true)
-                        .nextStepId(s2c.getId())
-                        .permissionId(2l)
+                        .actionTargetTypeId(ActionTargetTypeService.IslemYapan.getId())
+                        .nextStepId(sOnayla.getId())
                         .build(),
-                s21c.getId(),
+                sBasla.getId(),
                 1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("İtiraz Et")
-                        .description("Tüketici tarafından işletme cevabına 1.itiraz edilmesi")
+
+        ActionResponse aAktiflestir = actionService.save(
+                ActionRequest.builder()
+                        .name("Onayla")
+                        .description("Aktivasyon için tıklayınız")
                         .enabled(true)
-                        .nextStepId(s4c.getId())
-                        .permissionId(2l)
+                        .actionTargetTypeId(ActionTargetTypeService.IslemYapan.getId())
+                        .nextStepId(sBitir.getId())
                         .build(),
-                s3c.getId(),
+                sOnayla.getId(),
                 1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Kapat")
-                        .description("Tüketici tarafından şikayetin kapatılması")
+
+        ActionResponse aYeniAktiflestirme = actionService.save(
+                ActionRequest.builder()
+                        .name("Aktivasyon Kodu Gönder")
+                        .description("Aktivasyon kodu göndermek için tıklayınız")
                         .enabled(true)
-                        .nextStepId(s11c.getId())
-                        .permissionId(2l)
+                        .actionTargetTypeId(ActionTargetTypeService.IslemYapan.getId())
+                        .nextStepId(sOnayla.getId())
                         .build(),
-                s3c.getId(),
+                sOnayla.getId(),
                 1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Cevapla")
-                        .description("İşletme tarafından şikayeti cevaplandır")
-                        .enabled(true)
-                        .nextStepId(s5c.getId())
-                        .permissionId(4l)
+
+        ActionNotificationResponse nOlusturma = actionNotificationService.save(
+                ActionNotificationRequest.builder()
+                        .subject("Aktivasyon")
+                        .message("Kullanıcınız oluşturuldu. Aktivasyon işlemi için tıklayınız")
                         .build(),
-                s4c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Bilgi, Belge Talebi")
-                        .description("İşletme tarafından tüketiciden bilgi, belge talebi")
-                        .enabled(true)
-                        .nextStepId(s41c.getId())
-                        .permissionId(4l)
+                aKaydol.getId());
+
+        ActionNotificationResponse nAktivasyon = actionNotificationService.save(
+                ActionNotificationRequest.builder()
+                        .subject("Aktivasyon")
+                        .message("Aktivasyon işlemi için tıklayınız")
                         .build(),
-                s4c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Bilgi Ekle")
-                        .description("Tüketici tarafından bilgi eklenmesi")
-                        .enabled(true)
-                        .nextStepId(s4c.getId())
-                        .permissionId(2l)
+                aYeniAktiflestirme.getId());
+
+        actionNotificationTargetService.save(
+                ActionNotificationTargetRequest.builder()
+                        .actionNotificationTargetTypeId(ActionNotificationTargetTypeService.IsiOlusturan.getId())
                         .build(),
-                s41c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("İtiraz Et")
-                        .description("Tüketici tarafından işletme cevabına 2.itiraz edilmesi")
-                        .enabled(true)
-                        .nextStepId(s6c.getId())
-                        .permissionId(2l)
+                nOlusturma.getId());
+
+        actionNotificationTargetService.save(
+                ActionNotificationTargetRequest.builder()
+                        .actionNotificationTargetTypeId(ActionNotificationTargetTypeService.IsiOlusturan.getId())
                         .build(),
-                s5c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Cevapla")
-                        .description("İşletme tarafından şikayeti cevaplandır")
-                        .enabled(true)
-                        .nextStepId(s7c.getId())
-                        .permissionId(4l)
-                        .build(),
-                s6c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Bilgi, Belge Talebi")
-                        .description("İşletme tarafından tüketiciden bilgi, belge talebi")
-                        .enabled(true)
-                        .nextStepId(s61c.getId())
-                        .permissionId(4l)
-                        .build(),
-                s6c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Bilgi Ekle")
-                        .description("Tüketici tarafından bilgi eklenmesi")
-                        .enabled(true)
-                        .nextStepId(s6c.getId())
-                        .permissionId(2l)
-                        .build(),
-                s61c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("İtiraz Et")
-                        .description("Tüketici tarafından işletme cevabına 3.itiraz edilmesi")
-                        .enabled(true)
-                        .nextStepId(s8c.getId())
-                        .permissionId(2l)
-                        .build(),
-                s7c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Cevapla")
-                        .description("Şikayetin kurum tarafından cevaplanması")
-                        .enabled(true)
-                        .nextStepId(s8c.getId())
-                        .permissionId(5l)
-                        .build(),
-                s8c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Bilgi, Belge Talep Et")
-                        .description("Kurum tarafından işletmeden bilgi,belge talep edilmesi")
-                        .enabled(true)
-                        .nextStepId(s9c.getId())
-                        .permissionId(5l)
-                        .build(),
-                s8c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Kapat")
-                        .description("Şikayetin kurum tarafından kapatılması")
-                        .enabled(true)
-                        .nextStepId(s11c.getId())
-                        .permissionId(5l)
-                        .build(),
-                s8c.getId(),
-                1l);
-        actionService.save(ActionRequest
-                        .builder()
-                        .name("Bilgi, Belge Gönder")
-                        .description("İşletme tarafından kurumun bilgi,belge talebinin cevaplanması")
-                        .enabled(true)
-                        .nextStepId(s8c.getId())
-                        .permissionId(4l)
-                        .build(),
-                s9c.getId(),
-                1l);
+                nAktivasyon.getId());
+
     }
+
 }

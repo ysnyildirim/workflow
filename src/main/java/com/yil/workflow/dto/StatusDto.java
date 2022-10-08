@@ -16,4 +16,5 @@ import java.io.Serializable;
 public class StatusDto implements Serializable {
     private Integer id;
     private String name;
+    private String description;
 }

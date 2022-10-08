@@ -8,6 +8,7 @@ import com.yil.workflow.exception.ActionTargetTypeNotFoundException;
 import com.yil.workflow.model.ActionTargetType;
 import com.yil.workflow.repository.ActionTargetTypeDao;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,16 +32,19 @@ public class ActionTargetTypeService {
         return dto;
     }
 
+    @Cacheable(value = "actionTargetType", key = "#id")
     @Transactional(readOnly = true)
     public ActionTargetType findById(Integer id) throws ActionTargetTypeNotFoundException {
         return actionTargetTypeDao.findById(id).orElseThrow(ActionTargetTypeNotFoundException::new);
     }
 
+    @Cacheable(value = "actionTargetType_exists", key = "#id")
     @Transactional(readOnly = true)
     public boolean existsById(Integer id) {
         return actionTargetTypeDao.existsById(id);
     }
 
+    @Cacheable(value = "actionTargetType")
     @Transactional(readOnly = true)
     public List<ActionTargetType> findAll() {
         return actionTargetTypeDao.findAll();

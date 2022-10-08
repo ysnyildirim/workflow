@@ -66,7 +66,7 @@ public class TaskService {
     @Transactional(rollbackFor = {Throwable.class})
     public TaskResponse replace(TaskBaseRequest request, long taskId, long userId) throws TaskNotFoundException, TaskActionNotFoundException, PriorityNotFoundException {
         TaskAction lastAction = taskActionService.getLastAction(taskId);
-        if (!priorityTypeService.existsByIdAndDeletedTimeIsNull(request.getPriorityTypeId()))
+        if (!priorityTypeService.existsById(request.getPriorityTypeId()))
             throw new PriorityNotFoundException();
         Task task = findById(taskId);
         task.setPriorityTypeId(request.getPriorityTypeId());
@@ -87,7 +87,7 @@ public class TaskService {
 
     @Transactional(rollbackFor = {Throwable.class})
     public TaskResponse save(TaskRequest request, long userId) throws ActionNotFoundException, YouDoNotHavePermissionException, PriorityNotFoundException, StartUpActionException, NotNextActionException, StepNotFoundException, TaskActionNotFoundException {
-        if (!priorityTypeService.existsByIdAndDeletedTimeIsNull(request.getPriorityTypeId()))
+        if (!priorityTypeService.existsById(request.getPriorityTypeId()))
             throw new PriorityNotFoundException();
         Task task = new Task();
         task.setPriorityTypeId(request.getPriorityTypeId());

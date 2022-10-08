@@ -8,6 +8,7 @@ import com.yil.workflow.exception.ActionPermissionTypeNotFoundException;
 import com.yil.workflow.model.ActionPermissionType;
 import com.yil.workflow.repository.ActionPermissionTypeDao;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,16 +33,19 @@ public class ActionPermissionTypeService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "actionPermissionTypes", key = "#id")
     public ActionPermissionType findById(Integer id) throws ActionPermissionTypeNotFoundException {
         return actionPermissionTypeDao.findById(id).orElseThrow(ActionPermissionTypeNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "actionPermissionTypes_exists", key = "#id")
     public boolean existsById(Integer id) {
         return actionPermissionTypeDao.existsById(id);
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "actionPermissionTypes")
     public List<ActionPermissionType> findAll() {
         return actionPermissionTypeDao.findAll();
     }

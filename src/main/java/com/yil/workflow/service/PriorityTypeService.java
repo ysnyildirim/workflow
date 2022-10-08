@@ -5,6 +5,7 @@ import com.yil.workflow.exception.PriorityNotFoundException;
 import com.yil.workflow.model.PriorityType;
 import com.yil.workflow.repository.PriorityTypeDao;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,16 +28,19 @@ public class PriorityTypeService {
         return dto;
     }
 
+    @Cacheable(value = "priorityTypes", key = "#id")
     @Transactional(readOnly = true)
     public PriorityType findById(Integer id) throws PriorityNotFoundException {
         return priorityTypeDao.findById(id).orElseThrow(PriorityNotFoundException::new);
     }
 
+    @Cacheable(value = "priorityTypes_existsById", key = "#id")
     @Transactional(readOnly = true)
-    public boolean existsByIdAndDeletedTimeIsNull(Integer id) {
+    public boolean existsById(Integer id) {
         return priorityTypeDao.existsById(id);
     }
 
+    @Cacheable(value = "priorityTypes")
     @Transactional(readOnly = true)
     public List<PriorityType> findAll() {
         return priorityTypeDao.findAll();

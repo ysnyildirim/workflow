@@ -8,6 +8,7 @@ import com.yil.workflow.exception.StepTypeNotFoundException;
 import com.yil.workflow.model.StepType;
 import com.yil.workflow.repository.StepTypeDao;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,16 +30,19 @@ public class StepTypeService {
         return dto;
     }
 
+    @Cacheable(value = "stepTypes", key = "#id")
     @Transactional(readOnly = true)
     public StepType findById(Integer id) throws StepTypeNotFoundException {
         return stepTypeDao.findById(id).orElseThrow(StepTypeNotFoundException::new);
     }
 
+    @Cacheable(value = "stepTypes_existsById", key = "#id")
     @Transactional(readOnly = true)
     public boolean existsById(Integer stepTypeId) {
         return stepTypeDao.existsById(stepTypeId);
     }
 
+    @Cacheable(value = "stepTypes_existsById")
     @Transactional(readOnly = true)
     public List<StepType> findAll() {
         return stepTypeDao.findAll();

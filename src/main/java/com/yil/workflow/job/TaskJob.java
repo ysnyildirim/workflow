@@ -32,7 +32,7 @@ public class TaskJob {
     private final PropertiesDao propertiesDao;
     private FlowDto[] startupFlows = null;
 
-    @Scheduled(fixedRate = 25, initialDelay = 3 * 1000)
+   // @Scheduled(fixedRate = 25, initialDelay = 3 * 1000)
     public void finish() {
         for (long i = 1; i <= 1000; i++) {
             if (isClosed())
@@ -143,13 +143,13 @@ public class TaskJob {
         return s.toString();
     }
 
-    @Scheduled(fixedDelay = 15 * 1000, initialDelay = 1 * 500)
+  //  @Scheduled(fixedDelay = 15 * 1000, initialDelay = 1 * 500)
     public void controlClosed() {
         Properties properties = propertiesDao.findById(1).orElse(null);
         stopped = properties.getValue().equals("0");
     }
 
-    @Scheduled(fixedDelay = 1000, initialDelay = 1 * 1000)
+   // @Scheduled(fixedDelay = 1000, initialDelay = 1 * 1000)
     public void generate() {
         if (isClosed())
             return;

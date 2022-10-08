@@ -8,6 +8,7 @@ import com.yil.workflow.exception.ActionNotificationTargetTypeNotFoundException;
 import com.yil.workflow.model.ActionNotificationTargetType;
 import com.yil.workflow.repository.ActionNotificationTargetTypeDao;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,16 +31,19 @@ public class ActionNotificationTargetTypeService {
         return dto;
     }
 
+    @Cacheable(value = "actionNotificationTargetType", key = "#id")
     @Transactional(readOnly = true)
     public ActionNotificationTargetType findById(Integer id) throws ActionNotificationTargetTypeNotFoundException {
         return actionNotificationTargetTypeDao.findById(id).orElseThrow(ActionNotificationTargetTypeNotFoundException::new);
     }
 
+    @Cacheable(value = "actionNotificationTargetType_exists", key = "#id")
     @Transactional(readOnly = true)
     public boolean existsById(Integer id) {
         return actionNotificationTargetTypeDao.existsById(id);
     }
 
+    @Cacheable(value = "actionNotificationTargetType")
     @Transactional(readOnly = true)
     public List<ActionNotificationTargetType> findAll() {
         return actionNotificationTargetTypeDao.findAll();
