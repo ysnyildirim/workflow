@@ -38,7 +38,7 @@ public class StepService {
     }
 
     @Transactional(readOnly = true)
-    public List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(long flowId, int stepTypeId) {
+    public List<Step> findAllByFlowIdAndStepTypeIdAndEnabledTrue(long flowId, int stepTypeId) {
         return stepDao.findAllByFlowIdAndStepTypeIdAndEnabledTrue(flowId, stepTypeId);
     }
 

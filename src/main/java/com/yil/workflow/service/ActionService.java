@@ -33,7 +33,6 @@ public class ActionService {
         dto.setName(entity.getName());
         dto.setStepId(entity.getStepId());
         dto.setNextStepId(entity.getNextStepId());
-        dto.setPermissionId(entity.getPermissionId());
         return dto;
     }
 
@@ -66,7 +65,6 @@ public class ActionService {
         action.setDescription(request.getDescription());
         action.setEnabled(request.getEnabled());
         action.setNextStepId(request.getNextStepId());
-        action.setPermissionId(request.getPermissionId());
         action.setActionTargetTypeId(request.getActionTargetTypeId());
         if (ActionTargetTypeService.BelirliBiri.getId().equals(request.getActionTargetTypeId())) {
             action.setNextUserId(request.getNextUserId());
@@ -110,16 +108,18 @@ public class ActionService {
 
     public List<Action> getStartActions(long flowId, long userId) {
         List<Action> availableActions = new ArrayList<>();
-        List<Step> stepList = stepService.findAllByFlowIdAndStepTypeIdAndEnabledTrueAndDeletedTimeIsNull(flowId, StepTypeService.Start.getId());
+        List<Step> stepList = stepService.findAllByFlowIdAndStepTypeIdAndEnabledTrue(flowId, StepTypeService.Start.getId());
         for (Step step : stepList) {
             List<Action> actions = findAllByStepIdAndEnabledTrue(step.getId());
             for (Action action : actions) {
-                if (actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.Herkes.getId()).build())) {
+                if (actionPermissionService.existsAllByActionIdAndActionPermissionTypeId(action.getId(), ActionPermissionTypeService.Herkes.getId())) {
                     availableActions.add(action);
-                } else if (action.getPermissionId() != null &&
-                           actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.YetkisiOlan.getId()).build()) &&
-                           accountService.existsPermission(action.getPermissionId(), userId)) {
-                    availableActions.add(action);
+                } else {
+                    List<ActionPermission> actionPermissions = actionPermissionService.findAllByActionIdAndActionPermissionTypeId(action.getId(), ActionPermissionTypeService.YetkisiOlan.getId());
+                    for (ActionPermission actionPermission : actionPermissions) {
+                        if (accountService.existsPermission(actionPermission.getPermissionId(), userId))
+                            availableActions.add(action);
+                    }
                 }
             }
         }

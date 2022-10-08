@@ -63,8 +63,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         initActionNotificationTargetType();
         initProperties();
         try {
-            //initSikayetFlow();
-           // for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
+            // for (int i = 0; i < 100; i++) generateFlow(new Random().nextLong(1, 50));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -224,6 +223,18 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         addProperties(Properties.builder().id(1).description("Auto task generator").value("0").build());
     }
 
+    private void addStatus(Status status) {
+        if (statusDao.existsById(status.getId()))
+            return;
+        statusDao.save(status);
+    }
+
+    private void addProperties(Properties properties) {
+        if (propertiesDao.existsById(properties.getId()))
+            return;
+        propertiesDao.save(properties);
+    }
+
     @Transactional(rollbackFor = {Throwable.class})
     public void generateFlow(long userId) throws Exception {
         FlowRequest request = new FlowRequest();
@@ -260,7 +271,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 actionRequest.setDescription(randomString(100));
                 actionRequest.setEnabled(true);
                 actionRequest.setNextStepId(nextStepId);
-                actionRequest.setPermissionId(null);
                 if (j == 0 || step.getStepTypeId().equals(StepTypeService.Start.getId())) {
                     actionRequest.setActionTargetTypeId(ActionTargetTypeService.BelirliBiri.getId());
                     actionRequest.setNextUserId(new Random().nextLong(2, 1001));
@@ -294,8 +304,14 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                     if (new Random().nextBoolean() || j == 0)
                         targetTypes.add(ActionPermissionTypeService.Atanan.getId());
                 }
-                for (Integer item : targetTypes)
-                    actionPermissionDao.save(ActionPermission.builder().id(ActionPermission.Pk.builder().actionId(actionResponse.getId()).actionPermissionTypeId(item).build()).build());
+                for (Integer item : targetTypes) {
+                    ActionPermission actionPermission = new ActionPermission();
+                    actionPermission.setActionPermissionTypeId(item);
+                    actionPermission.setActionId(actionResponse.getId());
+                    if (item.equals(ActionPermissionTypeService.YetkisiOlan.getId()))
+                        actionPermission.setPermissionId(1l);
+                    actionPermissionDao.save(actionPermission);
+                }
                 for (int m = 0; m < new Random().nextInt(1, 6); m++) {
                     ActionNotification actionNotification = ActionNotification
                             .builder()
@@ -317,18 +333,6 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
                 }
             }
         }
-    }
-
-    private void addStatus(Status status) {
-        if (statusDao.existsById(status.getId()))
-            return;
-        statusDao.save(status);
-    }
-
-    private void addProperties(Properties properties) {
-        if (propertiesDao.existsById(properties.getId()))
-            return;
-        propertiesDao.save(properties);
     }
 
     public static String randomString(int i) {

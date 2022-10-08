@@ -24,4 +24,8 @@ public class AccountService {
         ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(h2), String.class, Map.of("id", userId, "permissionId", permissionId));
         return responseEntity.getStatusCode().equals(HttpStatus.OK);
     }
+
+    public boolean existsPermission(long permissionId) {
+        return true;
+    }
 }

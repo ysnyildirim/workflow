@@ -97,23 +97,28 @@ public class TaskActionService {
     private boolean hasPermission(long taskId, long userId, TaskAction lastTaskAction, Action action) {
         if (lastTaskAction != null &&
             lastTaskAction.getAssignedUserId().equals(userId) &&
-            actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.Atanan.getId()).build())) {
+            actionPermissionService.existsAllByActionIdAndActionPermissionTypeId(action.getId(), ActionPermissionTypeService.Atanan.getId())) {
             return true;
         } else if (lastTaskAction != null &&
                    lastTaskAction.getCreatedUserId().equals(userId) &&
-                   actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.SonIslemYapan.getId()).build())) {
+                   actionPermissionService.existsAllByActionIdAndActionPermissionTypeId(action.getId(), ActionPermissionTypeService.SonIslemYapan.getId())) {
             return true;
-        } else if (actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.Herkes.getId()).build())) {
+        } else if (actionPermissionService.existsAllByActionIdAndActionPermissionTypeId(action.getId(), ActionPermissionTypeService.Herkes.getId())) {
             return true;
-        } else if (actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.Olusturan.getId()).build()) &&
+        } else if (actionPermissionService.existsAllByActionIdAndActionPermissionTypeId(action.getId(), ActionPermissionTypeService.Olusturan.getId()) &&
                    taskActionDao.isTaskCreatedUser(taskId, userId)) {
             return true;
-        } else if (actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.IslemYapanlar.getId()).build()) &&
+        } else if (actionPermissionService.existsAllByActionIdAndActionPermissionTypeId(action.getId(), ActionPermissionTypeService.IslemYapanlar.getId()) &&
                    taskActionDao.existsByTaskIdAndCreatedUserId(taskId, userId)) {
             return true;
-        } else return action.getPermissionId() != null &&
-                      actionPermissionService.existsById(ActionPermission.Pk.builder().actionId(action.getId()).actionPermissionTypeId(ActionPermissionTypeService.YetkisiOlan.getId()).build()) &&
-                      accountService.existsPermission(action.getPermissionId(), userId);
+        } else {
+            List<ActionPermission> actionPermissions = actionPermissionService.findAllByActionIdAndActionPermissionTypeId(action.getId(), ActionPermissionTypeService.YetkisiOlan.getId());
+            for (ActionPermission actionPermission : actionPermissions) {
+                if (accountService.existsPermission(actionPermission.getPermissionId(), userId))
+                    return true;
+            }
+        }
+        return false;
     }
 
     /**

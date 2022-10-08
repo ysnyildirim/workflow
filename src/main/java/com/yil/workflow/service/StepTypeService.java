@@ -38,8 +38,8 @@ public class StepTypeService {
 
     @Cacheable(value = "stepTypes_existsById", key = "#id")
     @Transactional(readOnly = true)
-    public boolean existsById(Integer stepTypeId) {
-        return stepTypeDao.existsById(stepTypeId);
+    public boolean existsById(Integer id) {
+        return stepTypeDao.existsById(id);
     }
 
     @Cacheable(value = "stepTypes_existsById")

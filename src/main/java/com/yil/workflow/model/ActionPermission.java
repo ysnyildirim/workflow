@@ -3,13 +3,14 @@
  */
 package com.yil.workflow.model;
 
+import com.yil.workflow.base.IEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Data
 @Entity
@@ -17,19 +18,19 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @Table(schema = "WFS", name = "ACTION_PERMISSION")
-public class ActionPermission {
-    @EmbeddedId
-    private Pk id;
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Embeddable
-    public static class Pk implements Serializable {
-        @Column(name = "ACTION_ID", nullable = false)
-        private Long actionId;
-        @Column(name = "ACTION_PERMISSION_TYPE_ID", nullable = false)
-        private Integer actionPermissionTypeId;
-    }
+public class ActionPermission implements IEntity {
+    @Id
+    @SequenceGenerator(name = "ACTION_PERMISSION_SEQUENCE_GENERATOR",
+            sequenceName = "SEQ_ACTION_PERMISSION_ID",
+            schema = "WFS")
+    @GeneratedValue(generator = "ACTION_PERMISSION_SEQUENCE_GENERATOR")
+    @Column(name = "ID")
+    private Integer id;
+    @Column(name = "ACTION_ID", nullable = false)
+    private Long actionId;
+    @Column(name = "ACTION_PERMISSION_TYPE_ID", nullable = false)
+    private Integer actionPermissionTypeId;
+    @Comment(value = "Kullanıcının Bu aksiyonu kullanabilmesi için gerekli yetki idsi")
+    @Column(name = "PERMISSION_ID")
+    private Long permissionId;
 }

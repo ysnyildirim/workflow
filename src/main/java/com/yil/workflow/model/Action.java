@@ -38,9 +38,6 @@ public class Action implements IEntity {
     @Comment(value = "Aksiyonun sonraki adımı")
     @Column(name = "NEXT_STEP_ID", nullable = false)
     private Long nextStepId;
-    @Comment(value = "Kullanıcının Bu aksiyonu kullanabilmesi için gerekli yetki idsi")
-    @Column(name = "PERMISSION_ID")
-    private Long permissionId;
     @Comment(value = "Oluşturulma tarihi")
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATED_TIME", nullable = false)
