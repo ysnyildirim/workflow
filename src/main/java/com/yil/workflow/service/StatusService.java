@@ -39,6 +39,7 @@ public class StatusService {
         return statusDao.existsById(id);
     }
 
+    @Transactional
     @CacheEvict(value = "status", allEntries = true)
     public Status save(StatusRequest request, Long authenticatedUserId) {
         Status status = new Status();
@@ -47,6 +48,7 @@ public class StatusService {
         return statusDao.save(status);
     }
 
+    @Transactional
     @CacheEvict(value = "status", allEntries = true)
     public Status replace(FlowRequest request, Integer id, Long authenticatedUserId) throws StatusNotFoundException {
         Status status = findById(id);
@@ -63,6 +65,7 @@ public class StatusService {
     }
 
     @CacheEvict(value = "status", allEntries = true)
+    @Transactional
     public void delete(Integer id, Long authenticatedUserId) {
         statusDao.deleteById(id);
     }

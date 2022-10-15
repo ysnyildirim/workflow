@@ -67,14 +67,12 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
     private void initStatus() {
-        addStatus(Status.builder().id(1).name("Start").description("Started").build());
-        addStatus(Status.builder().id(2).name("Continue").description("Continue").build());
-        addStatus(Status.builder().id(3).name("Finished").description("Finished").build());
+        statusDao.save(Status.builder().id(1).name("Start").description("Started").build());
+        statusDao.save(Status.builder().id(2).name("Continue").description("Continue").build());
+        statusDao.save(Status.builder().id(3).name("Finished").description("Finished").build());
     }
 
     private void initPriorityTypes() {
@@ -220,19 +218,7 @@ public class SetupDataLoader implements ApplicationListener<ContextStartedEvent>
     }
 
     private void initProperties() {
-        addProperties(Properties.builder().id(1).description("Auto task generator").value("0").build());
-    }
-
-    private void addStatus(Status status) {
-        if (statusDao.existsById(status.getId()))
-            return;
-        statusDao.save(status);
-    }
-
-    private void addProperties(Properties properties) {
-        if (propertiesDao.existsById(properties.getId()))
-            return;
-        propertiesDao.save(properties);
+        propertiesDao.save(Properties.builder().id(1).description("Auto task generator").value("0").build());
     }
 
     @Transactional(rollbackFor = {Throwable.class})

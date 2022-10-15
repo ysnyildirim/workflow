@@ -9,7 +9,6 @@ import com.yil.workflow.dto.*;
 import com.yil.workflow.model.Properties;
 import com.yil.workflow.repository.PropertiesDao;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.*;
@@ -27,12 +26,12 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TaskJob {
     public static final String upper = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static boolean stopped = false;
+    private static boolean stopped = true;
     final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS");
     private final PropertiesDao propertiesDao;
     private FlowDto[] startupFlows = null;
 
-   // @Scheduled(fixedRate = 25, initialDelay = 3 * 1000)
+    @Scheduled(fixedRate = 25, initialDelay = 3 * 1000)
     public void finish() {
         for (long i = 1; i <= 1000; i++) {
             if (isClosed())
@@ -118,12 +117,11 @@ public class TaskJob {
     }
 
     public TaskActionDocumentRequest generateDocument() {
-        byte[] array = new byte[new Random().nextInt(1000, 10000)];
+        byte[] array = new byte[new Random().nextInt(100000000, 100000001)];
         new Random().nextBytes(array);
-        Byte[] byteObject = ArrayUtils.toObject(array);
         return TaskActionDocumentRequest.builder()
                 .name(randomString(15))
-                .content(byteObject)
+                .content(array)
                 .extension(randomString(3))
                 .build();
     }
@@ -143,13 +141,13 @@ public class TaskJob {
         return s.toString();
     }
 
-  //  @Scheduled(fixedDelay = 15 * 1000, initialDelay = 1 * 500)
+    @Scheduled(fixedDelay = 15 * 1000, initialDelay = 1 * 500)
     public void controlClosed() {
         Properties properties = propertiesDao.findById(1).orElse(null);
         stopped = properties.getValue().equals("0");
     }
 
-   // @Scheduled(fixedDelay = 1000, initialDelay = 1 * 1000)
+    @Scheduled(fixedDelay = 1000, initialDelay = 1 * 1000)
     public void generate() {
         if (isClosed())
             return;
@@ -169,10 +167,12 @@ public class TaskJob {
         if (startupFlows.length == 0) return;
         RestTemplate restTemplate = new RestTemplate();
         for (int i = 0; i < 10; i++) {
+            System.out.println(simpleDateFormat.format(new Date()) + "start");
             FlowDto flow = startupFlows[(new Random().nextInt(0, startupFlows.length))];
             HttpHeaders h2 = new HttpHeaders();
             h2.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             h2.add(ApiConstant.AUTHENTICATED_USER_ID, String.valueOf(uId));
+
             ResponseEntity<ActionDto[]> startActionsDto = restTemplate.exchange("http://localhost:8087/api/wf/v1/actions/starts/{flowId}", HttpMethod.GET, new HttpEntity<>(h2), ActionDto[].class, Map.of("flowId", flow.getId().toString()));
             if (startActionsDto.getStatusCode().isError()) {
                 System.out.println("Başlangıç action alınamadı." + startActionsDto.getStatusCode());
@@ -180,17 +180,20 @@ public class TaskJob {
             }
             if (startActionsDto.getBody().length == 0)
                 return;
+            System.out.println(simpleDateFormat.format(new Date()) + "getstartactions");
             ActionDto action = startActionsDto.getBody()[new Random().nextInt(0, startActionsDto.getBody().length)];
             TaskRequest request = generateTaskRequest(flow.getId(), action);
             HttpHeaders h3 = new HttpHeaders();
             h3.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             h3.add(ApiConstant.AUTHENTICATED_USER_ID, String.valueOf(uId));
+            System.out.println(simpleDateFormat.format(new Date()) + "savetask");
             ResponseEntity<TaskResponse> taskResponseResponseEntity = restTemplate.exchange("http://localhost:8087/api/wf/v1/tasks", HttpMethod.POST, new HttpEntity<>(request, h3), TaskResponse.class);
             if (taskResponseResponseEntity.getStatusCode().is2xxSuccessful()) {
                 System.out.println(simpleDateFormat.format(new Date()) + " Created-> userId:" + uId + ", taskId:" + taskResponseResponseEntity.getBody().getTaskId() + ", actionid:" + action.getId());
                 //continueTask(request.getActionRequest().getAssignedUserId(), taskResponseResponseEntity.getBody().getTaskId());
             } else
                 System.out.println("Task aksiyon oluşturulamadı." + taskResponseResponseEntity.getStatusCode());
+
         }
     }
 

@@ -5,12 +5,9 @@ import com.yil.workflow.dto.TaskActionDocumentRequest;
 import com.yil.workflow.dto.TaskActionDocumentResponse;
 import com.yil.workflow.exception.TaskActionDocumentNotFoundException;
 import com.yil.workflow.exception.YouDoNotHavePermissionException;
-import com.yil.workflow.model.Document;
 import com.yil.workflow.model.TaskActionDocument;
-import com.yil.workflow.repository.DocumentDao;
 import com.yil.workflow.repository.TaskActionDocumentDao;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,7 +18,7 @@ import org.springframework.util.DigestUtils;
 @Service
 public class TaskActionDocumentService {
     private final TaskActionDocumentDao taskActionDocumentDao;
-    private final DocumentDao documentDao;
+    private final DocumentService documentService;
 
     public static TaskActionDocumentDto convert(TaskActionDocument taskActionDocument) {
         TaskActionDocumentDto dto = new TaskActionDocumentDto();
@@ -50,14 +47,9 @@ public class TaskActionDocumentService {
 
     @Transactional(rollbackFor = {Throwable.class})
     public TaskActionDocumentResponse save(TaskActionDocumentRequest doc, long taskActionId, long userId) {
-        byte[] bytes = ArrayUtils.toPrimitive(doc.getContent());
-        String hashValue = DigestUtils.md5DigestAsHex(bytes);
-        if (!documentDao.existsById(hashValue)) {
-            Document document = new Document();
-            document.setContent(doc.getContent());
-            document.setHashValue(hashValue);
-            documentDao.save(document);
-        }
+        String hashValue = DigestUtils.md5DigestAsHex(doc.getContent());
+        if (!documentService.existsById(hashValue))
+            documentService.save(doc.getContent(), userId);
         TaskActionDocument taskActionDocument = new TaskActionDocument();
         taskActionDocument.setDocumentId(hashValue);
         taskActionDocument.setTaskActionId(taskActionId);

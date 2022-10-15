@@ -16,6 +16,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class ActionPermissionTypeService {
     public static ActionPermissionType Herkes;
     public static ActionPermissionType Atanan;
@@ -32,19 +33,16 @@ public class ActionPermissionTypeService {
         return dto;
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "actionPermissionTypes", key = "#id")
     public ActionPermissionType findById(Integer id) throws ActionPermissionTypeNotFoundException {
         return actionPermissionTypeDao.findById(id).orElseThrow(ActionPermissionTypeNotFoundException::new);
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "actionPermissionTypes_exists", key = "#id")
     public boolean existsById(Integer id) {
         return actionPermissionTypeDao.existsById(id);
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "actionPermissionTypes")
     public List<ActionPermissionType> findAll() {
         return actionPermissionTypeDao.findAll();

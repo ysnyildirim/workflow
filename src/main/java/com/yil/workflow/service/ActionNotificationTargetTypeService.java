@@ -16,6 +16,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class ActionNotificationTargetTypeService {
     public static ActionNotificationTargetType BelirliBiri;
     public static ActionNotificationTargetType IsiOlusturan;
@@ -24,7 +25,7 @@ public class ActionNotificationTargetTypeService {
     public static ActionNotificationTargetType IslemYapanFarkliSonKisi;
     private final ActionNotificationTargetTypeDao actionNotificationTargetTypeDao;
 
-    public static ActionNotificationTargetTypeDto convert(ActionNotificationTargetType entity) {
+    public static ActionNotificationTargetTypeDto toDto(ActionNotificationTargetType entity) {
         ActionNotificationTargetTypeDto dto = new ActionNotificationTargetTypeDto();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
@@ -32,19 +33,16 @@ public class ActionNotificationTargetTypeService {
     }
 
     @Cacheable(value = "actionNotificationTargetType", key = "#id")
-    @Transactional(readOnly = true)
     public ActionNotificationTargetType findById(Integer id) throws ActionNotificationTargetTypeNotFoundException {
         return actionNotificationTargetTypeDao.findById(id).orElseThrow(ActionNotificationTargetTypeNotFoundException::new);
     }
 
     @Cacheable(value = "actionNotificationTargetType_exists", key = "#id")
-    @Transactional(readOnly = true)
     public boolean existsById(Integer id) {
         return actionNotificationTargetTypeDao.existsById(id);
     }
 
     @Cacheable(value = "actionNotificationTargetType")
-    @Transactional(readOnly = true)
     public List<ActionNotificationTargetType> findAll() {
         return actionNotificationTargetTypeDao.findAll();
     }

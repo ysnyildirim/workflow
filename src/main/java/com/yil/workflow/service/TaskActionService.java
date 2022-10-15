@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,8 +52,12 @@ public class TaskActionService {
             if (!actionService.existsByIdAndNextStepId(lastTaskAction.getActionId(), step.getId()))
                 throw new NotNextActionException();
         }
+
+        System.out.println(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS").format(new Date()) + "taskaction 1");
         if (!hasPermission(taskId, userId, lastTaskAction, action))
             throw new YouDoNotHavePermissionException();
+
+        System.out.println(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS").format(new Date()) + "taskaction 2");
         TaskAction taskAction = new TaskAction();
         taskAction.setTaskId(taskId);
         taskAction.setActionId(request.getActionId());
@@ -77,12 +82,17 @@ public class TaskActionService {
         taskAction.setCreatedUserId(userId);
         taskAction.setCreatedTime(new Date());
         taskAction = taskActionDao.save(taskAction);
+
+        System.out.println(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS").format(new Date()) + "taskaction 2");
         if (step.isCanAddDocument() && request.getDocuments() != null)
             for (TaskActionDocumentRequest doc : request.getDocuments())
                 taskActionDocumentService.save(doc, taskAction.getId(), userId);
+
+        System.out.println(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS").format(new Date()) + "taskaction 3");
         if (step.isCanAddMessage() && request.getMessages() != null)
             for (TaskActionMessageRequest message : request.getMessages())
                 taskActionMessageService.save(message, taskAction.getId(), userId);
+        System.out.println(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS").format(new Date()) + "taskaction 4");
         //Tamamlanma adımında kapatalım
         if (stepService.existsByIdAndStepTypeId(action.getNextStepId(), StepTypeService.Complete.getId())) {
             Task task = taskDao.findById(taskId).orElse(null);
@@ -91,6 +101,8 @@ public class TaskActionService {
                 taskDao.save(task);
             }
         }
+
+        System.out.println(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS").format(new Date()) + "taskaction 5");
         return taskAction;
     }
 

@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/api/wf/v1/priorities")
@@ -19,9 +21,8 @@ public class PriorityController {
 
     @GetMapping
     @ResponseStatus(value = HttpStatus.OK)
-    public ResponseEntity<PriorityTypeDto[]> findAll() {
-        PriorityTypeDto[] dto = mapper.map(priorityTypeService.findAll()).toArray(PriorityTypeDto[]::new);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<List<PriorityTypeDto>> findAll() {
+        return ResponseEntity.ok(mapper.map(priorityTypeService.findAll()));
     }
 
     @GetMapping(value = "/{id}")

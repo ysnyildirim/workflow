@@ -11,11 +11,13 @@ import com.yil.workflow.repository.ActionDao;
 import com.yil.workflow.repository.ActionPermissionDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ActionPermissionService {
     private final ActionPermissionDao actionPermissionDao;
     private final ActionPermissionTypeService actionPermissionTypeService;
@@ -59,7 +61,7 @@ public class ActionPermissionService {
         return actionPermissionDao.findAllByActionId(actionId);
     }
 
-    public void deleteById( int id) {
+    public void deleteById(int id) {
         actionPermissionDao.deleteById(id);
     }
 

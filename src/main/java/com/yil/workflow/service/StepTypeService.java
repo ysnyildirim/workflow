@@ -16,6 +16,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class StepTypeService {
     public static StepType Start;
     public static StepType Normal;
@@ -31,19 +32,16 @@ public class StepTypeService {
     }
 
     @Cacheable(value = "stepTypes", key = "#id")
-    @Transactional(readOnly = true)
     public StepType findById(Integer id) throws StepTypeNotFoundException {
         return stepTypeDao.findById(id).orElseThrow(StepTypeNotFoundException::new);
     }
 
     @Cacheable(value = "stepTypes_existsById", key = "#id")
-    @Transactional(readOnly = true)
     public boolean existsById(Integer id) {
         return stepTypeDao.existsById(id);
     }
 
     @Cacheable(value = "stepTypes_existsById")
-    @Transactional(readOnly = true)
     public List<StepType> findAll() {
         return stepTypeDao.findAll();
     }

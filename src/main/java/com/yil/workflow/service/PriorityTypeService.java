@@ -13,6 +13,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class PriorityTypeService {
     public static PriorityType Yuksek;
     public static PriorityType Orta;
@@ -29,19 +30,16 @@ public class PriorityTypeService {
     }
 
     @Cacheable(value = "priorityTypes", key = "#id")
-    @Transactional(readOnly = true)
     public PriorityType findById(Integer id) throws PriorityNotFoundException {
         return priorityTypeDao.findById(id).orElseThrow(PriorityNotFoundException::new);
     }
 
     @Cacheable(value = "priorityTypes_existsById", key = "#id")
-    @Transactional(readOnly = true)
     public boolean existsById(Integer id) {
         return priorityTypeDao.existsById(id);
     }
 
     @Cacheable(value = "priorityTypes")
-    @Transactional(readOnly = true)
     public List<PriorityType> findAll() {
         return priorityTypeDao.findAll();
     }

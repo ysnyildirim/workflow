@@ -16,7 +16,10 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(schema = "WFS", name = "ACTION_NOTIFICATION_TARGET")
+@Table(schema = "WFS", name = "ACTION_NOTIFICATION_TARGET",
+        indexes = {
+                @Index(name = "IDX_ACTION_NOTIFICATION_TARGET", columnList = "ACTION_NOTIFICATION_ID")
+        })
 public class ActionNotificationTarget implements IEntity {
     @Id
     @SequenceGenerator(name = "ACTION_NOTIFICATION_TARGET_SEQUENCE_GENERATOR",

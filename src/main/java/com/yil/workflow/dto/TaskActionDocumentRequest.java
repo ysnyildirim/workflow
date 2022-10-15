@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class TaskActionDocumentRequest {
     @NotNull
-    private Byte[] content;
+    private byte[] content;
     @NotBlank
     private String name;
     @NotBlank

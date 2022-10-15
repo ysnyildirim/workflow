@@ -7,6 +7,10 @@ import com.yil.workflow.model.ActionNotification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ActionNotificationDao extends JpaRepository<ActionNotification, Long> {
+
+    List<ActionNotification> findAllByActionId(Long actionId);
 }

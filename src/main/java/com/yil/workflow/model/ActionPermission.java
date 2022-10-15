@@ -17,7 +17,10 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(schema = "WFS", name = "ACTION_PERMISSION")
+@Table(schema = "WFS", name = "ACTION_PERMISSION",
+        indexes = {
+                @Index(name = "IDX_ACTION_PERMISSION", columnList = "ACTION_ID,ACTION_PERMISSION_TYPE_ID")
+        })
 public class ActionPermission implements IEntity {
     @Id
     @SequenceGenerator(name = "ACTION_PERMISSION_SEQUENCE_GENERATOR",

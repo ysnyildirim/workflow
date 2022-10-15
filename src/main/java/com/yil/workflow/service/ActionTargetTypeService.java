@@ -16,6 +16,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class ActionTargetTypeService {
     public static ActionTargetType Ozel;
     public static ActionTargetType BelirliBiri;
@@ -33,19 +34,16 @@ public class ActionTargetTypeService {
     }
 
     @Cacheable(value = "actionTargetType", key = "#id")
-    @Transactional(readOnly = true)
     public ActionTargetType findById(Integer id) throws ActionTargetTypeNotFoundException {
         return actionTargetTypeDao.findById(id).orElseThrow(ActionTargetTypeNotFoundException::new);
     }
 
     @Cacheable(value = "actionTargetType_exists", key = "#id")
-    @Transactional(readOnly = true)
     public boolean existsById(Integer id) {
         return actionTargetTypeDao.existsById(id);
     }
 
     @Cacheable(value = "actionTargetType")
-    @Transactional(readOnly = true)
     public List<ActionTargetType> findAll() {
         return actionTargetTypeDao.findAll();
     }

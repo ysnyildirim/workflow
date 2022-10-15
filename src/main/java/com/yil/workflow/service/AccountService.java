@@ -16,13 +16,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AccountService {
     public boolean existsPermission(long permissionId, long userId) {
-        RestTemplate restTemplate = new RestTemplate();
+        return true;
+       /* RestTemplate restTemplate = new RestTemplate();
         HttpHeaders h2 = new HttpHeaders();
         h2.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         h2.add(ApiConstant.AUTHENTICATED_USER_ID, String.valueOf(1));
         String uri = "http://localhost:8082/api/account/v1/users/{id}/permission-id={permissionId}";
         ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(h2), String.class, Map.of("id", userId, "permissionId", permissionId));
-        return responseEntity.getStatusCode().equals(HttpStatus.OK);
+        return responseEntity.getStatusCode().equals(HttpStatus.OK);*/
     }
 
     public boolean existsPermission(long permissionId) {

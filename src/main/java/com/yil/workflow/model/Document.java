@@ -18,5 +18,5 @@ public class Document implements IEntity {
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "CONTENT", nullable = false)
-    private Byte[] content;
+    private byte[] content;
 }
