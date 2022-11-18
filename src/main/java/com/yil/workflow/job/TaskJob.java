@@ -31,7 +31,7 @@ public class TaskJob {
     private final PropertiesDao propertiesDao;
     private FlowDto[] startupFlows = null;
 
-    @Scheduled(fixedRate = 25, initialDelay = 3 * 1000)
+  //  @Scheduled(fixedRate = 25, initialDelay = 3 * 1000)
     public void finish() {
         for (long i = 1; i <= 1000; i++) {
             if (isClosed())
