@@ -34,7 +34,7 @@ public class TaskActionService {
     public static TaskActionDto convert(TaskAction taskAction) {
         TaskActionDto dto = new TaskActionDto();
         dto.setId(taskAction.getId());
-        dto.setTaskActionId(taskAction.getId());
+        dto.setTaskActionId(taskAction.getActionId());
         dto.setTaskId(taskAction.getTaskId());
         return dto;
     }
